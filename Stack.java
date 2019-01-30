@@ -5,6 +5,16 @@ public class Stack<E> implements StackInterface<E>, Iterable<E> {
 	private int size = 0;
 	private Node<E> top;
 	
+	private static class Node<E> {
+		private E data;
+		private Node<E> next;
+		
+		public Node(E d, Node<E> n) {
+			data = d;
+			next = n;
+		}
+	}
+	
 	public Stack() {
 		top = null;
 	}
@@ -22,7 +32,7 @@ public class Stack<E> implements StackInterface<E>, Iterable<E> {
 	@Override
 	public E top() {
 		if (isEmpty()) {return null;}
-		return top.getData();
+		return top.data;
 	}
 
 	@Override
@@ -39,8 +49,8 @@ public class Stack<E> implements StackInterface<E>, Iterable<E> {
 	@Override
 	public E pop() {
 		if (isEmpty()) {return null;}
-		E temp = top.getData();
-		top = top.getNext();
+		E temp = top.data;
+		top = top.next;
 		size--;
 		return temp;
 	}
@@ -62,8 +72,8 @@ public class Stack<E> implements StackInterface<E>, Iterable<E> {
 
 		@Override
 		public T next() {
-			T temp = curr.getData();
-			curr = curr.getNext();
+			T temp = curr.data;
+			curr = curr.next;
 			pos++;
 			return temp;
 		}
