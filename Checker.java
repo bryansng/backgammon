@@ -2,19 +2,31 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 
-public class Checker extends Position {
+/**
+ * This class represents the Checker object in Backgammon.
+ * @author Bryan Sng
+ * @email sngby98@gmail.com
+ *
+ */
+public class Checker {
 	private Image img;
 	
-	public Checker() {
-		this(0, 0, "WHITE");
-	}
-	
-	public Checker(double x, double y, String colour) {
-		//setPos(x, y);
+	/**
+	 * Default Constructor
+	 * 		- Initialize the img instance variable of the checker.
+	 * @param colour of checker.
+	 */
+	public Checker(String colour) {
 		initImg(colour);
 	}
 	
+	/**
+	 * - Get the image of the checker.
+	 * - Initialize img instance variable.
+	 * @param color of checker.
+	 */
 	public void initImg(String color) {
 		FileInputStream input = null;
 		try {
@@ -28,20 +40,14 @@ public class Checker extends Position {
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		//img = Functions.scale(new Image(input), Settings.getScale());
 		img = new Image(input);
 	}
-	
-	public Image getImg() {
-		return img;
-	}
-	
-	public Position getPos() {
-		return new Position(getX(), getY());
-	}
-	
-	public void setPos(double x, double y) {
-		setX(x);
-		setY(y);
+
+	/**
+	 * Returns the an ImageView of the img instance variable.
+	 * @return ImageView of the checker image.
+	 */
+	public ImageView getChecker() {
+		return new ImageView(img);
 	}
 }
