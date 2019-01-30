@@ -5,15 +5,7 @@
 
 # But not these files...
 !.gitignore
-!Board.java
-!Checker.java
-!Main.java
-!Node.java
-!Point.java
-!PointOverflowException.java
-!Settings.java
-!Stack.java
-!StackInterface.java
+!board.png
 
 # And not these folders...
 !/img/
