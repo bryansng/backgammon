@@ -1,3 +1,4 @@
+package game_engine;
 
 public interface StackInterface<E> {
 	boolean isEmpty();

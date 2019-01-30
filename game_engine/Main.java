@@ -1,13 +1,17 @@
+package game_engine;
+
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.HBox;
-
+import javafx.scene.layout.VBox;
 import javafx.application.Application;
 import javafx.stage.Stage;
+import javafx.event.ActionEvent;
 
 
 public class Main extends Application {
@@ -26,7 +30,6 @@ public class Main extends Application {
 		// Board.
 		Board board = new Board();
 		
-		/*
 		// Information Panel.
 		infoPnl = new TextArea();
 		infoPnl.setEditable(false);
@@ -52,49 +55,44 @@ public class Main extends Application {
 			printToInfoPanel("Rolling Dice.");
 		});
 
-		// Information panel + roll dice button.
+		// Information panel + roll dice button + command panel.
 		VBox right = new VBox();
-		right.getChildren().addAll(infoPnl, rollBtn);
+		right.getChildren().addAll(infoPnl, rollBtn, cmdPnl);
 		
-		// Game + right (info panel + roll dice button)
-		HBox top = new HBox();
-		top.getChildren().addAll(board.getShape(), right);
-		
-		// Top + Bottom.
-		VBox main = new VBox();
-		main.getChildren().addAll(top, cmdPnl);
-		*/
+		// Game + right (info panel + roll dice button + command panel)
+		HBox main = new HBox();
+		main.getChildren().addAll(board.getBoard(), right);
 		
 		// root Layout.
 		HBox root = new HBox();
-		//root.getChildren().add(main);
-		root.getChildren().add(board.getBoard());
+		root.getChildren().add(main);
 		
 		Scene scene = new Scene(root);
 		//Scene scene = new Scene(root, Settings.getScreenWidth(), Settings.getScreenHeight()); // width, height.
-		//scene.setFill(Color.TRANSPARENT);
 
 		stage.setScene(scene);	// add scene with layout.
 		stage.setTitle("Backgammon");
 		
-		//stage.initStyle(StageStyle.TRANSPARENT); // could be used to make it full screen.
 		stage.setResizable(false);
-		// stage.setFullScreen(true);
 		stage.show();
 		
-		//setRollDiceAccelarator(rollBtn, infoPnl);
+		setRollDiceAccelarator(rollBtn);
 	}
 	
-	
-	// Print string to information panel.
+	/**
+	 * Prints the given text to the information panel.
+	 * @param text - string to be printed
+	 */
 	private void printToInfoPanel(String text) {
 		// Appends text to information panel.
 		infoPnl.appendText(text + "\n");
 	}
 	
-	
-	// Bind shortcut CTRL+R key combination to roll dice.
-	private void setRollDiceAccelarator(Button button, TextArea infoPnl) {
+	/**
+	 * Binds shortcut CTRL+R key combination to the roll dice button.
+	 * @param button roll dice button.
+	 */
+	private void setRollDiceAccelarator(Button button) {
 		Scene scene = button.getScene();
 		if (scene == null) {
 			throw new IllegalArgumentException("Roll Dice Button not attached to a scene.");

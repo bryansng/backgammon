@@ -1,3 +1,5 @@
+package game_engine;
+
 import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.FileInputStream;

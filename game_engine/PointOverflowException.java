@@ -1,3 +1,4 @@
+package game_engine;
 
 /* Source:
  * https://stackoverflow.com/questions/1754315/how-to-create-custom-exceptions-in-java
