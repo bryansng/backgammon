@@ -1,0 +1,20 @@
+# Ignores everything, i.e. root files & root directories.
+/*
+/*/
+/img/backup/
+
+# But not these files...
+!.gitignore
+!Board.java
+!Checker.java
+!Main.java
+!Node.java
+!Point.java
+!PointOverflowException.java
+!Settings.java
+!Stack.java
+!StackInterface.java
+
+# And not these folders...
+!/img/
+!/game_engine/
