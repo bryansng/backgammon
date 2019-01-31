@@ -23,12 +23,12 @@ public class Main extends Application {
 		
 		// Components
 		VBox board = new Board().getBoard();
-		TextArea infoPanel = new InfoPanel().getInfoPanel();
-		Button rollDie = new RollDie().getButton();
-		TextArea commandPanel = new CommandPanel().getCommandPanel();
+		TextArea infoPanel = new InfoPanel();
+		Button rollDie = new RollDie();
+		TextArea commandPanel = new CommandPanel();
 		
 		// Pane
-		GridPane layout = new Layout().addToLayout(board, infoPanel, rollDie, commandPanel);
+		GridPane layout = new Layout(board, infoPanel, rollDie, commandPanel);
 				
 		// Scene
 		Scene scene = new Scene(layout);

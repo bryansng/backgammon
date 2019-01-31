@@ -9,23 +9,14 @@ import javafx.scene.control.TextArea;
  *
  */
 
-public class InfoPanel {
-	public TextArea infoPanel;
+public class InfoPanel extends TextArea {
 	
 	private final double HEIGHT = 500;
 	
 	public InfoPanel() {
-		setInfoPanel(new TextArea("> " + "Welcome to Backgammon!\n"));	
-		infoPanel.setMinHeight(HEIGHT);
-		infoPanel.setEditable(false);
-		infoPanel.setWrapText(true);
-	}
-	
-	public void setInfoPanel(TextArea InfoPanel) {
-		this.infoPanel = InfoPanel;
-	}
-	
-	public TextArea getInfoPanel() {
-		return infoPanel;
+		super("> " + "Welcome to Backgammon!\n");	
+		setMinHeight(HEIGHT);
+		setEditable(false);
+		setWrapText(true);
 	}
 }

@@ -9,20 +9,11 @@ import javafx.scene.control.TextArea;
  *
  */
 
-public class CommandPanel {
-	private TextArea commandPanel;
+public class CommandPanel extends TextArea {
 	
 	public CommandPanel () {
-		setCommandPanel(new TextArea());
-		commandPanel.setWrapText(true);
-		commandPanel.setPromptText("Player inputs text here, then hit Enter\n");
+		super();
+		setWrapText(true);
+		setPromptText("Player inputs text here, then hit Enter\n");
 	}	
-	
-	public TextArea getCommandPanel() {
-		return commandPanel;
-	}
-	
-	public void setCommandPanel(TextArea commandPanel) {
-		this.commandPanel = commandPanel;
-	}
 }
