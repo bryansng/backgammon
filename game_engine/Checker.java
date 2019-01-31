@@ -14,6 +14,8 @@ import javafx.scene.image.ImageView;
  */
 public class Checker {
 	private Image img;
+	private Image img_highlight; 
+	private boolean isHighlight;
 	
 	/**
 	 * Default Constructor
@@ -29,20 +31,25 @@ public class Checker {
 	 * - Initialize img instance variable.
 	 * @param color of checker.
 	 */
-	public void initImg(String color) {
-		FileInputStream input = null;
+	private void initImg(String color) {
+		FileInputStream input1 = null;
+		FileInputStream input2 = null;
 		try {
 			if (color.equals("BLACK")) {
-				input = new FileInputStream("src/img/checkers/black_checkers.png");
+				input1 = new FileInputStream("src/img/checkers/black_checkers.png");
+				input2 = new FileInputStream("src/img/checkers/black_checkers_highlighted.png");
 			}
 			else if (color.equals("WHITE")) {
-				input = new FileInputStream("src/img/checkers/white_checkers.png");
+				input1 = new FileInputStream("src/img/checkers/white_checkers.png");
+				input2 = new FileInputStream("src/img/checkers/white_checkers_highlighted.png");
 			}
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		img = new Image(input);
+		img = new Image(input1);
+		img_highlight = new Image(input2);
+		isHighlight = false;
 	}
 
 	/**
@@ -50,6 +57,20 @@ public class Checker {
 	 * @return ImageView of the checker image.
 	 */
 	public ImageView getChecker() {
-		return new ImageView(img);
+		if (!isHighlight) {
+			return new ImageView(img);
+		} else {
+			return new ImageView(img_highlight);
+		}
+	}
+	
+	// change point object background with the highlighted one.
+	public void setHighlightImage() {
+		isHighlight = true;
+	}
+	
+	// change point object background with the non-highlighted one.
+	public void setNormalImage() {
+		isHighlight = false;
 	}
 }

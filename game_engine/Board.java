@@ -86,16 +86,8 @@ public class Board{
 	 * Returns the board instance variable.
 	 * @return the board.
 	 */
-	public VBox getBoard() {
+	public VBox getNode() {
 		return board;
-	}
-	
-	/**
-	 * Returns the points instance variable.
-	 * @return the array of points.
-	 */
-	public Point[] getPoints() { 
-		return points;
 	}
 	
 	/**
@@ -211,13 +203,30 @@ public class Board{
 		// Else, from smallest to highest from left to right.
 		if (side.equals("BOTTOM"))
 			for (int i = endRange-1; i >= startRange-1; i--) {
-				set.getChildren().add(points[i].getPoint());
+				set.getChildren().add(points[i].getNode());
 			}
 		else {
 			for (int i = startRange-1; i < endRange; i++) {
-				set.getChildren().add(points[i].getPoint());
+				set.getChildren().add(points[i].getNode());
 			}
 		}
 		return set;
+	}
+	
+	// pops a checker from one pipe and push it to the other.
+	public boolean moveCheckers(int fro, int to) {
+		// Adjust indexes to zero-based.
+		fro--;
+		to--;
+		
+		boolean moved = false;
+		
+		if (!points[fro].isEmpty()) {
+			points[to].push(points[fro].pop());
+			points[to].drawCheckers();
+			points[fro].drawCheckers();
+			moved = true;
+		}
+		return moved;
 	}
 }

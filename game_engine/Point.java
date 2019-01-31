@@ -6,6 +6,7 @@ import java.io.FileNotFoundException;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 import javafx.scene.layout.VBox;
@@ -20,6 +21,8 @@ import javafx.scene.layout.VBox;
  *
  */
 public class Point extends Stack<Checker> {
+	private Image img;
+	private Image img_highlight; 
 	private VBox point;
 	
 	/**
@@ -33,25 +36,39 @@ public class Point extends Stack<Checker> {
 	 */
 	public Point(String color, double rotation) {
 		super();
-		Image img = null;
-		FileInputStream input = null;
+		FileInputStream input1 = null;
+		FileInputStream input2 = null;
 		try {
 			if (color.equals("BLACK")) {
-				input = new FileInputStream("src/img/board/black_point.png");
+				input1 = new FileInputStream("src/img/board/black_point.png");
+				input2 = new FileInputStream("src/img/board/black_point_highlighted.png");
 			}
 			else if (color.equals("WHITE")) {
-				input = new FileInputStream("src/img/board/white_point.png");
+				input1 = new FileInputStream("src/img/board/white_point.png");
+				input2 = new FileInputStream("src/img/board/white_point_highlighted.png");
 			}
+			img = new Image(input1);
+			img_highlight = new Image(input2);
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		img = new Image(input);
 		point = new VBox();
 		point.setRotate(rotation);
 		point.setAlignment(Pos.BOTTOM_CENTER);
 		// don't simply set point max and pref size, this will effect how the point is drawn.
-		point.setMinSize(img.getWidth(), img.getHeight());
+		point.setMinSize(img.getWidth(), img.getHeight());	// highlighted and non-highlighted should have the same width & height.
+		setNormalImage();
+		initPointEvents();
+	}
+	
+	// change point object background with the highlighted one.
+	public void setHighlightImage() {
+		point.setBackground(new Background(new BackgroundImage(img_highlight, null, null, null, null)));
+	}
+	
+	// change point object background with the non-highlighted one.
+	public void setNormalImage() {
 		point.setBackground(new Background(new BackgroundImage(img, null, null, null, null)));
 	}
 	
@@ -73,6 +90,9 @@ public class Point extends Stack<Checker> {
 	 * (i.e. how it will be drawn eventually on the stage).
 	 */
 	public void drawCheckers() {
+		// Clear the point object of any children.
+		point.getChildren().clear();
+		
 		// If total height of checkers greater than point, we overlap the checkers.
 		int numCheckers = size();
 		double slack = Settings.getPointSize().getHeight() * 0.2;
@@ -85,9 +105,8 @@ public class Point extends Stack<Checker> {
 			double yOffset = (diff / numCheckers);
 			for (Checker chk : this) {
 				ImageView checker = chk.getChecker();
-				// You can reverse their order by negating yOffset and add to rear instead.
-				checker.setTranslateY(yOffset*i);
-				point.getChildren().add(0, checker);	// add to the front instead of rear.
+				checker.setTranslateY(yOffset*(numCheckers-i-1));
+				point.getChildren().add(checker);
 				i++;
 			}
 		} else {
@@ -101,7 +120,18 @@ public class Point extends Stack<Checker> {
 	 * Returns the point instance variable.
 	 * @return the point.
 	 */
-	public VBox getPoint() {
+	public VBox getNode() {
 		return point;
+	}
+	
+	// handles events of the point.
+	private void initPointEvents() {
+		point.setOnMouseClicked((MouseEvent event) -> {
+			/*
+			 * 1. Checker is popped, the checker is moved along with the mouse.
+			 * 2. The next point to be clicked will be the destination where the checker should be placed.
+			 * 3. 
+			 */
+		});
 	}
 }
