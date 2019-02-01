@@ -5,21 +5,21 @@ import java.io.FileNotFoundException;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 
 /**
- * This class represents the Checker object in Backgammon.
+ * This class represents the Checker object in Backgammon from the UI POV.
+ * 
  * @author Bryan Sng
  * @email sngby98@gmail.com
  *
  */
 public class Checker extends ImageView {
 	private Image img;
-	private Image img_highlight;
+	private Image imgHighlighted;
 	
 	/**
 	 * Default Constructor
-	 * 		- Initialize the img and img_highlight instance variable of the checker.
+	 * 		- Initialize the img and img_highlighted instance variable of the checker.
 	 * @param colour of checker.
 	 */
 	public Checker(String colour) {
@@ -29,31 +29,26 @@ public class Checker extends ImageView {
 	
 	/**
 	 * - Get the image of the checker.
-	 * - Initialize img instance variable.
+	 * - Initialize img and img_highlighted instance variable.
 	 * @param color of checker.
 	 */
-	private void initImg(String color) {
+	private void initImg(String colour) {
 		FileInputStream input1 = null;
 		FileInputStream input2 = null;
+		colour.toLowerCase();
 		try {
-			if (color.equals("BLACK")) {
-				input1 = new FileInputStream("src/img/checkers/black_checkers.png");
-				input2 = new FileInputStream("src/img/checkers/black_checkers_highlighted.png");
-			}
-			else if (color.equals("WHITE")) {
-				input1 = new FileInputStream("src/img/checkers/white_checkers.png");
-				input2 = new FileInputStream("src/img/checkers/white_checkers_highlighted.png");
-			}
-		}
-		catch (FileNotFoundException e) {
+				input1 = new FileInputStream("src/img/checkers/" + colour + "_checkers.png");
+				input2 = new FileInputStream("src/img/checkers/" + colour + "_checkers_highlighted.png");
+		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		img = new Image(input1);
-		img_highlight = new Image(input2);
+		imgHighlighted = new Image(input2);
 		setNormalImage();
 		setListeners();
 	}
 	
+	// IGNORE THIS FOR NOW, I JUST MIGHT NEED IT IN THE FUTURE.
 	// catch the event, and not let the event dispatch chain reach the checkers.
 	private void setListeners() {
 		/*
@@ -68,12 +63,16 @@ public class Checker extends ImageView {
 		*/
 	}
 	
-	// change point object background with the highlighted one.
+	/**
+	 * Use the highlighted image.
+	 */
 	public void setHighlightImage() {
-		setImage(img_highlight);
+		setImage(imgHighlighted);
 	}
 	
-	// change point object background with the non-highlighted one.
+	/**
+	 * Use the normal image (i.e. image that is not highlighted).
+	 */
 	public void setNormalImage() {
 		setImage(img);
 	}

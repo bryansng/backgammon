@@ -27,11 +27,12 @@ public class Point extends Stack<Checker> {
 	
 	/**
 	 * Default Constructor
-	 * 		- Get the image of the point.
-	 * 		- Initialize point object.
-	 * 		- Set point object's transformation, alignment, size, etc.
-	 * 		- Set that image to be the background of the point object.
-	 * @param color - color of the point.
+	 * 		- Initialize the img and img_highlighted instance variable of the checker.
+	 * 		- Set this point's transformation, alignment, size, etc.
+	 * 		- Set that img to be the background of this point.
+	 * 		- Initialize this point's listeners.
+	 * 
+	 * @param color of the point.
 	 * @param rotation either 0 or 180. 0 = pointing upwards. 180 = pointing downwards. 
 	 */
 	public Point(String color, double rotation, int pointNum) {
@@ -62,20 +63,27 @@ public class Point extends Stack<Checker> {
 		setListeners();
 	}
 	
-	// If point is mouse clicked, it fires an event and shall be detected by MainController.
-	// Along with the event, the point number is passed in as the parameter to MainControlller.
+	/**
+	 * Manages the listener of point.
+	 */
 	private void setListeners() {
+		// Fires an event to MainController's point listener when this point is mouse clicked.
+		// Along with the event, the point number is passed in as the parameter to MainController.
 		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 			this.fireEvent(new PointSelectedEvent(pointNum));
 		});
 	}
 	
-	// change point object background with the highlighted one.
+	/**
+	 * Use the highlighted image.
+	 */
 	public void setHighlightImage() {
 		setBackground(new Background(new BackgroundImage(img_highlight, null, null, null, null)));
 	}
-	
-	// change point object background with the non-highlighted one.
+
+	/**
+	 * Use the normal image (i.e. image that is not highlighted).
+	 */
 	public void setNormalImage() {
 		setBackground(new Background(new BackgroundImage(img, null, null, null, null)));
 	}
@@ -124,6 +132,10 @@ public class Point extends Stack<Checker> {
 		}
 	}
 	
+	/**
+	 * Returns the pointNum instance variable (the number the point represents).
+	 * @return the pointNum instance variable.
+	 */
 	public int getPointNumber() {
 		return pointNum;
 	}

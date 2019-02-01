@@ -19,7 +19,9 @@ public class Board extends VBox {
 	private Point[] points;
 	private HBox topPart, bottomPart, jail;
 	private BorderPane leftBoard, rightBoard;
-	// private BorderPane leftHome, rightHome;
+	private HBox leftDice, rightDice;
+	private Dices dices;
+	private VBox leftHome, rightHome;
 	
 	/**
 	 * Default Constructor
@@ -31,13 +33,15 @@ public class Board extends VBox {
 		points = new Point[MAXPOINTS];
 		leftBoard = new BorderPane();
 		rightBoard = new BorderPane();
-		// homes
+		leftHome = new VBox();
+		rightHome = new VBox();
 		topPart = new HBox();
 		bottomPart = new HBox();
 		jail = new HBox();
 		
 		initBoard();
 		initPoints();
+		drawDices();
 	}
 	
 	/**
@@ -45,32 +49,28 @@ public class Board extends VBox {
 	 * i.e. initializing the board layout.
 	 */
 	public void initBoard() {
-		// the left and right board that make up the entire board.
 		double halfBoardWidth = Settings.getHalfBoardSize().getWidth(); 
-		double halfBoardHeight = Settings.getHalfBoardSize().getHeight(); 
-		leftBoard.setPrefSize(halfBoardWidth, halfBoardHeight);
-		leftBoard.setStyle("-fx-background-color: forestgreen;");
+		double halfBoardHeight = Settings.getHalfBoardSize().getHeight();
+		double pointWidth = Settings.getPointSize().getWidth();
 		
+		// the left and right board that make up the entire board.
+		leftBoard.setPrefSize(halfBoardWidth, halfBoardHeight);
 		rightBoard.setPrefSize(halfBoardWidth, halfBoardHeight);
+		leftBoard.setStyle("-fx-background-color: forestgreen;");
 		rightBoard.setStyle("-fx-background-color: forestgreen;");
 		
-		/*
-		Rectangle lH = new Rectangle(65, 270); 
-		Rectangle rH = new Rectangle(65, 270); 
-		lH.setFill(Color.FORESTGREEN);
-		rH.setFill(Color.FORESTGREEN);
-		leftHome.getChildren().add(lH);
-		rightHome.getChildren().add(rH);
-		*/
+		// left and right homes.
+		leftHome.setPrefSize(pointWidth, halfBoardHeight);
+		rightHome.setPrefSize(pointWidth, halfBoardHeight);
 		
 		// the jail for the checkers.
-		jail.setPrefSize(Settings.getPointSize().getWidth(), halfBoardHeight);
+		jail.setPrefSize(pointWidth, halfBoardHeight);
 		jail.setStyle("-fx-background-color: transparent;");
 		
 		// where the game is.
 		HBox middlePart = new HBox();
-		//middle.getChildren().addAll(leftHome, leftBoard, jail, rightBoard, rightHome);
-		middlePart.getChildren().addAll(leftBoard, jail, rightBoard);
+		middlePart.getChildren().addAll(leftHome, leftBoard, jail, rightBoard, rightHome);
+		//middlePart.getChildren().addAll(leftBoard, jail, rightBoard);
 		
 		// Top and bottom, where players' name and score goes.
 		topPart.setPrefSize(middlePart.getWidth(), Settings.getTopBottomHeight());
@@ -80,6 +80,55 @@ public class Board extends VBox {
 		
 		getChildren().addAll(topPart, middlePart, bottomPart);
 		setStyle("-fx-background-color: saddlebrown;");
+	}
+	
+	/**
+	 * 
+	 */
+	private void drawDices() {
+		/** IGNORE THIS ATM, currently considering to use red for all,
+		 * then when its the player's turn then change the dice to that
+		 * player's side than to create new HBox of dices.
+		 * 
+		 * left uses red.
+		 * right uses black.
+		 */
+		dices = new Dices("RED");
+		//rightDice = new Dices("BLACK");
+	}
+	
+	/**
+	 * 
+	 * 
+	 * playerNum is currently zero-based indexing.
+	 * 1 is the player with the perspective from the bottom, dices will be on the left.
+	 * 2 is the player with the perspective from the top, dices will be on the right.
+	 * 
+	 * @param playerNum - integer that represents which player it is. (i.e. player 1 or 2).
+	 * @return
+	 */
+	public int[] rollDices(int playerNum) {
+		int[] res = null;
+		
+		switch (playerNum) {
+			case 1:
+				leftDice = dices;
+				rightDice = null;
+				res = dices.getTotalRoll();
+				break;
+			case 2:
+				leftDice = null;
+				rightDice = dices;
+				res = dices.getTotalRoll();
+				break;
+			default:
+				leftDice = null;
+				rightDice = null;
+		}
+		leftBoard.setCenter(leftDice);
+		rightBoard.setCenter(rightDice);
+		
+		return res;
 	}
 	
 	/**
@@ -205,24 +254,41 @@ public class Board extends VBox {
 		return set;
 	}
 	
+	/**
+	 * Returns the points instance variable (array of points).
+	 * @return the points instance variable.
+	 */
 	public Point[] getPoints() {
 		return points;
 	}
 	
-	// pops a checker from one pipe and push it to the other.
+	/**
+	 * Moves a checker between points.
+	 * i.e. pops a checker from one point and push it to the other.
+	 * 
+	 * @param fro, one-based index, the point number to pop from.
+	 * @param to, one-based index, the point number to push to.
+	 * @return
+	 */
 	public boolean moveCheckers(int fro, int to) {
-		// Adjust indexes to zero-based.
+		// Adjust indexes to zero-based indexing.
 		fro--;
 		to--;
-		
 		boolean moved = false;
 		
+		// if point has no checkers, no point to pop or push. 
 		if (!points[fro].isEmpty()) {
 			points[to].push(points[fro].pop());
 			points[to].drawCheckers();
 			points[fro].drawCheckers();
 			moved = true;
 		}
+		
+		// boolean value is returned instead of void,
+		// is because this provides flexibility in the future
+		// where we can print to the info panel telling the user
+		// that their move was invalid, and that they should
+		// try another move.
 		return moved;
 	}
 }

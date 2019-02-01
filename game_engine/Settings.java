@@ -81,4 +81,16 @@ public class Settings {
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
 	}
+	
+	/**
+	 * Returns the size of the dice based on its image.
+	 * @return size of dice.
+	 */
+	public static Dimension getDiceSize() {
+		Image img = new Image(getFile("src/img/dices/black/1.png"));
+		
+		Dimension d = new Dimension();
+		d.setSize(img.getWidth(), img.getHeight());
+		return d;
+	}
 }
