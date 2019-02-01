@@ -2,12 +2,10 @@ package game_engine;
 
 import javafx.scene.control.TextArea;
 
-public class InformationPanel {
-	private TextArea infoPnl;
-	
-	public InformationPanel() {
-		infoPnl = new TextArea();
-		infoPnl.setEditable(false);
+public class InfoPanel extends TextArea {
+	public InfoPanel() {
+		super();
+		setEditable(false);
 	}
 	
 	/**
@@ -16,10 +14,6 @@ public class InformationPanel {
 	 */
 	public void print(String text) {
 		// Appends text to information panel.
-		infoPnl.appendText(text + "\n");
-	}
-	
-	public TextArea getNode() {
-		return infoPnl;
+		appendText(text + "\n");
 	}
 }

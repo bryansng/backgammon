@@ -1,27 +1,40 @@
 # Ignores everything, i.e. root files & root directories.
 /*
 /*/
+/*/*
 
 # But not these files...
 !.gitignore
 
-!MainController.java
+# Main
+!/game_engine/Main.java
 
-!Board.java
-!Checker.java
-!Main.java
-!Node.java
-!Point.java
-!PointOverflowException.java
-!Settings.java
-!Stack.java
-!StackInterface.java
+# Game components
+!/game_engine/MainController.java
+!/game_engine/Board.java
+!/game_engine/Point.java
+!/game_engine/Checker.java
+!/game_engine/Settings.java
+!/game_engine/Stack.java
+!/game_engine/StackInterface.java
 
-!InformationPanel.java
-!CommmandPanel.java
-!RollDiceButton.java
+# UI components
+!/game_engine/InfoPanel.java
+!/game_engine/CommmandPanel.java
+!/game_engine/RollDiceButton.java
+
+# Events
+!/events/PointEvent.java
+!/events/PointHandler.java
+!/events/PointSelectedEvent.java
+
+# Exceptions
+!/exceptions/PointOverflowException.java
+!/exceptions/TargetNotPointException.java
 
 
 # And not these folders...
 !/img/
 !/game_engine/
+!/events/
+!/exceptions/

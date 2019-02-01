@@ -2,14 +2,8 @@ package game_engine;
 
 import javafx.scene.control.Button;
 
-public class RollDiceButton {
-	private Button rollBtn;
-	
+public class RollDiceButton extends Button {
 	public RollDiceButton() {
-		rollBtn = new Button("Roll Dice");
-	}
-	
-	public Button getNode() {
-		return rollBtn;
+		super("Roll Dice");
 	}
 }

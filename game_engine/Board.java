@@ -14,10 +14,9 @@ import javafx.scene.layout.VBox;
  * @email sngby98@gmail.com
  *
  */
-public class Board{
+public class Board extends VBox {
 	private final int MAXPOINTS = 24;
 	private Point[] points;
-	private VBox board;
 	private HBox topPart, bottomPart, jail;
 	private BorderPane leftBoard, rightBoard;
 	// private BorderPane leftHome, rightHome;
@@ -28,8 +27,8 @@ public class Board{
 	 * 		- Initializes points with their initial checkers.
 	 */
 	public Board() {
+		super();
 		points = new Point[MAXPOINTS];
-		board = new VBox();
 		leftBoard = new BorderPane();
 		rightBoard = new BorderPane();
 		// homes
@@ -43,6 +42,7 @@ public class Board{
 	
 	/**
 	 * Initializes the board, by adding the modular panes to the board instance variable.
+	 * i.e. initializing the board layout.
 	 */
 	public void initBoard() {
 		// the left and right board that make up the entire board.
@@ -78,16 +78,8 @@ public class Board{
 		bottomPart.setPrefSize(middlePart.getWidth(), Settings.getTopBottomHeight());
 		bottomPart.setStyle("-fx-background-color: transparent;");
 		
-		board.getChildren().addAll(topPart, middlePart, bottomPart);
-		board.setStyle("-fx-background-color: saddlebrown;");
-	}
-	
-	/**
-	 * Returns the board instance variable.
-	 * @return the board.
-	 */
-	public VBox getNode() {
-		return board;
+		getChildren().addAll(topPart, middlePart, bottomPart);
+		setStyle("-fx-background-color: saddlebrown;");
 	}
 	
 	/**
@@ -125,9 +117,9 @@ public class Board{
 			
 			// Handles point color.
 			if ((i+1) % 2 != 0) {
-				points[i] = new Point("BLACK", rotation);
+				points[i] = new Point("BLACK", rotation, i);
 			} else {
-				points[i] = new Point("WHITE", rotation);
+				points[i] = new Point("WHITE", rotation, i);
 			}
 			
 			switch (i) {
@@ -203,14 +195,18 @@ public class Board{
 		// Else, from smallest to highest from left to right.
 		if (side.equals("BOTTOM"))
 			for (int i = endRange-1; i >= startRange-1; i--) {
-				set.getChildren().add(points[i].getNode());
+				set.getChildren().add(points[i]);
 			}
 		else {
 			for (int i = startRange-1; i < endRange; i++) {
-				set.getChildren().add(points[i].getNode());
+				set.getChildren().add(points[i]);
 			}
 		}
 		return set;
+	}
+	
+	public Point[] getPoints() {
+		return points;
 	}
 	
 	// pops a checker from one pipe and push it to the other.

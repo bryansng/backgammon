@@ -3,13 +3,13 @@ package game_engine;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
+import events.PointSelectedEvent;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
-import javafx.scene.layout.VBox;
 
 /**
  * This class represents the Point/Pipe object in Backgammon.
@@ -23,7 +23,7 @@ import javafx.scene.layout.VBox;
 public class Point extends Stack<Checker> {
 	private Image img;
 	private Image img_highlight; 
-	private VBox point;
+	private int pointNum;
 	
 	/**
 	 * Default Constructor
@@ -34,8 +34,9 @@ public class Point extends Stack<Checker> {
 	 * @param color - color of the point.
 	 * @param rotation either 0 or 180. 0 = pointing upwards. 180 = pointing downwards. 
 	 */
-	public Point(String color, double rotation) {
+	public Point(String color, double rotation, int pointNum) {
 		super();
+		this.pointNum = pointNum;
 		FileInputStream input1 = null;
 		FileInputStream input2 = null;
 		try {
@@ -53,23 +54,30 @@ public class Point extends Stack<Checker> {
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-		point = new VBox();
-		point.setRotate(rotation);
-		point.setAlignment(Pos.BOTTOM_CENTER);
+		setRotate(rotation);
+		setAlignment(Pos.BOTTOM_CENTER);
 		// don't simply set point max and pref size, this will effect how the point is drawn.
-		point.setMinSize(img.getWidth(), img.getHeight());	// highlighted and non-highlighted should have the same width & height.
+		setMinSize(img.getWidth(), img.getHeight());	// highlighted and non-highlighted should have the same width & height.
 		setNormalImage();
-		initPointEvents();
+		setListeners();
+	}
+	
+	// If point is mouse clicked, it fires an event and shall be detected by MainController.
+	// Along with the event, the point number is passed in as the parameter to MainControlller.
+	private void setListeners() {
+		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+			this.fireEvent(new PointSelectedEvent(pointNum));
+		});
 	}
 	
 	// change point object background with the highlighted one.
 	public void setHighlightImage() {
-		point.setBackground(new Background(new BackgroundImage(img_highlight, null, null, null, null)));
+		setBackground(new Background(new BackgroundImage(img_highlight, null, null, null, null)));
 	}
 	
 	// change point object background with the non-highlighted one.
 	public void setNormalImage() {
-		point.setBackground(new Background(new BackgroundImage(img, null, null, null, null)));
+		setBackground(new Background(new BackgroundImage(img, null, null, null, null)));
 	}
 	
 	/**
@@ -91,7 +99,7 @@ public class Point extends Stack<Checker> {
 	 */
 	public void drawCheckers() {
 		// Clear the point object of any children.
-		point.getChildren().clear();
+		getChildren().clear();
 		
 		// If total height of checkers greater than point, we overlap the checkers.
 		int numCheckers = size();
@@ -104,34 +112,19 @@ public class Point extends Stack<Checker> {
 			int i = 0;
 			double yOffset = (diff / numCheckers);
 			for (Checker chk : this) {
-				ImageView checker = chk.getChecker();
+				ImageView checker = chk;
 				checker.setTranslateY(yOffset*(numCheckers-i-1));
-				point.getChildren().add(checker);
+				getChildren().add(checker);
 				i++;
 			}
 		} else {
 			for (Checker chk : this) {
-				point.getChildren().add(chk.getChecker());
+				getChildren().add(chk);
 			}
 		}
 	}
 	
-	/**
-	 * Returns the point instance variable.
-	 * @return the point.
-	 */
-	public VBox getNode() {
-		return point;
-	}
-	
-	// handles events of the point.
-	private void initPointEvents() {
-		point.setOnMouseClicked((MouseEvent event) -> {
-			/*
-			 * 1. Checker is popped, the checker is moved along with the mouse.
-			 * 2. The next point to be clicked will be the destination where the checker should be placed.
-			 * 3. 
-			 */
-		});
+	public int getPointNumber() {
+		return pointNum;
 	}
 }

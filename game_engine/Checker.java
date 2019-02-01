@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 /**
  * This class represents the Checker object in Backgammon.
@@ -12,17 +13,17 @@ import javafx.scene.image.ImageView;
  * @email sngby98@gmail.com
  *
  */
-public class Checker {
+public class Checker extends ImageView {
 	private Image img;
-	private Image img_highlight; 
-	private boolean isHighlight;
+	private Image img_highlight;
 	
 	/**
 	 * Default Constructor
-	 * 		- Initialize the img instance variable of the checker.
+	 * 		- Initialize the img and img_highlight instance variable of the checker.
 	 * @param colour of checker.
 	 */
 	public Checker(String colour) {
+		super();
 		initImg(colour);
 	}
 	
@@ -49,28 +50,31 @@ public class Checker {
 		}
 		img = new Image(input1);
 		img_highlight = new Image(input2);
-		isHighlight = false;
+		setNormalImage();
+		setListeners();
 	}
-
-	/**
-	 * Returns the an ImageView of the img instance variable.
-	 * @return ImageView of the checker image.
-	 */
-	public ImageView getChecker() {
-		if (!isHighlight) {
-			return new ImageView(img);
-		} else {
-			return new ImageView(img_highlight);
-		}
+	
+	// catch the event, and not let the event dispatch chain reach the checkers.
+	private void setListeners() {
+		/*
+		addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
+			event.consume();
+		});
+		
+		// stop the capturing phase, let it just reach until point, so that gettarget returns only the point, not the checkers when clicked.
+		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+			event.consume();
+		});
+		*/
 	}
 	
 	// change point object background with the highlighted one.
 	public void setHighlightImage() {
-		isHighlight = true;
+		setImage(img_highlight);
 	}
 	
 	// change point object background with the non-highlighted one.
 	public void setNormalImage() {
-		isHighlight = false;
+		setImage(img);
 	}
 }

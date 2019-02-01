@@ -2,14 +2,8 @@ package game_engine;
 
 import javafx.scene.control.TextField;
 
-public class CommandPanel {
-	private TextField cmdPnl;
-
+public class CommandPanel extends TextField {
 	public CommandPanel() {
-		cmdPnl = new TextField();
-	}
-	
-	public TextField getNode() {
-		return cmdPnl;
+		super();
 	}
 }

@@ -2,7 +2,10 @@ package game_engine;
 
 import java.util.Iterator;
 
-public class Stack<E> implements StackInterface<E>, Iterable<E> {
+import exceptions.PointOverflowException;
+import javafx.scene.layout.VBox;
+
+public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 	private final int MAXSIZE = 15;
 	private int size = 0;
 	private Node<E> top;
@@ -18,6 +21,7 @@ public class Stack<E> implements StackInterface<E>, Iterable<E> {
 	}
 	
 	public Stack() {
+		super();
 		top = null;
 	}
 

@@ -18,7 +18,7 @@ public class Main extends Application {
 	private void initStage(Stage stage) {
 		MainController root = new MainController();
 		
-		Scene scene = new Scene(root.getNode());
+		Scene scene = new Scene(root);
 
 		stage.setScene(scene);	// add scene with layout.
 		stage.setTitle("Backgammon");
