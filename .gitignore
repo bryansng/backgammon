@@ -1,23 +1,12 @@
 # Ignores everything, i.e. root files & root directories.
 /*
 /*/
-/*/*
 *.ai
 *.ini
 *.svg
 
 # But not these files...
 !.gitignore
-
-# Events
-!/events/PointEvent.java
-!/events/PointHandler.java
-!/events/PointSelectedEvent.java
-
-# Exceptions
-!/exceptions/PointOverflowException.java
-!/exceptions/TargetNotPointException.java
-
 
 # And not these folders...
 !/img/
