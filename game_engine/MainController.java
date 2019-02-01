@@ -1,16 +1,20 @@
 package game_engine;
 
 import java.util.Arrays;
-
 import events.PointHandler;
 import events.PointSelectedEvent;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.GridPane;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the entire component of the application,
@@ -20,13 +24,14 @@ import javafx.scene.layout.VBox;
  * this class is the root in the layout structure/tree.
  * 
  * @author Bryan Sng
+ * @author @LxEmily
  * @email sngby98@gmail.com
  *
  */
-public class MainController extends HBox {
+public class MainController extends GridPane {
 	private Board board;
 	private InfoPanel infoPnl;
-	private RollDiceButton rollBtn;
+	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	
 	/**
@@ -40,11 +45,33 @@ public class MainController extends HBox {
 		super();
 		board = new Board();
 		infoPnl = new InfoPanel();
-		rollBtn = new RollDiceButton();
+		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
+		style();
 		initLayout();
 		initUIListeners();
 		initPointListeners();
+	}
+	
+	/**
+	 * Style MainController (i.e. root).
+	 */
+	public void style() {
+		setStyle("-fx-font-size: 14px; -fx-font-family: 'Consolas';");
+		setPadding(new Insets(15));
+		setVgap(5);
+		setHgap(10);
+		setAlignment(Pos.CENTER);
+	}
+
+	/**
+	 * Manages the layout of the children, then adds them as the child of MainController (i.e. root).
+	 */
+	public void initLayout() {
+		add(board, 0, 0, 1, 3);
+		add(infoPnl, 1, 0);
+		add(cmdPnl, 1, 1);
+		add(rollDieBtn, 1, 2);
 	}
 	
 	/**
@@ -72,36 +99,65 @@ public class MainController extends HBox {
 	}
 	
 	/**
-	 * Manages all the UI (infoPnl, cmdPnl, rollBtn) listeners.
+	 * Manages all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
+	 * 
+	 * Methods that "listen" for actions on game components
+	 * 	- Roll die with clicks or CTRL+R
+	 * 	- Text commands
+	 * 		- quit to terminate
+	 * 		- echoes player input
+	 * 		- potential: "help" for all commands, "save" to save to txt
 	 */
 	private void initUIListeners() {
-		// Listen for entering of commands at the command panel.
+		initCommandPanelListener();
+		initRollDieButtonListener();
+	}
+	
+	private void initCommandPanelListener() {
+		/**
+		 * Listens for certain text commands from player
+		 * 	- quit to terminate game
+		 * 	- echoes player input to infoPanel
+		 */
 		cmdPnl.setOnAction((ActionEvent event) -> {
 			String text = cmdPnl.getText();
+			
 			if (text.startsWith("/")) {
 				parseCommand(cmdPnl.getText().split(" "));
+			} else if ("/quit".compareTo(text) == 0) {
+				infoPnl.print("You have quitted the game. Bye bye!");
+				Platform.exit();
+			} else {
+				infoPnl.print(text);
 			}
+			
 			cmdPnl.setText("");
 			
 			// TODO add text to a txt file containing the history of commands entered.
 			// TODO the up and down arrow should allow the user to navigate between commands.
 			// TODO upon typing up or down, set the cmdPnl with the commands.
 		});
-		
-		// Listen for mouse click at roll dice button.
-		rollBtn.setOnAction((ActionEvent event) -> {
-			infoPnl.print("Rolling Dice.");
-		});
 	}
 	
-	/**
-	 * Manages the layout of the children, then adds them as the child of MainController (i.e. root).
-	 */
-	private void initLayout() {
-		VBox UI = new VBox();
-		UI.getChildren().addAll(infoPnl, rollBtn, cmdPnl);
+	private void initRollDieButtonListener() {
+		/**
+		 * Listens for actions (i.e. mouse clicks) that roll the die
+		 * 	- Clicking on rollDie button
+		 * 	- CTRL + R shortcut key on overall scene
+		 */
+		rollDieBtn.setOnAction((ActionEvent event) -> {
+			infoPnl.print("Rolling Die.");
+		});
 		
-		getChildren().addAll(board, UI);
+		rollDieBtn.setOnMousePressed((MouseEvent event) -> {
+			// make button distinct on click with shadow on click
+			rollDieBtn.setEffect(new DropShadow());
+		});
+		
+		rollDieBtn.setOnMouseReleased((MouseEvent event) -> {
+			// remove shadow when click is released
+			rollDieBtn.setEffect(new DropShadow(0, Color.BLACK));
+		});
 	}
 	
 	/**
@@ -112,7 +168,7 @@ public class MainController extends HBox {
 	 * 
 	 * @param args the array of strings containing the command and its arguments.
 	 */
-	public void parseCommand(String[] args) {
+	private void parseCommand(String[] args) {
 		/*
 		 * Command: /move fromPipe toPipe
 		 * fromPipe and toPipe will be one-index number based.
@@ -160,7 +216,7 @@ public class MainController extends HBox {
 	 * Binds shortcut CTRL+R key combination to the roll dice button.
 	 */
 	public void setRollDiceAccelarator() {
-		Scene scene = rollBtn.getScene();
+		Scene scene = rollDieBtn.getScene();
 		if (scene == null) {
 			throw new IllegalArgumentException("Roll Dice Button not attached to a scene.");
 		}
@@ -170,10 +226,24 @@ public class MainController extends HBox {
 			new Runnable() {
 				@Override
 				public void run() {
-					rollBtn.fire();
+					rollDieBtn.fire();
 				}
 			}
 		);
+		/*
+		// CTRL+R
+		scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
+			final KeyCombination keyComb = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
+			public void handle(KeyEvent key) {
+				if (keyComb.match(key)) {
+					System.out.println("Key Pressed: " + keyComb); // for debug
+					// inform player
+					rolledDie(infoPanel);
+					key.consume(); // <-- stops passing the event to next node
+				}
+			}
+		});
+		*/
 	}
 	
 	/**

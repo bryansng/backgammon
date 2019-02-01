@@ -1,7 +1,7 @@
 package game_engine;
 
-import javafx.scene.Scene;
 import javafx.application.Application;
+import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 
@@ -12,21 +12,16 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		initStage(stage);
-	}
-	
-	private void initStage(Stage stage) {
 		MainController root = new MainController();
 		
 		Scene scene = new Scene(root);
 
-		stage.setScene(scene);	// add scene with layout.
+		stage.setScene(scene);
 		stage.setTitle("Backgammon");
-		
-		stage.setResizable(false);
 		stage.show();
 		
-		// this must be set only after stage is shown.
+		// these must be set only after stage is shown.
 		root.setRollDiceAccelarator();
+		root.requestFocus();
 	}
 }

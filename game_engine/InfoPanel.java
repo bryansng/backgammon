@@ -2,10 +2,19 @@ package game_engine;
 
 import javafx.scene.control.TextArea;
 
+/**
+ * A TextArea that displays game information.
+ * 
+ * @author @LxEmily
+ * @coauthor Bryan Sng
+ */
 public class InfoPanel extends TextArea {
 	public InfoPanel() {
-		super();
+		super("> " + "Welcome to Backgammon!\n");
+		setPrefHeight(Settings.getTopBottomHeight()*2 + Settings.getHalfBoardSize().getHeight());	
 		setEditable(false);
+		setWrapText(true);
+		setFocusTraversable(false);
 	}
 	
 	/**
@@ -14,6 +23,6 @@ public class InfoPanel extends TextArea {
 	 */
 	public void print(String text) {
 		// Appends text to information panel.
-		appendText(text + "\n");
+		appendText("> " + text + "\n");
 	}
 }
