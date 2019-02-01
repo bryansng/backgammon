@@ -2,6 +2,9 @@
 /*
 /*/
 /*/*
+*.ai
+*.ini
+*.svg
 
 # But not these files...
 !.gitignore
@@ -35,6 +38,9 @@
 
 # And not these folders...
 !/img/
+!/img/dices/
+!/img/board/
+!/img/checkers/
 !/game_engine/
 !/events/
 !/exceptions/
