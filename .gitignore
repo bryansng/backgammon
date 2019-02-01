@@ -1,12 +1,18 @@
 # Ignores everything, i.e. root files & root directories.
 /*
 /*/
-/img/backup/
+*.ai
+*.ini
+*.svg
 
 # But not these files...
 !.gitignore
-!board.png
 
 # And not these folders...
 !/img/
+!/img/dices/
+!/img/board/
+!/img/checkers/
 !/game_engine/
+!/events/
+!/exceptions/
