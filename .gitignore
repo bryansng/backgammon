@@ -9,23 +9,6 @@
 # But not these files...
 !.gitignore
 
-# Main
-!/game_engine/Main.java
-
-# Game components
-!/game_engine/MainController.java
-!/game_engine/Board.java
-!/game_engine/Point.java
-!/game_engine/Checker.java
-!/game_engine/Settings.java
-!/game_engine/Stack.java
-!/game_engine/StackInterface.java
-
-# UI components
-!/game_engine/InfoPanel.java
-!/game_engine/CommmandPanel.java
-!/game_engine/RollDiceButton.java
-
 # Events
 !/events/PointEvent.java
 !/events/PointHandler.java
