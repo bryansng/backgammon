@@ -4,9 +4,8 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
 /**
- * This class represents the Board object in Backgammon.
- * This class initializes an array of points with their starting checkers.
- * This class creates a board made out of modular panes.
+ * This class represents the game in Backgammon.
+ * This class creates a game made out of modular panes/nodes.
  * 
  * @author Bryan Sng
  * @email sngby98@gmail.com

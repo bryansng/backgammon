@@ -8,13 +8,10 @@ import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
-import javafx.scene.paint.Color;
 
 /**
  * This class represents the entire component of the application,
@@ -100,13 +97,6 @@ public class MainController extends GridPane {
 	
 	/**
 	 * Manages all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
-	 * 
-	 * Methods that "listen" for actions on game components
-	 * 	- Roll die with clicks or CTRL+R
-	 * 	- Text commands
-	 * 		- quit to terminate
-	 * 		- echoes player input
-	 * 		- potential: "help" for all commands, "save" to save to txt
 	 */
 	private void initUIListeners() {
 		initCommandPanelListener();
@@ -116,7 +106,6 @@ public class MainController extends GridPane {
 	private void initCommandPanelListener() {
 		/**
 		 * Listens for certain text commands from player
-		 * 	- quit to terminate game
 		 * 	- echoes player input to infoPanel
 		 */
 		cmdPnl.setOnAction((ActionEvent event) -> {
@@ -124,9 +113,8 @@ public class MainController extends GridPane {
 			
 			if (text.startsWith("/")) {
 				parseCommand(cmdPnl.getText().split(" "));
-			} else if ("/quit".compareTo(text) == 0) {
-				infoPnl.print("You have quitted the game. Bye bye!");
-				Platform.exit();
+			} else if (text.equals("")) {
+				// ignores if user types nothing.
 			} else {
 				infoPnl.print(text);
 			}
@@ -143,20 +131,9 @@ public class MainController extends GridPane {
 		/**
 		 * Listens for actions (i.e. mouse clicks) that roll the die
 		 * 	- Clicking on rollDie button
-		 * 	- CTRL + R shortcut key on overall scene
 		 */
 		rollDieBtn.setOnAction((ActionEvent event) -> {
-			infoPnl.print("Rolling Die.");
-		});
-		
-		rollDieBtn.setOnMousePressed((MouseEvent event) -> {
-			// make button distinct on click with shadow on click
-			rollDieBtn.setEffect(new DropShadow());
-		});
-		
-		rollDieBtn.setOnMouseReleased((MouseEvent event) -> {
-			// remove shadow when click is released
-			rollDieBtn.setEffect(new DropShadow(0, Color.BLACK));
+			parseCommand("/roll 1".split(" "));
 		});
 	}
 	
@@ -169,11 +146,12 @@ public class MainController extends GridPane {
 	 * @param args the array of strings containing the command and its arguments.
 	 */
 	private void parseCommand(String[] args) {
+		String command = args[0];
 		/*
 		 * Command: /move fromPipe toPipe
 		 * fromPipe and toPipe will be one-index number based.
 		*/
-		if (args[0].equals("/move")) {
+		if (command.equals("/move")) {
 			int fromPipe = Integer.parseInt(args[1]);
 			int toPipe = Integer.parseInt(args[2]);
 			if (game.moveCheckers(fromPipe, toPipe)) {
@@ -187,7 +165,7 @@ public class MainController extends GridPane {
 		 * 1 is the player with the perspective from the bottom, dices will be on the left.
 		 * 2 is the player with the perspective from the top, dices will be on the right.
 		 */
-		else if (args[0].equals("/roll")) {
+		else if (command.equals("/roll")) {
 			int playerNum;
 			if (args.length == 1) {
 				playerNum = 1;
@@ -203,7 +181,14 @@ public class MainController extends GridPane {
 				infoPnl.print("Error: player number incorrect. It must be either 1 or 2.");
 			}
 		}
-		else {
+		/**
+		 * Command: /quit
+		 * Quits the entire application.
+		 */
+		else if (command.equals("/quit")) {
+			infoPnl.print("You have quitted the game. Bye bye!");
+			Platform.exit();
+		} else {
 			infoPnl.print("Error: Unknown Command.");
 		}
 	}
@@ -245,43 +230,4 @@ public class MainController extends GridPane {
 		});
 		*/
 	}
-	
-	/**
-	 * TAKE YOUR DIRTY HANDS OFF THESE TWO METHODS.
-	 * THESE TWO METHODS ARE THE "LISTEN AT ROOT AND GET POINT WAY."
-	 * This will work, you just have to deal with the else case.
-	 * 
-	private void initGameListeners() {
-		// upon clicking, highlight all the points except for the point clicked.
-		setOnMouseClicked((MouseEvent event) -> {
-			int pointNum = getPointNumber(event);
-			
-			Point[] points = board.getPoints();
-			for (int i = 0; i < points.length; i++) {
-				if (i == pointNum) {
-					points[i].setNormalImage();
-				} else {
-					points[i].setHighlightImage();
-				}
-			}
-		});
-	}
-	
-	private int getPointNumber(MouseEvent event) {
-		// returns an event type, all nodes implements event type.
-		// so in theory, the event type is a node, that node is our object (point / checker).
-		Object target = event.getTarget();
-		// check if what we clicked is a point,
-		// if not, it should be a checker, in which case we get its parent.
-		if (target instanceof Point) {
-			return ((Point) target).getPointNumber();
-		} else if (target instanceof Checker) {
-			return (((Point) ((Checker) target).getParent())).getPointNumber();
-		}
-		else {
-			throw new targetNotPointException();
-			// if use this, write code here to return a number to symbolize the unhighlighting of points.
-		}
-	}
-	*/
 }

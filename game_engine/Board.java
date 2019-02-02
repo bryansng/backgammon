@@ -20,14 +20,20 @@ public class Board extends HBox {
 
 	private HBox leftDice, rightDice;
 	private Dices dices;
-	
+
+	/**
+	 * Default Constructor
+	 * 		- Initializes board.
+	 * 		- Initializes points with their initial checkers.
+	 * 		- Initializes dices.
+	 */
 	public Board() {
 		super();
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
 		getChildren().addAll(leftBoard, rightBoard);
 		initPoints();
-		drawDices();
+		initDices();
 	}
 	
 	/**
@@ -195,7 +201,7 @@ public class Board extends HBox {
 	/**
 	 * 
 	 */
-	private void drawDices() {
+	private void initDices() {
 		/** IGNORE THIS ATM, currently considering to use red for all,
 		 * then when its the player's turn then change the dice to that
 		 * player's side than to create new HBox of dices.
