@@ -29,7 +29,7 @@ import javafx.scene.paint.Color;
  *
  */
 public class MainController extends GridPane {
-	private Board board;
+	private GameController game;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
@@ -43,7 +43,7 @@ public class MainController extends GridPane {
 	 */
 	public MainController() {
 		super();
-		board = new Board();
+		game = new GameController();
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
@@ -68,7 +68,7 @@ public class MainController extends GridPane {
 	 * Manages the layout of the children, then adds them as the child of MainController (i.e. root).
 	 */
 	public void initLayout() {
-		add(board, 0, 0, 1, 3);
+		add(game, 0, 0, 1, 3);
 		add(infoPnl, 1, 0);
 		add(cmdPnl, 1, 1);
 		add(rollDieBtn, 1, 2);
@@ -86,7 +86,7 @@ public class MainController extends GridPane {
 			public void onClicked(int pointSelected) {
 				infoPnl.print("Point clicked is: " + (pointSelected+1) + ".");
 				
-				Point[] points = board.getPoints();
+				Point[] points = game.getPoints();
 				for (int i = 0; i < points.length; i++) {
 					if (i == pointSelected) {
 						points[i].setNormalImage();
@@ -176,7 +176,7 @@ public class MainController extends GridPane {
 		if (args[0].equals("/move")) {
 			int fromPipe = Integer.parseInt(args[1]);
 			int toPipe = Integer.parseInt(args[2]);
-			if (board.moveCheckers(fromPipe, toPipe)) {
+			if (game.moveCheckers(fromPipe, toPipe)) {
 				infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
 			} else {
 				infoPnl.print("Error: Unable to move checkers - there are no checkers to move from pipe " + fromPipe + ".");
@@ -196,7 +196,7 @@ public class MainController extends GridPane {
 			}
 			
 			// rollDices returns null if playerNum is invalid.
-			int[] res = board.rollDices(playerNum);
+			int[] res = game.rollDices(playerNum);
 			if (res != null) {
 				infoPnl.print("Roll dice results: " + Arrays.toString(res));
 			} else {

@@ -11,7 +11,7 @@ import javafx.scene.control.TextArea;
 public class InfoPanel extends TextArea {
 	public InfoPanel() {
 		super("> " + "Welcome to Backgammon!\n");
-		setPrefHeight(Settings.getTopBottomHeight()*2 + Settings.getHalfBoardSize().getHeight());	
+		setPrefHeight( Settings.getHalfBoardSize().getHeight());
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);

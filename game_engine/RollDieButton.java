@@ -11,7 +11,7 @@ import javafx.scene.control.Button;
 public class RollDieButton extends Button {
 	public RollDieButton () {
 		super("Roll Die");
-		setMinHeight(Settings.getTopBottomHeight());
 		setMaxWidth(Double.MAX_VALUE);
+		setMinHeight(Settings.getTopBottomHeight());
 	}
 }
