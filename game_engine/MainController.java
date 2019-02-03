@@ -112,9 +112,11 @@ public class MainController extends GridPane {
 			String text = cmdPnl.getText();
 			
 			if (text.startsWith("/")) {
-				parseCommand(cmdPnl.getText().split(" "));
+				runCommand(cmdPnl.getText().split(" "));
 			} else if (text.equals("")) {
 				// ignores if user types nothing.
+			} else if (text.equals("quit")) {
+				runCommand("/quit".split(" "));
 			} else {
 				infoPnl.print(text);
 			}
@@ -133,7 +135,7 @@ public class MainController extends GridPane {
 		 * 	- Clicking on rollDie button
 		 */
 		rollDieBtn.setOnAction((ActionEvent event) -> {
-			parseCommand("/roll 1".split(" "));
+			runCommand("/roll 1".split(" "));
 		});
 	}
 	
@@ -145,7 +147,7 @@ public class MainController extends GridPane {
 	 * 
 	 * @param args the array of strings containing the command and its arguments.
 	 */
-	private void parseCommand(String[] args) {
+	private void runCommand(String[] args) {
 		String command = args[0];
 		/*
 		 * Command: /move fromPipe toPipe
