@@ -55,6 +55,12 @@ public class GameController extends VBox {
 	public Point[] getPoints() {
 		return board.getPoints();
 	}
+	public void unhighlightPoints() {
+		board.unhighlightPoints();
+	}
+	public void highlightPoints(int exceptPointNum) {
+		board.highlightPoints(exceptPointNum);
+	}
 	public int[] rollDices(int playerNum) {
 		return board.rollDices(playerNum);
 	}

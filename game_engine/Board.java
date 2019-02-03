@@ -191,6 +191,29 @@ public class Board extends HBox {
 	}
 	
 	/**
+	 * Un-highlight the points.
+	 * // TODO merge un-highlight and highlight together, give the ability to specify which points.
+	 */
+	public void unhighlightPoints() {
+		for (int i = 0; i < points.length; i++) {
+			points[i].setNormalImage(); 
+		}
+	}
+	
+	/**
+	 * Highlight the points.
+	 */
+	public void highlightPoints(int exceptPointNum) {
+		for (int i = 0; i < points.length; i++) {
+			if (i == exceptPointNum) {
+				points[i].setNormalImage();
+			} else {
+				points[i].setHighlightImage();
+			}
+		}
+	}
+	
+	/**
 	 * Returns the points instance variable (array of points).
 	 * @return the points instance variable.
 	 */

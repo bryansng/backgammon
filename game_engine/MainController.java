@@ -76,20 +76,23 @@ public class MainController extends GridPane {
 	 * 
 	 * TODO moving checkers via mouse features and functions should be elaborated starting here.
 	 */
+	private boolean isSelectionMode = false;
+	private int pointSelected;
 	private void initPointListeners() {
-		// upon mouse clicking, highlight all the points except for the point clicked.
+		// If point not selected, upon mouse clicking, highlight all the points except for the point clicked.
+		// If a point is selected, move the checker from selected point to the new selected point.
 		addEventHandler(PointSelectedEvent.POINT_SELECTED, new PointHandler() {
 			@Override
-			public void onClicked(int pointSelected) {
-				infoPnl.print("Point clicked is: " + (pointSelected+1) + ".");
-				
-				Point[] points = game.getPoints();
-				for (int i = 0; i < points.length; i++) {
-					if (i == pointSelected) {
-						points[i].setNormalImage();
-					} else {
-						points[i].setHighlightImage();
-					}
+			public void onClicked(int pointNum) {
+				if (!isSelectionMode) {
+					pointSelected = pointNum;
+					infoPnl.print("Point clicked is: " + (pointSelected+1) + ".");
+					game.highlightPoints(pointSelected);
+					isSelectionMode = true;
+				} else {
+					runCommand(("/move " + (pointSelected+1) + " " + (pointNum+1)).split(" "));
+					game.unhighlightPoints();
+					isSelectionMode = false;
 				}
 			}
 		});
