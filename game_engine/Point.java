@@ -127,7 +127,9 @@ public class Point extends Stack<Checker> {
 			}
 		} else {
 			for (Checker chk : this) {
-				getChildren().add(chk);
+				ImageView checker = chk;
+				checker.setTranslateY(0);
+				getChildren().add(checker);
 			}
 		}
 	}

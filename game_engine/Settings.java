@@ -93,4 +93,13 @@ public class Settings {
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
 	}
+	
+	/**
+	 * Returns the total number of checkers allowed in the game by both players.
+	 * @return the total number of checkers.
+	 */
+	public static int getPointMaxSize() {
+		int totalNumberOfCheckers = 30;
+		return totalNumberOfCheckers;
+	}
 }

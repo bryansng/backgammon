@@ -177,10 +177,10 @@ public class Board extends HBox {
 		// if point has no checkers, no point to pop or push. 
 		if (!points[fro].isEmpty()) {
 			points[to].push(points[fro].pop());
-			points[to].drawCheckers();
-			points[fro].drawCheckers();
 			moved = true;
 		}
+		points[to].drawCheckers();
+		points[fro].drawCheckers();
 		
 		// boolean value is returned instead of void,
 		// is because this provides flexibility in the future

@@ -2,11 +2,11 @@ package game_engine;
 
 import java.util.Iterator;
 
-import exceptions.PointOverflowException;
+import exceptions.StackOverflowException;
 import javafx.scene.layout.VBox;
 
 public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
-	private final int MAXSIZE = 15;
+	private final int MAXSIZE = Settings.getPointMaxSize();
 	private int size = 0;
 	private Node<E> top;
 	
@@ -42,13 +42,13 @@ public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 	}
 
 	@Override
-	public void push(E e) throws PointOverflowException {
+	public void push(E e) throws StackOverflowException {
 		if (size <= MAXSIZE) {
 			top = new Node<E>(e, top);
 			size++;
 		}
 		else {
-			throw new PointOverflowException("MAXSIZE: " + MAXSIZE + ", but current size: " + size);
+			throw new StackOverflowException("MAXSIZE: " + MAXSIZE + ", but current size: " + size);
 		}
 	}
 
