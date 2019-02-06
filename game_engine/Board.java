@@ -184,9 +184,10 @@ public class Board extends HBox {
 					moveResult = MoveResult.MOVE_TO_BAR;
 				}
 			}
+
+			points[to].drawCheckers();
+			points[fro].drawCheckers();
 		}
-		points[to].drawCheckers();
-		points[fro].drawCheckers();
 		
 		// boolean value is returned instead of void,
 		// is because this provides flexibility in the future

@@ -16,7 +16,7 @@ public class GameController extends VBox {
 	private UserPanel topUserPnl, bottomUserPnl;
 	private Bars bars;
 	private Board board;
-	private HomePanel leftHome, rightHome;
+	private HomePanel leftHome, rightHome, mainHome;
 	
 	/**
 	 * Default Constructor
@@ -36,6 +36,7 @@ public class GameController extends VBox {
 		board = new Board();
 		leftHome = new HomePanel();
 		rightHome = new HomePanel();
+		mainHome = rightHome;
 		bars = new Bars();
 		
 		HBox middlePart = board;
@@ -69,13 +70,22 @@ public class GameController extends VBox {
 		if (!points[fro].isEmpty()) {
 			bar.push(points[fro].pop());
 			moveResult = MoveResult.MOVED_TO_BAR;
+			
+			points[fro].drawCheckers();
+			bar.drawCheckers();
 		}
-		points[fro].drawCheckers();
-		bar.drawCheckers();
 		
 		return moveResult;
 	}
 	
+	/**
+	 * Moves a checker from bar to a point.
+	 * i.e. pops a checker from bar and push it to a point.
+	 * 
+	 * @param fromBar, colour of the bar to pop from.
+	 * @param to, one-based index, the point number to push to.
+	 * @return returns a integer value indicating if the checker was moved.
+	 */
 	public MoveResult moveFromBar(String fromBar, int to) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
@@ -91,9 +101,42 @@ public class GameController extends VBox {
 					moveResult = MoveResult.MOVE_TO_BAR;
 				}
 			}
+			
+			points[to].drawCheckers();
+			bar.drawCheckers();
 		}
-		points[to].drawCheckers();
-		bar.drawCheckers();
+		
+		return moveResult;
+	}
+	
+	public MoveResult moveToHome(int fro) {
+		MoveResult moveResult = MoveResult.NOT_MOVED;
+		
+		fro--;
+		Point[] points = board.getPoints();
+		if (!points[fro].isEmpty()) {
+			Home home = mainHome.getHome(points[fro].top().getColour());
+			home.push(points[fro].pop());
+			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
+
+			points[fro].drawCheckers();
+			home.drawCheckers();
+		}
+		return moveResult;
+	}
+
+	public MoveResult moveToHome(String fromBar) {
+		MoveResult moveResult = MoveResult.NOT_MOVED;
+		
+		Bar bar = bars.getBar(fromBar);
+		if (!bar.isEmpty()) {
+			Home home = mainHome.getHome(bar.top().getColour());
+			home.push(bar.pop());
+			moveResult = MoveResult.MOVED_TO_HOME_FROM_BAR;
+
+			bar.drawCheckers();
+			home.drawCheckers();
+		}
 		
 		return moveResult;
 	}

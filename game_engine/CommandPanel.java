@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
  * 
  * @author @LxEmily
  * @coauthor Bryan Sng
+ * 
  */
 public class CommandPanel extends TextField {
 	public CommandPanel () {

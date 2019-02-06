@@ -6,10 +6,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 /**
- * A button to roll the die
- * with settings
+ * This class represents the roll die button in Backgammon.
+ * 
  * @author @LxEmily
  * @coauthor Bryan Sng
+ * 
  */
 public class RollDieButton extends Button {
 	public RollDieButton () {

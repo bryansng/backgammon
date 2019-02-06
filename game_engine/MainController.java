@@ -91,48 +91,61 @@ public class MainController extends GridPane {
 	
 	/**
 	 * Manages checkers storer listeners.
-	 * 
-	 * TODO refactor this function. We might be able to just use storerSelected.
 	 */
 	private boolean isPointSelectionMode = false;
 	private boolean isBarSelectionMode = false;
 	private CheckersStorer storerSelected;
-	private int pointNumSelected;
-	private String barColourSelected;
 	private void initCheckersStorersListeners() {
 		addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, new CheckersStorerHandler() {
 			@Override	
 			public void onClicked(CheckersStorer object) {
-				storerSelected = object;		// this seems useless.
-				// point selected, basis for fromPipe or toPipe selection.
+				// point selected, basis for fromPip or toPip selection.
 				if (object instanceof Point) {
-					// neither point nor bar selected, basis for fromPipe selection.
+					// neither point nor bar selected, basis for fromPip selection.
 					if (!isPointSelectionMode && !isBarSelectionMode) {
-						pointNumSelected = ((Point) storerSelected).getPointNumber();
-						infoPnl.print("Point clicked is: " + (pointNumSelected+1) + ".");
-						game.highlightPoints(pointNumSelected);
+						storerSelected = object;
+						int fromPip = ((Point) storerSelected).getPointNumber() + 1;
+						game.highlightPoints(fromPip);
 						isPointSelectionMode = true;
-					// either point or bar selected, basis for toPipe selection.
+						infoPnl.print("Point clicked is: " + fromPip + ".");
+					// either point or bar selected, basis for toPip selection.
 					} else {
-						int pointNum = ((Point) storerSelected).getPointNumber();
+						int toPip = ((Point) object).getPointNumber() + 1;
 						
-						if (isBarSelectionMode) {
-							runCommand(("/move " + barColourSelected + " " + (pointNum+1)).split(" "));
-						} else {
-							runCommand(("/move " + (pointNumSelected+1) + " " + (pointNum+1)).split(" "));
+						if (isPointSelectionMode) {
+							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
+							runCommand(("/move " + fromPip + " " + toPip).split(" "));
+						} else if (isBarSelectionMode) {
+							String fromBar = ((Bar) storerSelected).getColour();
+							runCommand(("/move " + fromBar + " " + toPip).split(" "));
 						}
-						
 						game.unhighlightPoints();
 						isPointSelectionMode = false;
 						isBarSelectionMode = false;
 					}
 				// bar selected, basis for fromBar selection.
 				} else if (object instanceof Bar) {
-					barColourSelected = ((Bar) storerSelected).getColour();
-					infoPnl.print("Bar clicked.");
+					storerSelected = object;
 					game.highlightPoints(-1);
 					isBarSelectionMode = true;
+					infoPnl.print("Bar clicked.");
+				// home selected, basis for toHome selection.
 				} else if (object instanceof Home) {
+					if (isPointSelectionMode || isBarSelectionMode) {
+						String toHome = ((Home) object).getColour();
+						
+						if (isPointSelectionMode) {
+							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
+							runCommand(("/move " + fromPip + " " + toHome).split(" "));
+						} else if (isBarSelectionMode) {
+							String fromBar = ((Bar) storerSelected).getColour();
+							runCommand(("/move " + fromBar + " " + toHome).split(" "));
+						}
+						
+						game.unhighlightPoints();
+						isPointSelectionMode = false;
+						isBarSelectionMode = false;
+					}
 					infoPnl.print("Home clicked.");
 				} else {
 					infoPnl.print("Other instances of checkersStorer were clicked.");
@@ -164,7 +177,9 @@ public class MainController extends GridPane {
 			} else if (text.equals("quit")) {
 				runCommand("/quit".split(" "));
 			} else {
-				infoPnl.print(text);
+				// player chat, need to implement players to differentiate which player is which.
+				// in the meantime, just add text to info panel.
+				infoPnl.print(text, "chat");
 			}
 			
 			cmdPnl.setText("");
@@ -196,45 +211,73 @@ public class MainController extends GridPane {
 	private void runCommand(String[] args) {
 		String command = args[0];
 		/*
-		 * Command: /move fromPipe toPipe
-		 * Command: /move bar toPipe
-		 * where fromPipe and toPipe will be one-index number based.
-		 * where bar is the bar object.
+		 * Command: /move fromPip toPip			//both numbers
+		 * Command: /move fromBar toPip				//left is a color, right a number
+		 * Command: /move fromPip/bar toHome		//left is a color or number, right is a color.
+		 * where fromPip and toPip will be one-index number based.
+		 * where fromBar is the bar color.
+		 * where toHome is the home color.
 		*/
 		if (command.equals("/move")) {
-			MoveResult moveResult;
-			int toPipe = Integer.parseInt(args[2]);
+			String fro = args[1];
+			String to = args[2];
 			
-			if (!args[1].equals("white") && !args[1].equals("black")) {
-				int fromPipe = Integer.parseInt(args[1]);
+			MoveResult moveResult;
+			
+			// move from point/bar to home.
+			if (to.equals("white") || to.equals("black")) {
+				if (fro.equals("white") || fro.equals("black")) {
+					String fromBar = fro;
+					moveResult = game.moveToHome(fromBar);
+				} else {
+					int fromPip = Integer.parseInt(fro);
+					moveResult = game.moveToHome(fromPip);
+				}
 				
-				moveResult = game.moveCheckers(fromPipe, toPipe);
 				switch (moveResult) {
-					case MOVED:
-						infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
+					case MOVED_TO_HOME_FROM_PIP:
+						infoPnl.print("Moved checker from " + fro + " to home.");
 						break;
-					case MOVE_TO_BAR:
-						game.moveToBar(toPipe);
-						game.moveCheckers(fromPipe, toPipe);
-						infoPnl.print("Moving checker from " + toPipe + " to bar.");
-						infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
+					case MOVED_TO_HOME_FROM_BAR:
+						infoPnl.print("Moved checker from bar to home.");
 						break;
 					default:
 						infoPnl.print("Invalid move.", "error");
 				}
-			} else {
-				String fromBar = args[1];
+			// move from bar.
+			} else if (fro.equals("white") || fro.equals("black")) {
+				String fromBar = fro;
+				int toPip = Integer.parseInt(to);
 				
-				moveResult = game.moveFromBar(fromBar, toPipe);
+				moveResult = game.moveFromBar(fromBar, toPip);
 				switch (moveResult) {
 					case MOVED_FROM_BAR:
-						infoPnl.print("Moving checker from bar to " + toPipe + ".");
+						infoPnl.print("Moving checker from bar to " + toPip + ".");
 						break;
 					case MOVE_TO_BAR:
-						game.moveToBar(toPipe);
-						game.moveFromBar(fromBar, toPipe);
-						infoPnl.print("Moving checker from " + toPipe + " to bar.");
-						infoPnl.print("Moving checker from bar to " + toPipe + ".");
+						game.moveToBar(toPip);
+						game.moveFromBar(fromBar, toPip);
+						infoPnl.print("Moving checker from " + toPip + " to bar.");
+						infoPnl.print("Moving checker from bar to " + toPip + ".");
+						break;
+					default:
+						infoPnl.print("Invalid move.", "error");
+				}
+			// move from point to point.
+			} else {
+				int fromPip = Integer.parseInt(args[1]);
+				int toPip = Integer.parseInt(to);
+				
+				moveResult = game.moveCheckers(fromPip, toPip);
+				switch (moveResult) {
+					case MOVED:
+						infoPnl.print("Moving checker from " + fromPip + " to " + toPip + ".");
+						break;
+					case MOVE_TO_BAR:
+						game.moveToBar(toPip);
+						game.moveCheckers(fromPip, toPip);
+						infoPnl.print("Moving checker from " + toPip + " to bar.");
+						infoPnl.print("Moving checker from " + fromPip + " to " + toPip + ".");
 						break;
 					default:
 						infoPnl.print("Invalid move.", "error");

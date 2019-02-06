@@ -26,11 +26,13 @@ public class InfoPanel extends TextArea {
 	public void print(String text, String type) {
 		type.toLowerCase();
 		if (type.equals("error")) {
-			type = "[Error]";
+			type = "[Error] ";
+		} else if (type.equals("chat")) {
+			type = "";
 		} else {
-			type = "[System]";
+			type = "[System] ";
 		}
-		appendText("> " + type + " " + text + "\n");
+		appendText("> " + type + text + "\n");
 	}
 	public void print(String text) {
 		print(text, "system");
