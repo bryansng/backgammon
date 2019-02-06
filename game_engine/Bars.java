@@ -27,10 +27,13 @@ public class Bars extends VBox {
 		setStyle(Settings.getGameColour());
 		
 		setAlignment(Pos.CENTER);
-		initBars();
+		initIndividualBars();
 	}
 	
-	public void initBars() {
+	/**
+	 * Initializes the individual bars and add them to bars VBox.
+	 */
+	public void initIndividualBars() {
 		top = new Bar("black");
 		bottom = new Bar("white");
 		bottom.setRotate(180.0);
@@ -41,6 +44,11 @@ public class Bars extends VBox {
 		setMargin(bottom, new Insets(Settings.getBarMargin(), 0.0, Settings.getBarMargin(), 0.0));
 	}
 	
+	/**
+	 * Returns the bar that stores the colour of the checkers.
+	 * @param colour of the checkers.
+	 * @return the bar that stores that particular colour of checkers.
+	 */
 	public Bar getBar(String colour) {
 		Bar bar = null;
 		

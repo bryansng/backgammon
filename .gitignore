@@ -13,6 +13,8 @@
 !/img/dices/
 !/img/board/
 !/img/checkers/
+
 !/game_engine/
 !/events/
 !/exceptions/
+!/constants/

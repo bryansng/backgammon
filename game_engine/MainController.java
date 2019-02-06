@@ -121,7 +121,7 @@ public class MainController extends GridPane {
 						} else {
 							runCommand(("/move " + (pointNumSelected+1) + " " + (pointNum+1)).split(" "));
 						}
-							
+						
 						game.unhighlightPoints();
 						isPointSelectionMode = false;
 						isBarSelectionMode = false;
