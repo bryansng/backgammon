@@ -16,6 +16,7 @@ import javafx.scene.image.ImageView;
 public class Checker extends ImageView {
 	private Image img;
 	private Image imgHighlighted;
+	private String colour;
 	
 	/**
 	 * Default Constructor
@@ -24,43 +25,28 @@ public class Checker extends ImageView {
 	 */
 	public Checker(String colour) {
 		super();
-		initImg(colour);
+		this.colour = colour;
+		initImg();
 	}
 	
 	/**
 	 * - Get the image of the checker.
 	 * - Initialize img and img_highlighted instance variable.
-	 * @param color of checker.
 	 */
-	private void initImg(String colour) {
+	private void initImg() {
 		FileInputStream input1 = null;
 		FileInputStream input2 = null;
 		colour.toLowerCase();
 		try {
-				input1 = new FileInputStream("src/img/checkers/" + colour + "_checkers.png");
-				input2 = new FileInputStream("src/img/checkers/" + colour + "_checkers_highlighted.png");
+			input1 = new FileInputStream("src/img/checkers/" + colour + "_checkers.png");
+			input2 = new FileInputStream("src/img/checkers/" + colour + "_checkers_highlighted.png");
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
 		img = new Image(input1);
 		imgHighlighted = new Image(input2);
-		setNormalImage();
-		setListeners();
-	}
-	
-	// IGNORE THIS FOR NOW, I JUST MIGHT NEED IT IN THE FUTURE.
-	// catch the event, and not let the event dispatch chain reach the checkers.
-	private void setListeners() {
-		/*
-		addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
-			event.consume();
-		});
 		
-		// stop the capturing phase, let it just reach until point, so that gettarget returns only the point, not the checkers when clicked.
-		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-			event.consume();
-		});
-		*/
+		setNormalImage();
 	}
 	
 	/**
@@ -75,5 +61,13 @@ public class Checker extends ImageView {
 	 */
 	public void setNormalImage() {
 		setImage(img);
+	}
+	
+	/**
+	 * Returns the colour of this checker.
+	 * @return colour of the checker.
+	 */
+	public String getColour() {
+		return colour;
 	}
 }

@@ -102,4 +102,41 @@ public class Settings {
 		int totalNumberOfCheckers = 30;
 		return totalNumberOfCheckers;
 	}
+	
+	/**
+	 * Returns the colour of the board in terms of CSS.
+	 * @return colour of the board.
+	 */
+	public static String getBoardColour() {
+		String colour = "-fx-background-color: forestgreen;";
+		return colour;
+	}
+	
+	
+	/**
+	 * Returns the colour of the game in terms of CSS.
+	 * @return colour of the game.
+	 */
+	public static String getGameColour() {
+		String colour = "-fx-background-color: saddlebrown;";
+		return colour;
+	}
+	
+	/**
+	 * Returns the margin of the homes within homepanel.
+	 * @return margin of the homes.
+	 */
+	public static double getHomeMargin() {
+		double margin = 10.0;
+		return margin;
+	}
+	
+	/**
+	 * Returns the margin of the bars within bars.
+	 * @return margin of the bars.
+	 */
+	public static double getBarMargin() {
+		double margin = 5.0;
+		return margin;
+	}
 }

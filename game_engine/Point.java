@@ -3,11 +3,8 @@ package game_engine;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 
-import events.PointSelectedEvent;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
 
@@ -20,14 +17,14 @@ import javafx.scene.layout.BackgroundImage;
  * @email sngby98@gmail.com
  *
  */
-public class Point extends Stack<Checker> {
+public class Point extends CheckersStorer {
 	private Image img;
-	private Image img_highlight; 
+	private Image imgHighlighted; 
 	private int pointNum;
 	
 	/**
 	 * Default Constructor
-	 * 		- Initialize the img and img_highlighted instance variable of the checker.
+	 * 		- Initialize the img and imgHighlighteded instance variable of the checker.
 	 * 		- Set this point's transformation, alignment, size, etc.
 	 * 		- Set that img to be the background of this point.
 	 * 		- Initialize this point's listeners.
@@ -35,50 +32,34 @@ public class Point extends Stack<Checker> {
 	 * @param color of the point.
 	 * @param rotation either 0 or 180. 0 = pointing upwards. 180 = pointing downwards. 
 	 */
-	public Point(String color, double rotation, int pointNum) {
+	public Point(String colour, double rotation, int pointNum) {
 		super();
 		this.pointNum = pointNum;
 		FileInputStream input1 = null;
 		FileInputStream input2 = null;
+		colour.toLowerCase();
 		try {
-			if (color.equals("BLACK")) {
-				input1 = new FileInputStream("src/img/board/black_point.png");
-				input2 = new FileInputStream("src/img/board/black_point_highlighted.png");
-			}
-			else if (color.equals("WHITE")) {
-				input1 = new FileInputStream("src/img/board/white_point.png");
-				input2 = new FileInputStream("src/img/board/white_point_highlighted.png");
-			}
-			img = new Image(input1);
-			img_highlight = new Image(input2);
+			input1 = new FileInputStream("src/img/board/" + colour + "_point.png");
+			input2 = new FileInputStream("src/img/board/" + colour + "_point_highlighted.png");
 		}
 		catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
+		img = new Image(input1);
+		imgHighlighted = new Image(input2);
+		
 		setRotate(rotation);
 		setAlignment(Pos.BOTTOM_CENTER);
 		// don't simply set point max and pref size, this will effect how the point is drawn.
 		setMinSize(img.getWidth(), img.getHeight());	// highlighted and non-highlighted should have the same width & height.
 		setNormalImage();
-		setListeners();
-	}
-	
-	/**
-	 * Manages the listener of point.
-	 */
-	private void setListeners() {
-		// Fires an event to MainController's point listener when this point is mouse clicked.
-		// Along with the event, the point number is passed in as the parameter to MainController.
-		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
-			this.fireEvent(new PointSelectedEvent(pointNum));
-		});
 	}
 	
 	/**
 	 * Use the highlighted image.
 	 */
 	public void setHighlightImage() {
-		setBackground(new Background(new BackgroundImage(img_highlight, null, null, null, null)));
+		setBackground(new Background(new BackgroundImage(imgHighlighted, null, null, null, null)));
 	}
 
 	/**
@@ -99,39 +80,6 @@ public class Point extends Stack<Checker> {
 			push(new Checker(checkerColour));
 		}
 		drawCheckers();
-	}
-	
-	/**
-	 * Handles how the checkers are positioned in the point object.
-	 * (i.e. how it will be drawn eventually on the stage).
-	 */
-	public void drawCheckers() {
-		// Clear the point object of any children.
-		getChildren().clear();
-		
-		// If total height of checkers greater than point, we overlap the checkers.
-		int numCheckers = size();
-		double slack = Settings.getPointSize().getHeight() * 0.2;
-		double diff = numCheckers * Settings.getCheckerSize().getHeight() - Settings.getPointSize().getHeight() + slack;
-		
-		// If overlap, we basically add an y offset to the checkers so that they overlap each other.
-		// Else, we simply add them to the point without any offsets.
-		if (diff >= 0) {
-			int i = 0;
-			double yOffset = (diff / numCheckers);
-			for (Checker chk : this) {
-				ImageView checker = chk;
-				checker.setTranslateY(yOffset*(numCheckers-i-1));
-				getChildren().add(checker);
-				i++;
-			}
-		} else {
-			for (Checker chk : this) {
-				ImageView checker = chk;
-				checker.setTranslateY(0);
-				getChildren().add(checker);
-			}
-		}
 	}
 	
 	/**

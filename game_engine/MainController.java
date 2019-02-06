@@ -1,8 +1,10 @@
 package game_engine;
 
 import java.util.Arrays;
-import events.PointHandler;
-import events.PointSelectedEvent;
+
+import constants.MoveResult;
+import events.CheckersStorerHandler;
+import events.CheckersStorerSelectedEvent;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -11,6 +13,7 @@ import javafx.scene.Scene;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 
 /**
@@ -47,7 +50,7 @@ public class MainController extends GridPane {
 		style();
 		initLayout();
 		initUIListeners();
-		initPointListeners();
+		initGameListeners();
 	}
 	
 	/**
@@ -59,6 +62,7 @@ public class MainController extends GridPane {
 		setVgap(5);
 		setHgap(10);
 		setAlignment(Pos.CENTER);
+		setMaxSize(Settings.getScreenSize().getWidth(), Settings.getScreenSize().getHeight());
 	}
 
 	/**
@@ -72,27 +76,66 @@ public class MainController extends GridPane {
 	}
 	
 	/**
-	 * Manages points listeners
-	 * 
-	 * TODO moving checkers via mouse features and functions should be elaborated starting here.
+	 * Manages game listeners.
 	 */
-	private boolean isSelectionMode = false;
-	private int pointSelected;
-	private void initPointListeners() {
-		// If point not selected, upon mouse clicking, highlight all the points except for the point clicked.
-		// If a point is selected, move the checker from selected point to the new selected point.
-		addEventHandler(PointSelectedEvent.POINT_SELECTED, new PointHandler() {
-			@Override
-			public void onClicked(int pointNum) {
-				if (!isSelectionMode) {
-					pointSelected = pointNum;
-					infoPnl.print("Point clicked is: " + (pointSelected+1) + ".");
-					game.highlightPoints(pointSelected);
-					isSelectionMode = true;
+	private void initGameListeners() {
+		// Exit point selection mode when any part of the game board is clicked.
+		game.setOnMouseClicked((MouseEvent event) -> {
+			game.unhighlightPoints();
+			isPointSelectionMode = false;
+			isBarSelectionMode = false;
+		});
+
+		initCheckersStorersListeners();
+	}
+	
+	/**
+	 * Manages checkers storer listeners.
+	 * 
+	 * TODO refactor this function. We might be able to just use storerSelected.
+	 */
+	private boolean isPointSelectionMode = false;
+	private boolean isBarSelectionMode = false;
+	private CheckersStorer storerSelected;
+	private int pointNumSelected;
+	private String barColourSelected;
+	private void initCheckersStorersListeners() {
+		addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, new CheckersStorerHandler() {
+			@Override	
+			public void onClicked(CheckersStorer object) {
+				storerSelected = object;		// this seems useless.
+				// point selected, basis for fromPipe or toPipe selection.
+				if (object instanceof Point) {
+					// neither point nor bar selected, basis for fromPipe selection.
+					if (!isPointSelectionMode && !isBarSelectionMode) {
+						pointNumSelected = ((Point) storerSelected).getPointNumber();
+						infoPnl.print("Point clicked is: " + (pointNumSelected+1) + ".");
+						game.highlightPoints(pointNumSelected);
+						isPointSelectionMode = true;
+					// either point or bar selected, basis for toPipe selection.
+					} else {
+						int pointNum = ((Point) storerSelected).getPointNumber();
+						
+						if (isBarSelectionMode) {
+							runCommand(("/move " + barColourSelected + " " + (pointNum+1)).split(" "));
+						} else {
+							runCommand(("/move " + (pointNumSelected+1) + " " + (pointNum+1)).split(" "));
+						}
+							
+						game.unhighlightPoints();
+						isPointSelectionMode = false;
+						isBarSelectionMode = false;
+					}
+				// bar selected, basis for fromBar selection.
+				} else if (object instanceof Bar) {
+					barColourSelected = ((Bar) storerSelected).getColour();
+					infoPnl.print("Bar clicked.");
+					game.highlightPoints(-1);
+					isBarSelectionMode = true;
+				} else if (object instanceof Home) {
+					infoPnl.print("Home clicked.");
 				} else {
-					runCommand(("/move " + (pointSelected+1) + " " + (pointNum+1)).split(" "));
-					game.unhighlightPoints();
-					isSelectionMode = false;
+					infoPnl.print("Other instances of checkersStorer were clicked.");
 				}
 			}
 		});
@@ -154,15 +197,48 @@ public class MainController extends GridPane {
 		String command = args[0];
 		/*
 		 * Command: /move fromPipe toPipe
-		 * fromPipe and toPipe will be one-index number based.
+		 * Command: /move bar toPipe
+		 * where fromPipe and toPipe will be one-index number based.
+		 * where bar is the bar object.
 		*/
 		if (command.equals("/move")) {
-			int fromPipe = Integer.parseInt(args[1]);
+			MoveResult moveResult;
 			int toPipe = Integer.parseInt(args[2]);
-			if (game.moveCheckers(fromPipe, toPipe)) {
-				infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
+			
+			if (!args[1].equals("white") && !args[1].equals("black")) {
+				int fromPipe = Integer.parseInt(args[1]);
+				
+				moveResult = game.moveCheckers(fromPipe, toPipe);
+				switch (moveResult) {
+					case MOVED:
+						infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
+						break;
+					case MOVE_TO_BAR:
+						game.moveToBar(toPipe);
+						game.moveCheckers(fromPipe, toPipe);
+						infoPnl.print("Moving checker from " + toPipe + " to bar.");
+						infoPnl.print("Moving checker from " + fromPipe + " to " + toPipe + ".");
+						break;
+					default:
+						infoPnl.print("Invalid move.", "error");
+				}
 			} else {
-				infoPnl.print("Error: Unable to move checkers - there are no checkers to move from pipe " + fromPipe + ".");
+				String fromBar = args[1];
+				
+				moveResult = game.moveFromBar(fromBar, toPipe);
+				switch (moveResult) {
+					case MOVED_FROM_BAR:
+						infoPnl.print("Moving checker from bar to " + toPipe + ".");
+						break;
+					case MOVE_TO_BAR:
+						game.moveToBar(toPipe);
+						game.moveFromBar(fromBar, toPipe);
+						infoPnl.print("Moving checker from " + toPipe + " to bar.");
+						infoPnl.print("Moving checker from bar to " + toPipe + ".");
+						break;
+					default:
+						infoPnl.print("Invalid move.", "error");
+				}
 			}
 		}
 		/**
@@ -183,9 +259,13 @@ public class MainController extends GridPane {
 			if (res != null) {
 				infoPnl.print("Roll dice results: " + Arrays.toString(res));
 			} else {
-				infoPnl.print("Error: player number incorrect. It must be either 1 or 2.");
+				infoPnl.print("Player number incorrect. It must be either 1 or 2.", "error");
 			}
 		}
+		/**
+		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
+		 * then print that amount of line with spaces.
+		 */
 		/**
 		 * Command: /quit
 		 * Quits the entire application.
@@ -194,7 +274,7 @@ public class MainController extends GridPane {
 			infoPnl.print("You have quitted the game. Bye bye!");
 			Platform.exit();
 		} else {
-			infoPnl.print("Error: Unknown Command.");
+			infoPnl.print("Unknown Command.", "error");
 		}
 	}
 	

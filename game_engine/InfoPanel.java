@@ -10,19 +10,29 @@ import javafx.scene.control.TextArea;
  */
 public class InfoPanel extends TextArea {
 	public InfoPanel() {
-		super("> " + "Welcome to Backgammon!\n");
+		super();
 		setPrefHeight( Settings.getHalfBoardSize().getHeight());
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);
+		print("Welcome to Backgammon!");
 	}
 	
 	/**
 	 * Prints the given text to the information panel.
 	 * @param text - string to be printed
+	 * @param type - type of string, (i.e., error or system message) 
 	 */
+	public void print(String text, String type) {
+		type.toLowerCase();
+		if (type.equals("error")) {
+			type = "[Error]";
+		} else {
+			type = "[System]";
+		}
+		appendText("> " + type + " " + text + "\n");
+	}
 	public void print(String text) {
-		// Appends text to information panel.
-		appendText("> " + text + "\n");
+		print(text, "system");
 	}
 }

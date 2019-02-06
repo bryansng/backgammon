@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.MoveResult;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -79,28 +80,28 @@ public class Board extends HBox {
 			
 			switch (i) {
 				case 0:
-					points[i].initCheckers(2, "BLACK");
+					points[i].initCheckers(2, "black");
 					break;
 				case 5:
-					points[i].initCheckers(5, "WHITE");
+					points[i].initCheckers(5, "white");
 					break;
 				case 7:
-					points[i].initCheckers(3, "WHITE");
+					points[i].initCheckers(3, "white");
 					break;
 				case 11:
-					points[i].initCheckers(5, "BLACK");
+					points[i].initCheckers(5, "black");
 					break;
 				case 12:
-					points[i].initCheckers(5, "WHITE");
+					points[i].initCheckers(5, "white");
 					break;
 				case 16:
-					points[i].initCheckers(3, "BLACK");
+					points[i].initCheckers(3, "black");
 					break;
 				case 18:
-					points[i].initCheckers(5, "BLACK");
+					points[i].initCheckers(5, "black");
 					break;
 				case 23:
-					points[i].initCheckers(2, "WHITE");
+					points[i].initCheckers(2, "white");
 					break;
 			}
 		}
@@ -118,10 +119,10 @@ public class Board extends HBox {
 		 * 19-24, white home board.
 		 */
 		// Each quadrant has a set of 6 points.
-		HBox quad4 = createSetOfPoints(1, 6, "BOTTOM");
-		HBox quad3 = createSetOfPoints(7, 12, "BOTTOM");
-		HBox quad2 = createSetOfPoints(13, 18, "TOP");
-		HBox quad1 = createSetOfPoints(19, 24, "TOP");
+		HBox quad4 = createSetOfPoints(1, 6, "bottom");
+		HBox quad3 = createSetOfPoints(7, 12, "bottom");
+		HBox quad2 = createSetOfPoints(13, 18, "top");
+		HBox quad1 = createSetOfPoints(19, 24, "top");
 
 		rightBoard.setBottom(quad4);
 		leftBoard.setBottom(quad3);
@@ -148,7 +149,7 @@ public class Board extends HBox {
 		
 		// If bottom of board, points are numbered from smallest to highest from right to left.
 		// Else, from smallest to highest from left to right.
-		if (side.equals("BOTTOM"))
+		if (side.equals("bottom"))
 			for (int i = endRange-1; i >= startRange-1; i--) {
 				set.getChildren().add(points[i]);
 			}
@@ -166,18 +167,23 @@ public class Board extends HBox {
 	 * 
 	 * @param fro, one-based index, the point number to pop from.
 	 * @param to, one-based index, the point number to push to.
-	 * @return
+	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public boolean moveCheckers(int fro, int to) {
+	public MoveResult moveCheckers(int fro, int to) {
 		// Adjust indexes to zero-based indexing.
 		fro--;
 		to--;
-		boolean moved = false;
+		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		// if point has no checkers, no point to pop or push. 
 		if (!points[fro].isEmpty()) {
-			points[to].push(points[fro].pop());
-			moved = true;
+			if (points[fro].topCheckerColourEquals(points[to])) {
+				points[to].push(points[fro].pop());
+				moveResult = MoveResult.MOVED;
+			} else {
+				if (points[to].size() == 1) {
+					moveResult = MoveResult.MOVE_TO_BAR;
+				}
+			}
 		}
 		points[to].drawCheckers();
 		points[fro].drawCheckers();
@@ -187,7 +193,7 @@ public class Board extends HBox {
 		// where we can print to the info panel telling the user
 		// that their move was invalid, and that they should
 		// try another move.
-		return moved;
+		return moveResult;
 	}
 	
 	/**
@@ -202,6 +208,7 @@ public class Board extends HBox {
 	
 	/**
 	 * Highlight the points.
+	 * @param exceptPointNum, except this point number.
 	 */
 	public void highlightPoints(int exceptPointNum) {
 		for (int i = 0; i < points.length; i++) {

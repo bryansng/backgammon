@@ -1,0 +1,55 @@
+package game_engine;
+
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.VBox;
+
+/**
+ * This class represents a VBox of bars, situated in the middle of the board.
+ * 
+ * top is the black's bar.
+ * bottom is the white's bar.
+ * 
+ * @author Bryan Sng
+ * @email sngby98@gmail.com
+ *
+ */
+public class Bars extends VBox {
+	private Bar top;
+	private Bar bottom;
+	
+	public Bars() {
+		super();
+		double pointWidth = Settings.getPointSize().getWidth();
+		double pointHeight = Settings.getPointSize().getHeight();
+		
+		setMinSize(pointWidth, pointHeight*2);
+		setStyle(Settings.getGameColour());
+		
+		setAlignment(Pos.CENTER);
+		initBars();
+	}
+	
+	public void initBars() {
+		top = new Bar("black");
+		bottom = new Bar("white");
+		bottom.setRotate(180.0);
+		
+		getChildren().addAll(top, bottom);
+		
+		setMargin(top, new Insets(Settings.getBarMargin(), 0.0, Settings.getBarMargin(), 0.0));
+		setMargin(bottom, new Insets(Settings.getBarMargin(), 0.0, Settings.getBarMargin(), 0.0));
+	}
+	
+	public Bar getBar(String colour) {
+		Bar bar = null;
+		
+		if (colour.equals("black")) {
+			bar = top;
+		} else if (colour.equals("white")) {
+			bar = bottom;
+		}
+		
+		return bar;
+	}
+}

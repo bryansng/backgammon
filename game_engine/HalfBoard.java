@@ -9,6 +9,6 @@ public class HalfBoard extends BorderPane {
 		double halfBoardHeight = Settings.getHalfBoardSize().getHeight();
 		
 		setPrefSize(halfBoardWidth, halfBoardHeight);
-		setStyle("-fx-background-color: forestgreen;");
+		setStyle(Settings.getBoardColour());
 	}
 }
