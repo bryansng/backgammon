@@ -109,6 +109,13 @@ public class GameController extends VBox {
 		return moveResult;
 	}
 	
+	/**
+	 * Moves a checker from a point to its home.
+	 * i.e. pops a checker from bar and push it to a point.
+	 * 
+	 * @param fro, one-based index, the point number to pop from.
+	 * @return returns a integer value indicating if the checker was moved.
+	 */
 	public MoveResult moveToHome(int fro) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
@@ -124,7 +131,14 @@ public class GameController extends VBox {
 		}
 		return moveResult;
 	}
-
+	
+	/**
+	 * Moves a checker from bar to its home.
+	 * i.e. pops a checker from bar and push it to a point.
+	 * 
+	 * @param fromBar, colour of the bar to pop from.
+	 * @return returns a integer value indicating if the checker was moved.
+	 */
 	public MoveResult moveToHome(String fromBar) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		

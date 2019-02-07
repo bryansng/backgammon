@@ -199,7 +199,6 @@ public class Board extends HBox {
 	
 	/**
 	 * Un-highlight the points.
-	 * // TODO merge un-highlight and highlight together, give the ability to specify which points.
 	 */
 	public void unhighlightPoints() {
 		for (int i = 0; i < points.length; i++) {

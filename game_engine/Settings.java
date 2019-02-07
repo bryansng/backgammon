@@ -12,6 +12,7 @@ import javafx.scene.image.Image;
  * This allows us to keep track of any user-specified data.
  * This means that every other class except this one will share positional data relative to
  * data here.
+ * 
  * @author Bryan Sng
  * @email sngby98@gmail.com
  *
@@ -123,7 +124,7 @@ public class Settings {
 	}
 	
 	/**
-	 * Returns the margin of the homes within homepanel.
+	 * Returns the margin of the homes within home panel.
 	 * @return margin of the homes.
 	 */
 	public static double getHomeMargin() {

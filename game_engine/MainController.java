@@ -105,11 +105,13 @@ public class MainController extends GridPane {
 					if (!isPointSelectionMode && !isBarSelectionMode) {
 						storerSelected = object;
 						int fromPip = ((Point) storerSelected).getPointNumber() + 1;
-						game.highlightPoints(fromPip);
+						game.highlightPoints(fromPip-1);
 						isPointSelectionMode = true;
 						infoPnl.print("Point clicked is: " + fromPip + ".");
 					// either point or bar selected, basis for toPip selection.
 					} else {
+						// prevent moving checkers from point to bar.
+						// i.e select point, to bar.
 						int toPip = ((Point) object).getPointNumber() + 1;
 						
 						if (isPointSelectionMode) {
@@ -125,10 +127,13 @@ public class MainController extends GridPane {
 					}
 				// bar selected, basis for fromBar selection.
 				} else if (object instanceof Bar) {
-					storerSelected = object;
-					game.highlightPoints(-1);
-					isBarSelectionMode = true;
-					infoPnl.print("Bar clicked.");
+					// prevent entering into both point and bar selection mode.
+					if (!isPointSelectionMode) {
+						storerSelected = object;
+						game.highlightPoints(-1);
+						isBarSelectionMode = true;
+						infoPnl.print("Bar clicked.");
+					}
 				// home selected, basis for toHome selection.
 				} else if (object instanceof Home) {
 					if (isPointSelectionMode || isBarSelectionMode) {
@@ -141,7 +146,6 @@ public class MainController extends GridPane {
 							String fromBar = ((Bar) storerSelected).getColour();
 							runCommand(("/move " + fromBar + " " + toHome).split(" "));
 						}
-						
 						game.unhighlightPoints();
 						isPointSelectionMode = false;
 						isBarSelectionMode = false;
@@ -184,19 +188,32 @@ public class MainController extends GridPane {
 			
 			cmdPnl.setText("");
 			
-			// TODO add text to a txt file containing the history of commands entered.
-			// TODO the up and down arrow should allow the user to navigate between commands.
-			// TODO upon typing up or down, set the cmdPnl with the commands.
+			/*
+			 * TODO add text to a txt file containing the history of commands entered.
+			 * the up and down arrow should allow the user to navigate between commands.
+			 * upon typing up or down, set the cmdPnl with the commands.
+			 */
 		});
 	}
 	
+	/**
+	 * Initialize roll die button listeners.
+	 * 
+	 * TODO remove the dieState variable, it is used to show that the roll dice button works
+	 * and dices can be drawn to either side of the board.
+	 * 
+	 * When turns and players are implemented, then elaborate on this (i.e. display the
+	 * dices on the side where it's the player's roll). 
+	 */
+	private int dieState = 2;
 	private void initRollDieButtonListener() {
-		/**
-		 * Listens for actions (i.e. mouse clicks) that roll the die
-		 * 	- Clicking on rollDie button
-		 */
 		rollDieBtn.setOnAction((ActionEvent event) -> {
-			runCommand("/roll 1".split(" "));
+			if (dieState == 1) {
+				dieState = 2;
+			} else {
+				dieState = 1;
+			}
+			runCommand(("/roll " + new Integer(dieState).toString()).split(" "));
 		});
 	}
 	
@@ -343,19 +360,5 @@ public class MainController extends GridPane {
 				}
 			}
 		);
-		/*
-		// CTRL+R
-		scene.addEventFilter(KeyEvent.KEY_PRESSED, new EventHandler<KeyEvent>() {
-			final KeyCombination keyComb = new KeyCodeCombination(KeyCode.R, KeyCombination.CONTROL_DOWN);
-			public void handle(KeyEvent key) {
-				if (keyComb.match(key)) {
-					System.out.println("Key Pressed: " + keyComb); // for debug
-					// inform player
-					rolledDie(infoPanel);
-					key.consume(); // <-- stops passing the event to next node
-				}
-			}
-		});
-		*/
 	}
 }

@@ -7,7 +7,7 @@ import javafx.scene.input.MouseEvent;
 /**
  * This class should be extended by game components that will store checkers.
  * 
- * This class has all the common function that will be needed by game components
+ * This class has all the common functions that will be needed by game components
  * to draw checkers.
  * 
  * This class extends Stack, of which extends VBox.
@@ -30,6 +30,8 @@ public class CheckersStorer extends Stack<Checker> {
 		// Along with the event, the checkers storer object is passed in as the parameter to MainController.
 		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
 			this.fireEvent(new CheckersStorerSelectedEvent(this));
+			
+			// consume event before it gets to MainController, of which has other listeners relying on mouse clicks.
 			event.consume();
 		});
 	}
@@ -68,10 +70,10 @@ public class CheckersStorer extends Stack<Checker> {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the two point's top checkers are of the same colour.
+	 * Returns a boolean value indicating if the two checkers storer's top checkers are of the same colour.
 	 * If the other object is empty, return true as well.
 	 * 
-	 * @param object, the other point to be compared with.
+	 * @param object, the other checker storer to be compared with.
 	 * @return the boolean value.
 	 */
 	public boolean topCheckerColourEquals(CheckersStorer otherObject) {
