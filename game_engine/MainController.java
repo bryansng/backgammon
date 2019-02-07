@@ -1,20 +1,28 @@
 package game_engine;
 
 import java.util.Arrays;
+import java.util.Optional;
 
 import constants.MoveResult;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
 import javafx.application.Platform;
+import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 
 /**
  * This class represents the entire component of the application,
@@ -147,25 +155,29 @@ public class MainController extends GridPane {
 	private void initUIListeners() {
 		initCommandPanelListener();
 		initRollDieButtonListener();
+		//infoPnl.getScene().getWindow().setOnCloseRequest(onExitCheck);
 	}
 	
 	private void initCommandPanelListener() {
 		/**
 		 * Listens for certain text commands from player
 		 * 	- echoes player input to infoPanel
+		 * 	- does not echo empty strings/whitespace
 		 */
 		cmdPnl.setOnAction((ActionEvent event) -> {
 			String text = cmdPnl.getText();
 			
 			if (text.startsWith("/")) {
 				runCommand(cmdPnl.getText().split(" "));
-			} else if (text.equals("")) {
-				// ignores if user types nothing.
 			} else if (text.equals("quit")) {
 				runCommand("/quit".split(" "));
-			} else {
+			} else if (text.equals("save")) {
+				runCommand("/save".split(" "));
+			} else if (text.trim().length() > 0) {
 				infoPnl.print(text);
-			}
+			} else {
+				// ignores if player input is not valid
+			} 
 			
 			cmdPnl.setText("");
 			
@@ -263,20 +275,49 @@ public class MainController extends GridPane {
 			}
 		}
 		/**
+		 * TODO 
+		 * 
+		 */
+		else if (command.equals("/save")) {
+			infoPnl.txt();
+			infoPnl.print("Game log saved to backgammonn.txt");			
+		}
+		/**
 		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
 		 * then print that amount of line with spaces.
 		 */
 		/**
 		 * Command: /quit
 		 * Quits the entire application.
+		 * TODO double check with player before exitingSOMETHINGWONG
 		 */
-		else if (command.equals("/quit")) {
-			infoPnl.print("You have quitted the game. Bye bye!");
-			Platform.exit();
+		else if (command.equals("/quit")) {	
+			infoPnl.txt();
+			infoPnl.print("Trying to quit game. Game log autosaved as \"backgammon.txt\".");
+			//infoPnl.getScene().getWindow().setOnCloseRequest(onExitCheck);
+			infoPnl.getScene().getWindow().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+			//Platform.exit();
 		} else {
 			infoPnl.print("Unknown Command.", "error");
 		}
 	}
+	
+	/**
+	 * Checks if player really wants to exit game
+	 * prevents accidental exits
+	 */
+	private EventHandler<WindowEvent> onExitCheck = event -> {
+		Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION, "Do you really want to exit Backgammon?");
+		Button exitBtn = (Button) exitCheck.getDialogPane().lookupButton(ButtonType.OK);
+		exitBtn.setText("Exit");
+		exitCheck.setHeaderText("Alert");
+		exitCheck.initModality(Modality.APPLICATION_MODAL);
+		//exitCheck.initOwner(game.getScene().getWindow());
+		
+		Optional<ButtonType> closeResponse = exitCheck.showAndWait();
+        if (!ButtonType.OK.equals(closeResponse.get())) 
+            event.consume();        
+	};
 	
 	/**
 	 * DO NOT TOUCH THIS OR ADD THIS ANYWHERE ELSE,

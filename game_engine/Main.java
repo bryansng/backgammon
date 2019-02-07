@@ -4,7 +4,6 @@ import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-
 public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);	// calls start method.
@@ -18,6 +17,7 @@ public class Main extends Application {
 
 		stage.setScene(scene);
 		stage.setTitle("Backgammon");
+		//stage.setOnCloseRequest(onExitCheck);
 		stage.show();
 		
 		// these must be set only after stage is shown.
