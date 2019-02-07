@@ -2,8 +2,7 @@ package game_engine;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import javafx.scene.image.Image;
 
@@ -32,14 +31,8 @@ public class Settings {
 	 * @param path the path of the file.
 	 * @return the file input stream.
 	 */
-	private static FileInputStream getFile(String path) {
-		FileInputStream input = null;
-		try {
-			input = new FileInputStream(path);
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
-		return input;
+	private static InputStream getFile(String path) {
+		return Settings.class.getResourceAsStream(path);
 	}
 	
 	/**
@@ -65,7 +58,7 @@ public class Settings {
 	 * @return size of point.
 	 */
 	public static Dimension getPointSize() {
-		Image img = new Image(getFile("src/img/board/white_point.png"));
+		Image img = new Image(getFile("img/board/white_point.png"));
 		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
@@ -77,7 +70,7 @@ public class Settings {
 	 * @return size of checker.
 	 */
 	public static Dimension getCheckerSize() {
-		Image img = new Image(getFile("src/img/checkers/white_checkers.png"));
+		Image img = new Image(getFile("img/checkers/white_checkers.png"));
 		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
@@ -89,7 +82,7 @@ public class Settings {
 	 * @return size of dice.
 	 */
 	public static Dimension getDiceSize() {
-		Image img = new Image(getFile("src/img/dices/black/1.png"));
+		Image img = new Image(getFile("img/dices/black/1.png"));
 		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());

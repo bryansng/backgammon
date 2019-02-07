@@ -1,7 +1,6 @@
 package game_engine;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -35,15 +34,9 @@ public class Checker extends ImageView {
 	 * - Initialize img and img_highlighted instance variable.
 	 */
 	private void initImg() {
-		FileInputStream input1 = null;
-		FileInputStream input2 = null;
-		colour.toLowerCase();
-		try {
-			input1 = new FileInputStream("src/img/checkers/" + colour + "_checkers.png");
-			input2 = new FileInputStream("src/img/checkers/" + colour + "_checkers_highlighted.png");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		colour = colour.toLowerCase();
+		InputStream input1 = getClass().getResourceAsStream("img/checkers/" + colour + "_checkers.png");
+		InputStream input2 = getClass().getResourceAsStream("img/checkers/" + colour + "_checkers_highlighted.png");
 		img = new Image(input1);
 		imgHighlighted = new Image(input2);
 		

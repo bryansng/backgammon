@@ -10,12 +10,6 @@
 !readme.md
 
 # And not these folders...
-!/img/
-!/img/dices/
-!/img/board/
-!/img/checkers/
-!/img/icon/
-
 !/game_engine/
 !/events/
 !/exceptions/

@@ -1,7 +1,6 @@
 package game_engine;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -42,12 +41,7 @@ public class Main extends Application {
 	 * @param stage, the stage of the application.
 	 */
 	public void setStageIcon(Stage stage) {
-		FileInputStream input = null;
-		try {
-			input = new FileInputStream("src/img/icon/icon.png");
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		InputStream input = getClass().getResourceAsStream("img/icon/icon.png");
 		stage.getIcons().add(new Image(input));
 	}
 }

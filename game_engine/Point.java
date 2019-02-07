@@ -1,7 +1,6 @@
 package game_engine;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -36,16 +35,9 @@ public class Point extends CheckersStorer {
 	public Point(String colour, double rotation, int pointNum) {
 		super();
 		this.pointNum = pointNum;
-		FileInputStream input1 = null;
-		FileInputStream input2 = null;
-		colour.toLowerCase();
-		try {
-			input1 = new FileInputStream("src/img/board/" + colour + "_point.png");
-			input2 = new FileInputStream("src/img/board/" + colour + "_point_highlighted.png");
-		}
-		catch (FileNotFoundException e) {
-			e.printStackTrace();
-		}
+		colour = colour.toLowerCase();
+		InputStream input1 = getClass().getResourceAsStream("img/board/" + colour + "_point.png");
+		InputStream input2 = getClass().getResourceAsStream("img/board/" + colour + "_point_highlighted.png");
 		img = new Image(input1);
 		imgHighlighted = new Image(input2);
 		

@@ -1,7 +1,6 @@
 package game_engine;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Random;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -36,15 +35,10 @@ public class Dice extends ImageView {
 	 * @param colour
 	 */
 	private void initImages(String colour) {
-		FileInputStream input = null;
-		colour.toLowerCase();
-		try {
-			for (int i = 0; i < dices.length; i++) {
-				input = new FileInputStream("src/img/dices/" + colour + "/" + (i+1) + ".png");
-				dices[i] = new Image(input);
-			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+		colour = colour.toLowerCase();
+		for (int i = 0; i < dices.length; i++) {
+			InputStream input = getClass().getResourceAsStream("img/dices/" + colour + "/" + (i+1) + ".png");
+			dices[i] = new Image(input);
 		}
 	}
 	
