@@ -4,12 +4,16 @@ import game_engine.CheckersStorer;
 import javafx.event.EventType;
 
 /**
+ * Custom Selected Event for checkers storers.
  * 
- * @author Bryan Sng
  * References:
  * https://stackoverflow.com/questions/27416758/how-to-emit-and-handle-custom-events
  * https://stackoverflow.com/questions/46649406/custom-javafx-events?noredirect=1&lq=1
  *
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * 
  */
 @SuppressWarnings("serial")
 public class CheckersStorerSelectedEvent extends CheckersStorerEvent {

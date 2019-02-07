@@ -13,8 +13,9 @@ import javafx.scene.layout.BackgroundImage;
  * This class helps Board class to initialize the checkers for each point object.
  * This class also add the checkers objects to the point object, to be drawn to the stage.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Point extends CheckersStorer {

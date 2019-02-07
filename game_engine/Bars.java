@@ -10,8 +10,9 @@ import javafx.scene.layout.VBox;
  * top is the black's bar.
  * bottom is the white's bar.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Bars extends VBox {

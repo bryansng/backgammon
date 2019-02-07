@@ -5,8 +5,10 @@ import javafx.scene.layout.HBox;
 
 /**
  * This class represents a HBox of dices.
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Dices extends HBox {

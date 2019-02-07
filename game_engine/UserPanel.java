@@ -8,8 +8,9 @@ import javafx.scene.layout.HBox;
  * 
  * There will be one in the top and one at the bottom of the game.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class UserPanel extends HBox {

@@ -5,8 +5,9 @@ import javafx.geometry.Pos;
 /**
  * This class represents the homes where the checkers will bear-off to.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Home extends CheckersStorer {

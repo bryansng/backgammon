@@ -5,8 +5,10 @@ import javafx.scene.control.TextArea;
 /**
  * A TextArea that displays game information.
  * 
- * @author @LxEmily
- * @coauthor Bryan Sng
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * 
  */
 public class InfoPanel extends TextArea {
 	public InfoPanel() {

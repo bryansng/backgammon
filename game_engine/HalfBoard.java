@@ -7,8 +7,9 @@ import javafx.scene.layout.BorderPane;
  * 
  * This level of modularization allows us to increase customization. 
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class HalfBoard extends BorderPane {

@@ -12,8 +12,9 @@ import javafx.scene.input.MouseEvent;
  * 
  * This class extends Stack, of which extends VBox.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class CheckersStorer extends Stack<Checker> {

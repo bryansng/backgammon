@@ -23,9 +23,9 @@ import javafx.scene.layout.GridPane;
  * These components are children of this class, therefore
  * this class is the root in the layout structure/tree.
  * 
- * @author Bryan Sng
- * @author @LxEmily
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class MainController extends GridPane {

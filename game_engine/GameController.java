@@ -8,8 +8,9 @@ import javafx.scene.layout.VBox;
  * This class represents the game in Backgammon.
  * This class creates a game made out of modular panes/nodes.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class GameController extends VBox {
@@ -74,7 +75,6 @@ public class GameController extends VBox {
 			points[fro].drawCheckers();
 			bar.drawCheckers();
 		}
-		
 		return moveResult;
 	}
 	
@@ -105,7 +105,6 @@ public class GameController extends VBox {
 			points[to].drawCheckers();
 			bar.drawCheckers();
 		}
-		
 		return moveResult;
 	}
 	
@@ -151,7 +150,6 @@ public class GameController extends VBox {
 			bar.drawCheckers();
 			home.drawCheckers();
 		}
-		
 		return moveResult;
 	}
 	

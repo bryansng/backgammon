@@ -5,8 +5,9 @@ import javafx.scene.control.TextField;
 /**
  * A TextArea that takes in player input.
  * 
- * @author @LxEmily
- * @coauthor Bryan Sng
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  * 
  */
 public class CommandPanel extends TextField {

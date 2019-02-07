@@ -4,14 +4,16 @@ import constants.MoveResult;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 /**
  * This class represents the Board object in Backgammon.
  * This class initializes an array of points with their starting checkers.
  * This class creates a board made out of modular panes.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Board extends HBox {
@@ -119,15 +121,68 @@ public class Board extends HBox {
 		 * 19-24, white home board.
 		 */
 		// Each quadrant has a set of 6 points.
-		HBox quad4 = createSetOfPoints(1, 6, "bottom");
-		HBox quad3 = createSetOfPoints(7, 12, "bottom");
-		HBox quad2 = createSetOfPoints(13, 18, "top");
-		HBox quad1 = createSetOfPoints(19, 24, "top");
+		VBox quad4 = createQuadrants(1, 6, "bottom");
+		VBox quad3 = createQuadrants(7, 12, "bottom");
+		VBox quad2 = createQuadrants(13, 18, "top");
+		VBox quad1 = createQuadrants(19, 24, "top");
 
 		rightBoard.setBottom(quad4);
 		leftBoard.setBottom(quad3);
 		leftBoard.setTop(quad2);
 		rightBoard.setTop(quad1);
+	}
+
+	/**
+	 * Creates a VBox with the points and their labels.
+	 * @param startRange One-based index, starting index.
+	 * @param endRange One-based index, ending index.
+	 * @param side The side where the points will be situated, top or bottom of board.
+	 * @return VBox with HBox of points and HBox of labels as children.
+	 */
+	private VBox createQuadrants(int startRange, int endRange, String side) {
+		VBox quad = new VBox();
+		HBox setLabels = createSetOfPoints(startRange, endRange, side);
+		HBox setPoints = createSetOfLabels(startRange, endRange, side);
+
+		if (side.equals("bottom"))
+			quad.getChildren().addAll(setLabels, setPoints);
+		else {
+			quad.getChildren().addAll(setPoints, setLabels);
+		}
+		return quad;
+	}
+
+	/**
+	 * Creates a HBox with the labels within the range of startRange and endRange.
+	 * @param startRange One-based index, starting index.
+	 * @param endRange One-based index, ending index.
+	 * @param side The side where the points will be situated, top or bottom of board.
+	 * @return HBox with the labels as children.
+	 */
+	private HBox createSetOfLabels(int startRange, int endRange, String side) {
+		HBox set = new HBox();
+		set.setPrefSize(rightBoard.getPrefWidth(), Settings.getPointNumberLabelHeight());
+		
+		// Handles the evenly distributed spacings between the points.
+		set.setAlignment(Pos.CENTER);
+		// why by 5 again?
+		double spacing = (rightBoard.getPrefWidth()-6*(Settings.getPointSize().getWidth())) / 5;
+		set.setSpacing(spacing);
+		
+		set.setStyle(Settings.getGameColour());
+		
+		// If bottom of board, points are numbered from smallest to highest from right to left.
+		// Else, from smallest to highest from left to right.
+		if (side.equals("bottom"))
+			for (int i = endRange-1; i >= startRange-1; i--) {
+				set.getChildren().add(new PointNumberLabel(i+1));
+			}
+		else {
+			for (int i = startRange-1; i < endRange; i++) {
+				set.getChildren().add(new PointNumberLabel(i+1));
+			}
+		}
+		return set;
 	}
 	
 	/**
@@ -188,12 +243,6 @@ public class Board extends HBox {
 			points[to].drawCheckers();
 			points[fro].drawCheckers();
 		}
-		
-		// boolean value is returned instead of void,
-		// is because this provides flexibility in the future
-		// where we can print to the info panel telling the user
-		// that their move was invalid, and that they should
-		// try another move.
 		return moveResult;
 	}
 	

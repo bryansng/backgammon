@@ -13,8 +13,9 @@ import javafx.scene.image.Image;
  * This means that every other class except this one will share positional data relative to
  * data here.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public class Settings {
@@ -124,11 +125,19 @@ public class Settings {
 	}
 	
 	/**
+	 * Returns the height of the point labels.
+	 * @return height of point label.
+	 */
+	public static double getPointNumberLabelHeight() {
+		return 15.0;
+	}
+	
+	/**
 	 * Returns the margin of the homes within home panel.
 	 * @return margin of the homes.
 	 */
 	public static double getHomeMargin() {
-		double margin = 10.0;
+		double margin = 10.0 + getPointNumberLabelHeight();
 		return margin;
 	}
 	

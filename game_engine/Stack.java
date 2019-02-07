@@ -5,6 +5,13 @@ import java.util.Iterator;
 import exceptions.StackOverflowException;
 import javafx.scene.layout.VBox;
 
+/**
+ * This class represents a stack data structure, i.e. Last-In-First-Out data structure.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ */
 public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 	private final int MAXSIZE = Settings.getPointMaxSize();
 	private int size = 0;

@@ -8,8 +8,9 @@ import javafx.scene.paint.Color;
 /**
  * This class represents the roll die button in Backgammon.
  * 
- * @author @LxEmily
- * @coauthor Bryan Sng
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  * 
  */
 public class RollDieButton extends Button {

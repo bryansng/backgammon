@@ -8,8 +8,9 @@ package game_engine;
  * top is the white's home.
  * bottom is the black's home.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 import javafx.geometry.Insets;

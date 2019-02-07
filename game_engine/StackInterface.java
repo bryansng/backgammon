@@ -1,5 +1,13 @@
 package game_engine;
 
+/**
+ * Stack interface.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * 
+ */
 public interface StackInterface<E> {
 	boolean isEmpty();
 	int size();
