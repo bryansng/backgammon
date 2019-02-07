@@ -2,12 +2,9 @@ package game_engine;
 
 import java.util.Arrays;
 import java.util.Optional;
-
 import constants.MoveResult;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
-import javafx.application.Platform;
-import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -155,7 +152,7 @@ public class MainController extends GridPane {
 	private void initUIListeners() {
 		initCommandPanelListener();
 		initRollDieButtonListener();
-		//infoPnl.getScene().getWindow().setOnCloseRequest(onExitCheck);
+		Main.getStage().setOnCloseRequest(onExitCheck);
 	}
 	
 	private void initCommandPanelListener() {
@@ -275,8 +272,8 @@ public class MainController extends GridPane {
 			}
 		}
 		/**
-		 * TODO 
-		 * 
+		 * Command: /save
+		 * Saves game log (text on info panel) to text file 
 		 */
 		else if (command.equals("/save")) {
 			infoPnl.txt();
@@ -288,15 +285,13 @@ public class MainController extends GridPane {
 		 */
 		/**
 		 * Command: /quit
-		 * Quits the entire application.
-		 * TODO double check with player before exitingSOMETHINGWONG
+		 * Auto saves game log
+		 * Prompts player for quit confirmation before quitting application
 		 */
 		else if (command.equals("/quit")) {	
 			infoPnl.txt();
 			infoPnl.print("Trying to quit game. Game log autosaved as \"backgammon.txt\".");
-			//infoPnl.getScene().getWindow().setOnCloseRequest(onExitCheck);
-			infoPnl.getScene().getWindow().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-			//Platform.exit();
+			Main.getStage().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 		} else {
 			infoPnl.print("Unknown Command.", "error");
 		}
@@ -307,13 +302,17 @@ public class MainController extends GridPane {
 	 * prevents accidental exits
 	 */
 	private EventHandler<WindowEvent> onExitCheck = event -> {
-		Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION, "Do you really want to exit Backgammon?");
+		// Alert settings
+		Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION);
+		exitCheck.setHeaderText("Do you really want to exit Backgammon?");
+		exitCheck.initModality(Modality.APPLICATION_MODAL);
+		exitCheck.initOwner(Main.getStage());		
+
+		// Exit button
 		Button exitBtn = (Button) exitCheck.getDialogPane().lookupButton(ButtonType.OK);
 		exitBtn.setText("Exit");
-		exitCheck.setHeaderText("Alert");
-		exitCheck.initModality(Modality.APPLICATION_MODAL);
-		//exitCheck.initOwner(game.getScene().getWindow());
 		
+		// Exit application
 		Optional<ButtonType> closeResponse = exitCheck.showAndWait();
         if (!ButtonType.OK.equals(closeResponse.get())) 
             event.consume();        
