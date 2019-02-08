@@ -3,8 +3,9 @@ package constants;
 /**
  * This enum represents the moves of checkers in the Backgammon game.
  * 
- * @author Bryan Sng
- * @email sngby98@gmail.com
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
  *
  */
 public enum MoveResult {

@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.MessageType;
 import javafx.scene.control.TextArea;
 
 /**
@@ -23,20 +24,23 @@ public class InfoPanel extends TextArea {
 	/**
 	 * Prints the given text to the information panel.
 	 * @param text - string to be printed
-	 * @param type - type of string, (i.e., error or system message) 
+	 * @param mtype - message type, (i.e., error or system message) 
 	 */
-	public void print(String text, String type) {
-		type.toLowerCase();
-		if (type.equals("error")) {
-			type = "[Error] ";
-		} else if (type.equals("chat")) {
-			type = "";
-		} else {
-			type = "[System] ";
+	public void print(String text, MessageType mtype) {
+		String type = "";
+		switch (mtype) {
+			case SYSTEM:
+				type = "[System] ";
+				break;
+			case ERROR:
+				type = "[Error] ";
+				break;
+			case CHAT:
+				break;
 		}
 		appendText("> " + type + text + "\n");
 	}
 	public void print(String text) {
-		print(text, "system");
+		print(text, MessageType.SYSTEM);
 	}
 }

@@ -17,7 +17,7 @@ import javafx.scene.layout.VBox;
  *
  */
 public class Board extends HBox {
-	private final int MAXPOINTS = 24;
+	private final int MAXPOINTS = Settings.getNumberOfPoints();
 	private Point[] points;
 	private BorderPane leftBoard, rightBoard;
 

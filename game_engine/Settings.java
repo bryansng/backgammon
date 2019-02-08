@@ -142,4 +142,13 @@ public class Settings {
 		double margin = 5.0;
 		return margin;
 	}
+	
+	/**
+	 * Returns the number of points in the game.
+	 * @return the number of points
+	 */
+	public static int getNumberOfPoints() {
+		int numberOfPoints = 24;
+		return numberOfPoints;
+	}
 }

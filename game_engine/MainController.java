@@ -2,6 +2,7 @@ package game_engine;
 
 import java.util.Arrays;
 
+import constants.MessageType;
 import constants.MoveResult;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
@@ -116,10 +117,10 @@ public class MainController extends GridPane {
 						
 						if (isPointSelectionMode) {
 							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
-							runCommand(("/move " + fromPip + " " + toPip).split(" "));
+							runCommand("/move " + fromPip + " " + toPip);
 						} else if (isBarSelectionMode) {
 							String fromBar = ((Bar) storerSelected).getColour();
-							runCommand(("/move " + fromBar + " " + toPip).split(" "));
+							runCommand("/move " + fromBar + " " + toPip);
 						}
 						game.unhighlightPoints();
 						isPointSelectionMode = false;
@@ -141,10 +142,10 @@ public class MainController extends GridPane {
 						
 						if (isPointSelectionMode) {
 							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
-							runCommand(("/move " + fromPip + " " + toHome).split(" "));
+							runCommand("/move " + fromPip + " " + toHome);
 						} else if (isBarSelectionMode) {
 							String fromBar = ((Bar) storerSelected).getColour();
-							runCommand(("/move " + fromBar + " " + toHome).split(" "));
+							runCommand("/move " + fromBar + " " + toHome);
 						}
 						game.unhighlightPoints();
 						isPointSelectionMode = false;
@@ -165,25 +166,24 @@ public class MainController extends GridPane {
 		initCommandPanelListener();
 		initRollDieButtonListener();
 	}
-	
+
+	/**
+	 * Manages command panel listeners.
+	 */
 	private void initCommandPanelListener() {
-		/**
-		 * Listens for certain text commands from player
-		 * 	- echoes player input to infoPanel
-		 */
 		cmdPnl.setOnAction((ActionEvent event) -> {
 			String text = cmdPnl.getText();
 			
 			if (text.startsWith("/")) {
-				runCommand(cmdPnl.getText().split(" "));
+				runCommand(cmdPnl.getText());
 			} else if (text.equals("")) {
 				// ignores if user types nothing.
 			} else if (text.equals("quit")) {
-				runCommand("/quit".split(" "));
+				runCommand("/quit");
 			} else {
 				// player chat, need to implement players to differentiate which player is which.
 				// in the meantime, just add text to info panel.
-				infoPnl.print(text, "chat");
+				infoPnl.print(text, MessageType.CHAT);
 			}
 			
 			cmdPnl.setText("");
@@ -213,24 +213,22 @@ public class MainController extends GridPane {
 			} else {
 				dieState = 1;
 			}
-			runCommand(("/roll " + new Integer(dieState).toString()).split(" "));
+			runCommand("/roll " + new Integer(dieState).toString());
 		});
 	}
 	
 	/**
-	 * Takes in an array of strings,
-	 * check if they are commands that are recognized by the application.
+	 * Parse the text variable and runs it as a command.
 	 * 
-	 * If they are, run them.
-	 * 
-	 * @param args the array of strings containing the command and its arguments.
+	 * @param text the string containing the command and its arguments.
 	 */
-	private void runCommand(String[] args) {
+	private void runCommand(String text) {
+		String[] args = text.split(" ");
 		String command = args[0];
 		/*
 		 * Command: /move fromPip toPip			//both numbers
-		 * Command: /move fromBar toPip				//left is a color, right a number
-		 * Command: /move fromPip/bar toHome		//left is a color or number, right is a color.
+		 * Command: /move fromBar toPip			//left is a color, right a number
+		 * Command: /move fromPip/bar toHome	//left is a color or number, right is a color.
 		 * where fromPip and toPip will be one-index number based.
 		 * where fromBar is the bar color.
 		 * where toHome is the home color.
@@ -239,8 +237,13 @@ public class MainController extends GridPane {
 			String fro = args[1];
 			String to = args[2];
 			
-			MoveResult moveResult;
+			// handle out of bounds input.
+			if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
+				infoPnl.print("Invalid range, must be between 1-" + Settings.getNumberOfPoints() + ".", MessageType.ERROR);
+				return;
+			}
 			
+			MoveResult moveResult;
 			// move from point/bar to home.
 			if (to.equals("white") || to.equals("black")) {
 				if (fro.equals("white") || fro.equals("black")) {
@@ -259,7 +262,7 @@ public class MainController extends GridPane {
 						infoPnl.print("Moved checker from bar to home.");
 						break;
 					default:
-						infoPnl.print("Invalid move.", "error");
+						infoPnl.print("Invalid move.", MessageType.ERROR);
 				}
 			// move from bar.
 			} else if (fro.equals("white") || fro.equals("black")) {
@@ -278,11 +281,11 @@ public class MainController extends GridPane {
 						infoPnl.print("Moving checker from bar to " + toPip + ".");
 						break;
 					default:
-						infoPnl.print("Invalid move.", "error");
+						infoPnl.print("Invalid move.", MessageType.ERROR);
 				}
 			// move from point to point.
 			} else {
-				int fromPip = Integer.parseInt(args[1]);
+				int fromPip = Integer.parseInt(fro);
 				int toPip = Integer.parseInt(to);
 				
 				moveResult = game.moveCheckers(fromPip, toPip);
@@ -297,7 +300,7 @@ public class MainController extends GridPane {
 						infoPnl.print("Moving checker from " + fromPip + " to " + toPip + ".");
 						break;
 					default:
-						infoPnl.print("Invalid move.", "error");
+						infoPnl.print("Invalid move.", MessageType.ERROR);
 				}
 			}
 		}
@@ -319,7 +322,7 @@ public class MainController extends GridPane {
 			if (res != null) {
 				infoPnl.print("Roll dice results: " + Arrays.toString(res));
 			} else {
-				infoPnl.print("Player number incorrect. It must be either 1 or 2.", "error");
+				infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
 			}
 		}
 		/**
@@ -334,7 +337,7 @@ public class MainController extends GridPane {
 			infoPnl.print("You have quitted the game. Bye bye!");
 			Platform.exit();
 		} else {
-			infoPnl.print("Unknown Command.", "error");
+			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
 	
@@ -360,5 +363,32 @@ public class MainController extends GridPane {
 				}
 			}
 		);
+	}
+	
+	/**
+	 * Check if the arguments of /move command is within bounds, i.e. 0-24.
+	 * It ignores bar or homes, it only checks for pip indexes.
+	 * 
+	 * @param arg Argument of the /move command.
+	 * @return boolean value indicating if the argument is out of bounds.
+	 */
+	private boolean isIndexOutOfBounds(String arg) {
+		// pipIndex can be strings ("white" or "black"), so we deal with that.
+		boolean isString = false;
+		boolean isOutOfBounds = false;
+		
+		int pipNum = -1;
+		try {
+			pipNum = Integer.parseInt(arg);
+		} catch (NumberFormatException e) {
+			isString = true;
+		}
+		
+		if (!isString) {
+			if (!(pipNum >= 0 && pipNum <= Settings.getNumberOfPoints())) {
+				isOutOfBounds = true;
+			}
+		}
+		return isOutOfBounds;
 	}
 }
