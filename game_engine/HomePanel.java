@@ -1,5 +1,9 @@
 package game_engine;
 
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.layout.BorderPane;
+
 /**
  * This class represents the panel that contains the homes in Backgammon.
  * There are two HomePanels, one on the left of the board, the other on the right.
@@ -13,10 +17,6 @@ package game_engine;
  * @author @LxEmily, 17200573
  *
  */
-import javafx.geometry.Insets;
-import javafx.geometry.Pos;
-import javafx.scene.layout.BorderPane;
-
 public class HomePanel extends BorderPane {
 	private Home top;
 	private Home bottom;
@@ -27,7 +27,7 @@ public class HomePanel extends BorderPane {
 		double pointWidth = Settings.getPointSize().getWidth();
 		
 		setMinSize(pointWidth, halfBoardHeight);
-		setStyle(Settings.getGameColour());
+		setStyle("-fx-background-color: transparent");
 		initHomes();
 	}
 

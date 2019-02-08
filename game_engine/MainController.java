@@ -1,21 +1,26 @@
 package game_engine;
 
 import java.util.Arrays;
-
 import constants.MessageType;
+import java.util.Optional;
 import constants.MoveResult;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Button;
+import javafx.scene.control.ButtonType;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.WindowEvent;
 
 /**
  * This class represents the entire component of the application,
@@ -59,9 +64,9 @@ public class MainController extends GridPane {
 	 */
 	public void style() {
 		setStyle("-fx-font-size: 14px; -fx-font-family: 'Consolas';");
-		setPadding(new Insets(15));
+		setPadding(new Insets(10));
 		setVgap(5);
-		setHgap(10);
+		setHgap(5);
 		setAlignment(Pos.CENTER);
 		setMaxSize(Settings.getScreenSize().getWidth(), Settings.getScreenSize().getHeight());
 	}
@@ -165,10 +170,14 @@ public class MainController extends GridPane {
 	private void initUIListeners() {
 		initCommandPanelListener();
 		initRollDieButtonListener();
+		
+		//Main.getStage().setOnCloseRequest(onExitCheck);
 	}
 
 	/**
 	 * Manages command panel listeners.
+	 * 		- echoes player input to infoPanel.
+	 * 		- does not echo empty strings/whitespace.
 	 */
 	private void initCommandPanelListener() {
 		cmdPnl.setOnAction((ActionEvent event) -> {
@@ -180,12 +189,15 @@ public class MainController extends GridPane {
 				// ignores if user types nothing.
 			} else if (text.equals("quit")) {
 				runCommand("/quit");
+			} else if (text.equals("save")) {
+				runCommand("/save");
+			} else if (text.trim().isEmpty()) {
+				// ignores if string empty or whitespace only.
 			} else {
 				// player chat, need to implement players to differentiate which player is which.
 				// in the meantime, just add text to info panel.
 				infoPnl.print(text, MessageType.CHAT);
 			}
-			
 			cmdPnl.setText("");
 			
 			/*
@@ -326,20 +338,50 @@ public class MainController extends GridPane {
 			}
 		}
 		/**
+		 * Command: /save
+		 * Saves game log (text on info panel) to text file .
+		 */
+		else if (command.equals("/save")) {
+			infoPnl.saveToFile();		
+		}
+		/**
 		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
 		 * then print that amount of line with spaces.
 		 */
 		/**
 		 * Command: /quit
-		 * Quits the entire application.
+		 * Saves game log and prompts player to quit before quitting application.
 		 */
-		else if (command.equals("/quit")) {
-			infoPnl.print("You have quitted the game. Bye bye!");
-			Platform.exit();
+		else if (command.equals("/quit")) {	
+			infoPnl.saveToFile();
+			//infoPnl.print("Trying to quit game. Game log autosaved as \"backgammon.txt\".");
+			infoPnl.print("Trying to quit game.");
+			Main.getStage().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 		} else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
+	
+	/**
+	 * Checks if player really wants to exit game prevents accidental exits
+	 */
+	@SuppressWarnings("unused")
+	private EventHandler<WindowEvent> onExitCheck = event -> {
+		// Alert settings
+		Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION);
+		exitCheck.setHeaderText("Do you really want to exit Backgammon?");
+		exitCheck.initModality(Modality.APPLICATION_MODAL);
+		exitCheck.initOwner(Main.getStage());		
+
+		// Exit button
+		Button exitBtn = (Button) exitCheck.getDialogPane().lookupButton(ButtonType.OK);
+		exitBtn.setText("Exit");
+		
+		// Exit application
+		Optional<ButtonType> closeResponse = exitCheck.showAndWait();
+        if (!ButtonType.OK.equals(closeResponse.get())) 
+            event.consume();        
+	};
 	
 	/**
 	 * DO NOT TOUCH THIS OR ADD THIS ANYWHERE ELSE,

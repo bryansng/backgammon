@@ -16,12 +16,15 @@ import javafx.stage.Stage;
  *
  */
 public class Main extends Application {
+	private static Stage stage;
+	
 	public static void main(String[] args) {
 		launch(args);	// calls start method.
 	}
 	
 	@Override
 	public void start(Stage stage) throws Exception {
+		Main.stage = stage;
 		MainController root = new MainController();
 		
 		Scene scene = new Scene(root);
@@ -43,5 +46,9 @@ public class Main extends Application {
 	public void setStageIcon(Stage stage) {
 		InputStream input = getClass().getResourceAsStream("img/icon/icon.png");
 		stage.getIcons().add(new Image(input));
+	}
+
+	public static Stage getStage () {
+		return stage;
 	}
 }

@@ -130,7 +130,7 @@ public class Settings {
 	 * @return margin of the homes.
 	 */
 	public static double getHomeMargin() {
-		double margin = 10.0 + getPointNumberLabelHeight();
+		double margin = getPointNumberLabelHeight();
 		return margin;
 	}
 	
@@ -141,6 +141,15 @@ public class Settings {
 	public static double getBarMargin() {
 		double margin = 5.0;
 		return margin;
+	}
+	
+	/**
+	 * Returns the distance between two player labels.
+	 * @return spacing of the player label.
+	 */
+	public static double getPlayerLabelSpacing() {
+		double spacing = 50.0;
+		return spacing;
 	}
 	
 	/**
