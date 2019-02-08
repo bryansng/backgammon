@@ -170,10 +170,10 @@ public class MainController extends GridPane {
 				runCommand("/quit".split(" "));
 			} else if (text.equals("save")) {
 				runCommand("/save".split(" "));
-			} else if (text.trim().length() > 0) {
-				infoPnl.print(text);
+			} else if (text.trim().isEmpty()) {
+				// if empty string/whitespace only string, ignore.
 			} else {
-				// ignores if player input is not valid
+				infoPnl.print(text);
 			} 
 			
 			cmdPnl.setText("");
