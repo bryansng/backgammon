@@ -1,6 +1,7 @@
 package game_engine;
 
 import constants.MoveResult;
+import game_engine.Player.Colour;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
@@ -13,10 +14,14 @@ import javafx.scene.layout.VBox;
  *
  */
 public class GameController extends VBox {
-	private UserPanel topUserPnl, bottomUserPnl;
+	private PlayerPanel topUserPnl, bottomUserPnl;
 	private Bars bars;
 	private Board board;
 	private HomePanel leftHome, rightHome;
+	
+	// will expand player related features in sprint 2
+	private Player player1;
+	private Player player2;
 	
 	/**
 	 * Default Constructor
@@ -38,13 +43,16 @@ public class GameController extends VBox {
 		rightHome = new HomePanel();
 		bars = new Bars();
 		
+		player1 = new Player("Player One", 0, Colour.BLACK);
+		player2 = new Player("Player Two", 0, Colour.WHITE);
+		
 		HBox middlePart = board;
 		middlePart.getChildren().add(1, bars);
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
 
-		topUserPnl = new UserPanel(middlePart.getWidth());
-		bottomUserPnl = new UserPanel(middlePart.getWidth());
+		topUserPnl = new PlayerPanel(middlePart.getWidth(), player2);
+		bottomUserPnl = new PlayerPanel(middlePart.getWidth(), player1);
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
 		setStyle(Settings.getGameColour());
