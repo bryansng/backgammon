@@ -463,9 +463,6 @@ public class MainController extends GridPane {
 	 * Saves game log and prompts player to quit before quitting application.
 	 */
 	private void runQuitCommand() {
-		infoPnl.saveToFile();
-		//infoPnl.print("Trying to quit game. Game log autosaved as \"backgammon.txt\".");
-		infoPnl.print("Trying to quit game.");
 		Main.getStage().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
 	
@@ -478,7 +475,10 @@ public class MainController extends GridPane {
 		Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION);
 		exitCheck.setHeaderText("Do you really want to exit Backgammon?");
 		exitCheck.initModality(Modality.APPLICATION_MODAL);
-		exitCheck.initOwner(Main.getStage());		
+		exitCheck.initOwner(Main.getStage());	
+		
+		infoPnl.print("Trying to quit game.");
+		runSaveCommand();
 
 		// Exit button
 		Button exitBtn = (Button) exitCheck.getDialogPane().lookupButton(ButtonType.OK);
