@@ -58,6 +58,7 @@ public class GameController extends VBox {
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
 		setStyle(Settings.getGameColour());
+		setMaxHeight(topUserPnl.getMinHeight() + middlePart.getHeight() + bottomUserPnl.getMinHeight());
 	}
 	
 	/**
