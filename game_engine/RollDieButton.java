@@ -17,7 +17,7 @@ public class RollDieButton extends Button {
 	public RollDieButton () {
 		super("Roll Die");
 		setMaxWidth(Double.MAX_VALUE);
-		setMinHeight(Settings.getTopBottomHeight());
+		setMinHeight(Settings.getUIHeight());
 		initEventEffects();
 	}
 	

@@ -45,8 +45,7 @@ public class PlayerPanel extends HBox {
 	}
 	
 	private void initStyle(double width) {
-		setMinSize(width, Settings.getTopBottomHeight());
-		setStyle("-fx-background-color: transparent;");
+		setMinSize(width, Settings.getPlayerPanelHeight());
 		setAlignment(Pos.CENTER);
 		setSpacing(Settings.getPlayerLabelSpacing());
 	}

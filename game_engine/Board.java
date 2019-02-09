@@ -233,7 +233,7 @@ public class Board extends HBox {
 		if (!points[fro].isEmpty()) {
 			if (points[fro].topCheckerColourEquals(points[to])) {
 				points[to].push(points[fro].pop());
-				moveResult = MoveResult.MOVED;
+				moveResult = MoveResult.MOVED_TO_PIP;
 			} else {
 				if (points[to].size() == 1) {
 					moveResult = MoveResult.MOVE_TO_BAR;

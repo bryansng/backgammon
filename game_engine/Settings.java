@@ -36,14 +36,6 @@ public class Settings {
 	}
 	
 	/**
-	 * Top and bottom - part for user score and faces. Height currently hard-coded.
-	 * @return height of top/bottom.
-	 */
-	public static double getTopBottomHeight() {
-		return 50.0;
-	}
-	
-	/**
 	 * Currently hard-coded, we could create a image from illustrator, but this could work in the meantime.
 	 * @return size of the board.
 	 */
@@ -144,6 +136,16 @@ public class Settings {
 	}
 	
 	/**
+	 * Top and bottom - part for player score and faces. Height currently hard-coded.
+	 * @return height of player panel.
+	 */
+	public static double getPlayerPanelHeight() {
+		// V gap between terminal and roll die button taken into consideration.
+		// there's only 1 vgap, but two player panel, so we divide by 2.
+		return 40.0 + getUIVGap()/2.0;
+	}
+	
+	/**
 	 * Returns the distance between two player labels.
 	 * @return spacing of the player label.
 	 */
@@ -159,5 +161,22 @@ public class Settings {
 	public static int getNumberOfPoints() {
 		int numberOfPoints = 24;
 		return numberOfPoints;
+	}
+	
+	/**
+	 * Returns the vertical gap distance between command panel, info panel and roll die button.
+	 * @return the vertical gap distance.
+	 */
+	public static double getUIVGap() {
+		double vGap = 5.0;
+		return vGap;
+	}
+	
+	/**
+	 * Returns the height for command panel and roll die button.
+	 * @return the height.
+	 */
+	public static double getUIHeight() {
+		return getPlayerPanelHeight() - getUIVGap();
 	}
 }

@@ -47,7 +47,13 @@ public class Main extends Application {
 		InputStream input = getClass().getResourceAsStream("img/icon/icon.png");
 		stage.getIcons().add(new Image(input));
 	}
-
+	
+	/**
+	 * Returns the stage of the application.
+	 * Used to create the quit prompt.
+	 * 
+	 * @return the main stage.
+	 */
 	public static Stage getStage () {
 		return stage;
 	}

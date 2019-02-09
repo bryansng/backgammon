@@ -20,7 +20,7 @@ import javafx.scene.control.TextArea;
 public class InfoPanel extends TextArea {
 	public InfoPanel() {
 		super();
-		setPrefHeight( Settings.getHalfBoardSize().getHeight());
+		setPrefHeight(Settings.getHalfBoardSize().getHeight());
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);
@@ -48,6 +48,16 @@ public class InfoPanel extends TextArea {
 	}
 	public void print(String text) {
 		print(text, MessageType.SYSTEM);
+	}
+	
+	/**
+	 * Print empty row to information panel.
+	 * @param times, number of times to print newline.
+	 */
+	public void printNewline(int times) {
+		for (int i = 0; i < times; i++) {
+			appendText("\n");
+		}
 	}
 	
 	/**
