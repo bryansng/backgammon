@@ -61,6 +61,28 @@ Personally, I prefer Eclipse for Java.
 - [x] Board with ability to move checkers around the board, bear-off, bear-on, get hit via mouse or keyboard.
 
 &nbsp;
+### Who did what
+see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
+
+| Bryan         | Emily         |
+| ------------- | ------------- |
+| Board panel, including  checkers, pips, numbers on pips, and space for doubling cube and match score.    | Information panel that displays game info. |
+| Initial board displayed with checkers in the correct places     | Command panel that takes in player input.      |
+| Move checkers from bar to bear off. (Done with "/test", may also be "/move"d or clicked) | Echo user input from command panel to info panel. Terminate with "quit" (or "/quit") command.      |
+
+Additionally, we also did
+- Initialize dice and alternating rolling die between two players
+- Additional space for player info
+- Home and jail
+- Highlighting pips when clicked
+- Inform player of result of moving checkers and rolling die
+- "Stacking" checkers up so they don't go over the pips
+- Ignore player input if it is empty or only contains whitespace
+- All our commands start with "/", but simply typing the keyword also works
+- Save (or auto save before quitting) contents of info panel to text file
+- Prompt player to confirm when quitting game
+
+&nbsp;
 ### How we did it as a whole:
 - **_Explore Objected Oriented Design concepts and techniques_**, to learn how to maintain our code. This is why we modularized and objectified almost everything in the application, this can be seen as a bit too much classes, but when it comes down to maintaining, you will know exactly where the problem is (i.e which class contains the culprit).
 
@@ -73,3 +95,4 @@ Personally, I prefer Eclipse for Java.
   If there's a bug in the code, what we do is understand how the objects interact with each other, then go to the class file that handles the interaction, then work our way down the interaction chain to find the bug.
 
   For instance, for some reason, we typed /move 1 2, a black checker is at point 2, a white checker is at point 1, black checker is supposed to get hit and go to bar. Command is entered, but the black checker doesn't move. We know that /move commands relies on *CommandPanel* to work, relays system messages through *InfoPanel*, and moves are made through *Board*. The code of /move is definitely in MainController, which it is. Then you work your way down from MainController, to GameController or Board, or wherever to fix the bug, relying heavily on Java's error stack trace.
+  
