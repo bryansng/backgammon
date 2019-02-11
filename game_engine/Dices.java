@@ -35,6 +35,7 @@ public class Dices extends HBox {
 		dices = new Dice[numberOfDices];
 		initDices(colour);
 		setAlignment(Pos.CENTER);
+		setSpacing(Settings.getDiceSize().getWidth() / 4.0);
 	}
 	
 	/**

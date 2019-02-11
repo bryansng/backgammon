@@ -49,6 +49,17 @@ public class Dice extends ImageView {
 	 */
 	private void draw(int result) {
 		setImage(dices[result-1]);
+		rotate();
+	}
+	
+	/**
+	 * Rotate the dice.
+	 */
+	private void rotate() {
+		// rotation range of 15 to -15.
+		Random rand = new Random();
+		int rotation = rand.nextInt(30) - 15 + 1;
+		setRotate(rotation);
 	}
 	
 	/**
