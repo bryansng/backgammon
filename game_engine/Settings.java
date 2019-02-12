@@ -117,6 +117,11 @@ public class Settings {
 		return 15.0;
 	}
 	
+	public static double getMiddlePartWidth() {
+		double width = getHomeMargin() * 4 + getBarMargin() * 2 + getHalfBoardSize().getWidth() * 2; 
+		return width;
+	}
+	
 	/**
 	 * Returns the margin of the homes within home panel.
 	 * @return margin of the homes.

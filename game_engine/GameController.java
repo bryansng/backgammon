@@ -50,12 +50,13 @@ public class GameController extends VBox {
 		player2 = new Player("Player Two", 0, Colour.BLACK);
 		
 		HBox middlePart = board;
+		middlePart.setMinWidth(Settings.getMiddlePartWidth());
 		middlePart.getChildren().add(1, bars);
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
-
-		topUserPnl = new PlayerPanel(middlePart.getWidth(), player2);
-		bottomUserPnl = new PlayerPanel(middlePart.getWidth(), player1);
+		
+		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), player2);
+		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), player1);
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
 		setStyle(Settings.getGameColour());
