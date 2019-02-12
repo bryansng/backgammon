@@ -3,6 +3,7 @@ package game_engine;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents a VBox of bars, situated in the middle of the board.
@@ -35,8 +36,8 @@ public class Bars extends VBox {
 	 * Initializes the individual bars and add them to bars VBox.
 	 */
 	public void initIndividualBars() {
-		top = new Bar("black");
-		bottom = new Bar("white");
+		top = new Bar(Color.BLACK);
+		bottom = new Bar(Color.WHITE);
 		bottom.setRotate(180.0);
 		
 		getChildren().addAll(top, bottom);
@@ -46,16 +47,16 @@ public class Bars extends VBox {
 	}
 	
 	/**
-	 * Returns the bar that stores the colour of the checkers.
-	 * @param colour of the checkers.
-	 * @return the bar that stores that particular colour of checkers.
+	 * Returns the bar that stores the color of the checkers.
+	 * @param color of the checkers.
+	 * @return the bar that stores that particular color of checkers.
 	 */
-	public Bar getBar(String colour) {
+	public Bar getBar(Color color) {
 		Bar bar = null;
 		
-		if (colour.equals("black")) {
+		if (color == Color.BLACK) {
 			bar = top;
-		} else if (colour.equals("white")) {
+		} else if (color == Color.WHITE) {
 			bar = bottom;
 		}
 		

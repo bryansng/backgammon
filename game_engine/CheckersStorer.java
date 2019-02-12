@@ -81,6 +81,6 @@ public class CheckersStorer extends Stack<Checker> {
 		if (otherObject.isEmpty()) {
 			return true;
 		}
-		return (top().getColour()).equals(otherObject.top().getColour());
+		return (top().getColor()).equals(otherObject.top().getColor());
 	}
 }

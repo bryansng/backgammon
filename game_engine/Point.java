@@ -6,6 +6,7 @@ import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the Point/Pipe object in Backgammon.
@@ -17,7 +18,7 @@ import javafx.scene.layout.BackgroundImage;
  * @author @LxEmily, 17200573
  *
  */
-public class Point extends CheckersStorer {
+public class Point extends CheckersStorer implements ColorParser {
 	private Image img;
 	private Image imgHighlighted; 
 	private int pointNum;
@@ -32,12 +33,12 @@ public class Point extends CheckersStorer {
 	 * @param color of the point.
 	 * @param rotation either 0 or 180. 0 = pointing upwards. 180 = pointing downwards. 
 	 */
-	public Point(String colour, double rotation, int pointNum) {
+	public Point(Color color, double rotation, int pointNum) {
 		super();
 		this.pointNum = pointNum;
-		colour = colour.toLowerCase();
-		InputStream input1 = getClass().getResourceAsStream("img/board/" + colour + "_point.png");
-		InputStream input2 = getClass().getResourceAsStream("img/board/" + colour + "_point_highlighted.png");
+		String colorString = parseColor(color);
+		InputStream input1 = getClass().getResourceAsStream("img/board/" + colorString + "_point.png");
+		InputStream input2 = getClass().getResourceAsStream("img/board/" + colorString + "_point_highlighted.png");
 		img = new Image(input1);
 		imgHighlighted = new Image(input2);
 		
@@ -63,14 +64,14 @@ public class Point extends CheckersStorer {
 	}
 	
 	/**
-	 * Initialize num number of checkers with the checkerColour and pushes them to the stack.
+	 * Initialize num number of checkers with the checkerColor and pushes them to the stack.
 	 * Then draw the checkers (i.e. add them to the point object that will be drawn on the stage).
 	 * @param num number of checkers.
-	 * @param checkerColour colour of the checkers.
+	 * @param checkerColor color of the checkers.
 	 */
-	public void initCheckers(int num, String checkerColour) {
+	public void initCheckers(int num, Color checkerColor) {
 		for (int i = 0; i < num; i++) {
-			push(new Checker(checkerColour));
+			push(new Checker(checkerColor));
 		}
 		drawCheckers();
 	}

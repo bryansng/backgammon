@@ -3,6 +3,7 @@ package game_engine;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the panel that contains the homes in Backgammon.
@@ -35,8 +36,8 @@ public class HomePanel extends BorderPane {
 	 * Initializes the individual homes and add them to HomePanel.
 	 */
 	public void initHomes() {
-		top = new Home("white");
-		bottom = new Home("black");
+		top = new Home(Color.WHITE);
+		bottom = new Home(Color.BLACK);
 		top.setRotate(180);
 		
 		double margin = Settings.getHomeMargin();
@@ -51,16 +52,16 @@ public class HomePanel extends BorderPane {
 	}
 
 	/**
-	 * Returns the home that stores the colour of the checkers.
+	 * Returns the home that stores the color of the checkers.
 	 * @param colour of the checkers.
-	 * @return the home that stores that particular colour of checkers.
+	 * @return the home that stores that particular color of checkers.
 	 */
-	public Home getHome(String colour) {
+	public Home getHome(Color color) {
 		Home home = null;
 		
-		if (colour.equals("black")) {
+		if (color == Color.BLACK) {
 			home = top;
-		} else if (colour.equals("white")) {
+		} else if (color == Color.WHITE) {
 			home = bottom;
 		}
 		

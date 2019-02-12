@@ -23,6 +23,7 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
@@ -39,7 +40,7 @@ import javafx.util.Duration;
  * @author @LxEmily, 17200573
  *
  */
-public class MainController extends GridPane {
+public class MainController extends GridPane implements ColorParser {
 	private GameController game;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
@@ -132,7 +133,7 @@ public class MainController extends GridPane {
 							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
 							runCommand("/move " + fromPip + " " + toPip);
 						} else if (isBarSelectionMode) {
-							String fromBar = ((Bar) storerSelected).getColour();
+							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							runCommand("/move " + fromBar + " " + toPip);
 						}
 						game.unhighlightPoints();
@@ -151,13 +152,13 @@ public class MainController extends GridPane {
 				// home selected, basis for toHome selection.
 				} else if (object instanceof Home) {
 					if (isPointSelectionMode || isBarSelectionMode) {
-						String toHome = ((Home) object).getColour();
+						String toHome = parseColor(((Home) object).getColour());
 						
 						if (isPointSelectionMode) {
 							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
 							runCommand("/move " + fromPip + " " + toHome);
 						} else if (isBarSelectionMode) {
-							String fromBar = ((Bar) storerSelected).getColour();
+							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							runCommand("/move " + fromBar + " " + toHome);
 						}
 						game.unhighlightPoints();
@@ -179,7 +180,7 @@ public class MainController extends GridPane {
 		initCommandPanelListener();
 		initRollDieButtonListener();
 		
-		Main.getStage().setOnCloseRequest(onExitCheck);
+		//Main.getStage().setOnCloseRequest(onExitCheck);
 	}
 
 	/**
@@ -287,7 +288,7 @@ public class MainController extends GridPane {
 		// move from point/bar to home.
 		if (to.equals("white") || to.equals("black")) {
 			if (fro.equals("white") || fro.equals("black")) {
-				String fromBar = fro;
+				Color fromBar = parseColor(fro);
 				moveResult = game.moveToHome(fromBar);
 			} else {
 				int fromPip = Integer.parseInt(fro);
@@ -306,7 +307,7 @@ public class MainController extends GridPane {
 			}
 		// move from bar to point.
 		} else if (fro.equals("white") || fro.equals("black")) {
-			String fromBar = fro;
+			Color fromBar = parseColor(fro);
 			int toPip = Integer.parseInt(to);
 			
 			moveResult = game.moveFromBar(fromBar, toPip);

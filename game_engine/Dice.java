@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.Random;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the Dice object in Backgammon from the UI POV.
@@ -13,7 +14,7 @@ import javafx.scene.image.ImageView;
  * @author @LxEmily, 17200573
  *
  */
-public class Dice extends ImageView {
+public class Dice extends ImageView implements ColorParser {
 	private final int MAX_DICE_SIZE = 6;
 	private Image[] dices;
 	
@@ -22,7 +23,7 @@ public class Dice extends ImageView {
 	 * 		- Initialize the dices array with the possible dice images (i.e. 1-6).
 	 * @param colour
 	 */
-	public Dice(String colour) {
+	public Dice(Color colour) {
 		super();
 		dices = new Image[MAX_DICE_SIZE];
 		initImages(colour);
@@ -34,10 +35,10 @@ public class Dice extends ImageView {
 	 * 		- adding them to the dices array.
 	 * @param colour
 	 */
-	private void initImages(String colour) {
-		colour = colour.toLowerCase();
+	private void initImages(Color color) {
+		String colorString = parseColor(color);
 		for (int i = 0; i < dices.length; i++) {
-			InputStream input = getClass().getResourceAsStream("img/dices/" + colour + "/" + (i+1) + ".png");
+			InputStream input = getClass().getResourceAsStream("img/dices/" + colorString + "/" + (i+1) + ".png");
 			dices[i] = new Image(input);
 		}
 	}

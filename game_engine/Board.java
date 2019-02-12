@@ -5,6 +5,7 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the Board object in Backgammon.
@@ -75,35 +76,35 @@ public class Board extends HBox {
 			
 			// Handles point color.
 			if ((i+1) % 2 != 0) {
-				points[i] = new Point("BLACK", rotation, i);
+				points[i] = new Point(Color.BLACK, rotation, i);
 			} else {
-				points[i] = new Point("WHITE", rotation, i);
+				points[i] = new Point(Color.WHITE, rotation, i);
 			}
 			
 			switch (i) {
 				case 0:
-					points[i].initCheckers(2, "black");
+					points[i].initCheckers(2, Color.BLACK);
 					break;
 				case 5:
-					points[i].initCheckers(5, "white");
+					points[i].initCheckers(5, Color.WHITE);
 					break;
 				case 7:
-					points[i].initCheckers(3, "white");
+					points[i].initCheckers(3, Color.WHITE);
 					break;
 				case 11:
-					points[i].initCheckers(5, "black");
+					points[i].initCheckers(5, Color.BLACK);
 					break;
 				case 12:
-					points[i].initCheckers(5, "white");
+					points[i].initCheckers(5, Color.WHITE);
 					break;
 				case 16:
-					points[i].initCheckers(3, "black");
+					points[i].initCheckers(3, Color.BLACK);
 					break;
 				case 18:
-					points[i].initCheckers(5, "black");
+					points[i].initCheckers(5, Color.BLACK);
 					break;
 				case 23:
-					points[i].initCheckers(2, "white");
+					points[i].initCheckers(2, Color.WHITE);
 					break;
 			}
 		}
@@ -288,7 +289,7 @@ public class Board extends HBox {
 		 * left uses red.
 		 * right uses black.
 		 */
-		dices = new Dices("RED");
+		dices = new Dices(Color.RED);
 	}
 	
 	/**

@@ -4,6 +4,7 @@ import java.io.InputStream;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the Checker object in Backgammon from the UI POV.
@@ -13,19 +14,19 @@ import javafx.scene.image.ImageView;
  * @author @LxEmily, 17200573
  *
  */
-public class Checker extends ImageView {
+public class Checker extends ImageView implements ColorParser {
 	private Image img;
 	private Image imgHighlighted;
-	private String colour;
+	private Color color;
 	
 	/**
 	 * Default Constructor
 	 * 		- Initialize the img and img_highlighted instance variable of the checker.
-	 * @param colour of checker.
+	 * @param color of checker.
 	 */
-	public Checker(String colour) {
+	public Checker(Color color) {
 		super();
-		this.colour = colour;
+		this.color = color;
 		initImg();
 	}
 	
@@ -34,9 +35,9 @@ public class Checker extends ImageView {
 	 * - Initialize img and img_highlighted instance variable.
 	 */
 	private void initImg() {
-		colour = colour.toLowerCase();
-		InputStream input1 = getClass().getResourceAsStream("img/checkers/" + colour + "_checkers.png");
-		InputStream input2 = getClass().getResourceAsStream("img/checkers/" + colour + "_checkers_highlighted.png");
+		String colorString = parseColor(color);
+		InputStream input1 = getClass().getResourceAsStream("img/checkers/" + colorString + "_checkers.png");
+		InputStream input2 = getClass().getResourceAsStream("img/checkers/" + colorString + "_checkers_highlighted.png");
 		img = new Image(input1);
 		imgHighlighted = new Image(input2);
 		
@@ -58,10 +59,10 @@ public class Checker extends ImageView {
 	}
 	
 	/**
-	 * Returns the colour of this checker.
-	 * @return colour of the checker.
+	 * Returns the color of this checker.
+	 * @return color of the checker.
 	 */
-	public String getColour() {
-		return colour;
+	public Color getColor() {
+		return color;
 	}
 }

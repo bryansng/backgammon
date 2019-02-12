@@ -1,6 +1,7 @@
 package game_engine;
 
 import javafx.geometry.Pos;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the homes where the checkers will bear-off to.
@@ -11,11 +12,11 @@ import javafx.geometry.Pos;
  *
  */
 public class Home extends CheckersStorer {
-	private String checkerColoursToStore;
+	private Color checkerColoursToStore;
 
-	public Home(String colour) {
+	public Home(Color color) {
 		super();
-		checkerColoursToStore = colour;
+		checkerColoursToStore = color;
 		
 		double pointHeight = Settings.getPointSize().getHeight();
 		double pointWidth = Settings.getPointSize().getWidth();
@@ -27,10 +28,10 @@ public class Home extends CheckersStorer {
 	}
 	
 	/**
-	 * Returns the colour that this home in particular represents.
-	 * @return colour that this home represents.
+	 * Returns the color that this home in particular represents.
+	 * @return color that this home represents.
 	 */
-	public String getColour() {
+	public Color getColour() {
 		return checkerColoursToStore;
 	}
 }

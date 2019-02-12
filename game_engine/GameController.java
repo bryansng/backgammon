@@ -4,6 +4,7 @@ import constants.MoveResult;
 import game_engine.Player.Colour;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the game in Backgammon.
@@ -73,7 +74,7 @@ public class GameController extends VBox {
 		
 		fro--;
 		Point[] points = board.getPoints();
-		Bar bar = bars.getBar(points[fro].top().getColour());
+		Bar bar = bars.getBar(points[fro].top().getColor());
 		// Checking if its empty is actually done by moveCheckers,
 		// since this method is always called after moveCheckers.
 		// so this is actually not needed, but is left here just in case.
@@ -91,11 +92,11 @@ public class GameController extends VBox {
 	 * Moves a checker from bar to a point.
 	 * i.e. pops a checker from bar and push it to a point.
 	 * 
-	 * @param fromBar, colour of the bar to pop from.
+	 * @param fromBar, color of the bar to pop from.
 	 * @param to, one-based index, the point number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public MoveResult moveFromBar(String fromBar, int to) {
+	public MoveResult moveFromBar(Color fromBar, int to) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
 		to--;
@@ -130,7 +131,7 @@ public class GameController extends VBox {
 		fro--;
 		Point[] points = board.getPoints();
 		if (!points[fro].isEmpty()) {
-			Home home = mainHome.getHome(points[fro].top().getColour());
+			Home home = mainHome.getHome(points[fro].top().getColor());
 			home.push(points[fro].pop());
 			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
 
@@ -144,15 +145,15 @@ public class GameController extends VBox {
 	 * Moves a checker from bar to its home.
 	 * i.e. pops a checker from bar and push it to a point.
 	 * 
-	 * @param fromBar, colour of the bar to pop from.
+	 * @param fromBar, color of the bar to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public MoveResult moveToHome(String fromBar) {
+	public MoveResult moveToHome(Color fromBar) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
 		Bar bar = bars.getBar(fromBar);
 		if (!bar.isEmpty()) {
-			Home home = mainHome.getHome(bar.top().getColour());
+			Home home = mainHome.getHome(bar.top().getColor());
 			home.push(bar.pop());
 			moveResult = MoveResult.MOVED_TO_HOME_FROM_BAR;
 

@@ -2,6 +2,7 @@ package game_engine;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents a HBox of dices.
@@ -11,40 +12,42 @@ import javafx.scene.layout.HBox;
  * @author @LxEmily, 17200573
  *
  */
-public class Dices extends HBox {
+public class Dices extends HBox implements ColorParser {
 	private Dice[] dices;
+	private Color color;
 	
 	/**
 	 * Default Constructor
 	 * 		- Initialize the dices array with two dices.
-	 * @param colour of dices
+	 * @param color of dices
 	 */
-	public Dices(String colour) {
-		this(colour, 2);
+	public Dices(Color color) {
+		this(color, 2);
 	}
 	
 	/**
 	 * Overloaded Constructor
 	 * 		- Initialize the dices array with any number of dices.
 	 * 		- Set this node's alignment.
-	 * @param colour of dices.
+	 * @param color of dices.
 	 * @param numberOfDices number of dices. 
 	 */
-	public Dices(String colour, int numberOfDices) {
+	public Dices(Color color, int numberOfDices) {
 		super();
+		this.color = color;
 		dices = new Dice[numberOfDices];
-		initDices(colour);
 		setAlignment(Pos.CENTER);
 		setSpacing(Settings.getDiceSize().getWidth() / 4.0);
+		initDices(color);
 	}
 	
 	/**
 	 * Initialize the individual dices and assign them into the dices array.
-	 * @param colour of dices.
+	 * @param color of dices.
 	 */
-	private void initDices(String colour) {
+	private void initDices(Color color) {
 		for (int i = 0; i < dices.length; i++) {
-			dices[i] = new Dice(colour);
+			dices[i] = new Dice(color);
 			getChildren().add(dices[i]);
 		}
 	}
@@ -67,11 +70,15 @@ public class Dices extends HBox {
 	public void doubleCube() {
 		
 	}
+	*/
 	
 	// upon calling, removes the double cube instances (i.e. set them to null).
 	// and remove them from the nodes.
+	/**
+	 * 
+	 */
 	public void removeDoubleCube() {
-		
+		getChildren().clear();
+		initDices(color);
 	}
-	*/
 }

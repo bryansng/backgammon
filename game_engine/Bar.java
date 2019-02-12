@@ -1,6 +1,7 @@
 package game_engine;
 
 import javafx.geometry.Pos;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the bar game component in Backgammon.
@@ -11,11 +12,11 @@ import javafx.geometry.Pos;
  *
  */
 public class Bar extends CheckersStorer {
-	private String checkerColoursToStore;
+	private Color checkerColoursToStore;
 	
-	public Bar(String colour) {
+	public Bar(Color color) {
 		super();
-		checkerColoursToStore = colour;
+		checkerColoursToStore = color;
 		
 		double pointWidth = Settings.getPointSize().getWidth();
 		double pointHeight = Settings.getPointSize().getHeight();
@@ -26,10 +27,10 @@ public class Bar extends CheckersStorer {
 	}
 	
 	/**
-	 * Returns the colour that this bar in particular represents.
-	 * @return colour that this bar represents.
+	 * Returns the color that this bar in particular represents.
+	 * @return color that this bar represents.
 	 */
-	public String getColour() {
+	public Color getColour() {
 		return checkerColoursToStore;
 	}
 }
