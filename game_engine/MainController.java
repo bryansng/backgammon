@@ -229,7 +229,7 @@ public class MainController extends GridPane implements ColorParser {
 			} else {
 				dieState = 1;
 			}
-			cmd.runCommand("/roll " + new Integer(dieState).toString());
+			cmd.runCommand("/roll " + Integer.toString(dieState));
 		});
 	}
 	

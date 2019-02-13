@@ -18,7 +18,7 @@ import javafx.scene.paint.Color;
  */
 public class PointNumberLabel extends Label {
 	public PointNumberLabel(int pointNum) {
-		super(new Integer(pointNum).toString());
+		super(Integer.toString(pointNum));
 		setAlignment(Pos.CENTER);
 		setTextFill(Color.WHITE);
 		setMinSize(Settings.getPointSize().getWidth(), Settings.getPointNumberLabelHeight());
