@@ -6,12 +6,13 @@ import constants.MoveResult;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
 
 /**
  * This class handles all the commands that is entered by the user.
- * Handles interaction between game and information panel.
+ * Sub-controller of MainController.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
@@ -19,10 +20,12 @@ import javafx.util.Duration;
  *
  */
 public class CommandController implements ColorParser {
+	private Stage stage;
 	private GameController game;
 	private InfoPanel infoPnl;
 	
-	public CommandController(GameController game, InfoPanel infoPnl) {
+	public CommandController(Stage stage, GameController game, InfoPanel infoPnl) {
+		this.stage = stage;
 		this.game = game;
 		this.infoPnl = infoPnl;
 	}
@@ -253,7 +256,7 @@ public class CommandController implements ColorParser {
 	 * Saves game log and prompts player to quit before quitting application.
 	 */
 	public void runQuitCommand() {
-		Main.getStage().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
 	
 	/**

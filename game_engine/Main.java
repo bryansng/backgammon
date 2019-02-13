@@ -16,16 +16,13 @@ import javafx.stage.Stage;
  *
  */
 public class Main extends Application {
-	private static Stage stage;
-	
 	public static void main(String[] args) {
 		launch(args);	// calls start method.
 	}
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		Main.stage = stage;
-		MainController root = new MainController();
+		MainController root = new MainController(stage);
 		
 		Scene scene = new Scene(root);
 
@@ -46,15 +43,5 @@ public class Main extends Application {
 	public void setStageIcon(Stage stage) {
 		InputStream input = getClass().getResourceAsStream("img/icon/icon.png");
 		stage.getIcons().add(new Image(input));
-	}
-	
-	/**
-	 * Returns the stage of the application.
-	 * Used to create the quit prompt.
-	 * 
-	 * @return the main stage.
-	 */
-	public static Stage getStage () {
-		return stage;
 	}
 }
