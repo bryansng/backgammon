@@ -75,11 +75,10 @@ public class Dices extends HBox implements ColorParser {
 			res[i] = dices[i].roll();
 			dices[i].draw();
 		}
+		drawDices(instance);
 		
 		if (isDouble(res)) {
 			res = addDoubleDie(res);
-		} else {
-			removeDoubleCube();
 		}
 		return res;
 	}
@@ -87,12 +86,19 @@ public class Dices extends HBox implements ColorParser {
 	// checks if result of die roll is a double instance.
 	private boolean isDouble(int[] res) {
 		boolean isDouble = true;
-		for (int i = 0; i < res.length-1; i++) {
-			if (res[i] != res[i+1]) {
-				isDouble = false;
-				break;
+		
+		// can't be double if only 1 dice.
+		if (res.length > 1) {
+			for (int i = 0; i < res.length-1; i++) {
+				if (res[i] != res[i+1]) {
+					isDouble = false;
+					break;
+				}
 			}
+		} else {
+			isDouble = false;
 		}
+		
 		return isDouble;
 	}
 	
@@ -105,12 +111,6 @@ public class Dices extends HBox implements ColorParser {
 		}
 		drawDices(DieInstance.DOUBLE);
 		return newRes;
-	}
-	
-	// upon calling, removes the double cube instances (i.e. set them to null).
-	// and remove them from the nodes.
-	private void removeDoubleCube() {
-		drawDices(DieInstance.DEFAULT);
 	}
 	
 	/**

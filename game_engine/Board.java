@@ -325,4 +325,30 @@ public class Board extends HBox {
 		
 		return res;
 	}
+	
+	/**
+	 * Execute the roll dice methods of dices object.
+	 * Used check which player rolls first.
+	 * @param instance instance where the dices are single, double or default.
+	 * @return result of each dice roll in terms of an array of integers.
+	 */
+	public int[] rollDices(DieInstance instance) {
+		int[] res = new int[2];
+		
+		switch (instance) {
+			case SINGLE:
+				leftDice = new Dices(Color.RED);
+				rightDice = new Dices(Color.RED);
+				res[0] = ((Dices)leftDice).getTotalRoll(instance)[0];
+				res[1] = ((Dices)rightDice).getTotalRoll(instance)[0];
+				break;
+			default:
+				leftDice = null;
+				rightDice = null;
+		}
+		leftBoard.setCenter(leftDice);
+		rightBoard.setCenter(rightDice);
+		
+		return res;
+	}
 }

@@ -132,7 +132,7 @@ public class EventController implements ColorParser {
 	private void initUIListeners() {
 		initCommandPanelListeners();
 		initRollDieButtonListeners();
-		initStageListeners();
+		//initStageListeners();
 	}
 
 	/**
@@ -194,6 +194,7 @@ public class EventController implements ColorParser {
 	/**
 	 * Checks if player really wants to exit game prevents accidental exits
 	 */
+	@SuppressWarnings("unused")
 	private void initStageListeners() {
 		stage.setOnCloseRequest((WindowEvent event) -> {
 			// Alert settings

@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.DieInstance;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -31,6 +32,7 @@ public class MainController extends GridPane implements ColorParser {
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
+	@SuppressWarnings("unused")
 	private EventController event;
 	
 	/**
@@ -42,13 +44,13 @@ public class MainController extends GridPane implements ColorParser {
 	 */
 	public MainController(Stage stage) {
 		super();
-		bottomPlayer = new Player("Player One", 0, Color.BLACK);
-		topPlayer = new Player("Player Two", 0, Color.WHITE);
+		bottomPlayer = new Player("Tea", 0, Color.WHITE);
+		topPlayer = new Player("Cup", 0, Color.BLACK);
 		game = new GameController(bottomPlayer, topPlayer);
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
-		cmd = new CommandController(stage, game, infoPnl);
+		cmd = new CommandController(stage, this, game, infoPnl);
 		event = new EventController(stage, this, game, cmdPnl, cmd, infoPnl, rollDieBtn);
 		style();
 		initLayout();
@@ -79,12 +81,29 @@ public class MainController extends GridPane implements ColorParser {
 		add(rollDieBtn, 1, 2);
 	}
 	
+	// should activate by /start.
 	public void startGameLoop() {
-		
+		// get which player starts first.
+		Player firstPlayer;
+		firstPlayer = getFirstPlayerToRoll();
+		infoPnl.print("First player to move is: " + firstPlayer.getName() + ".");
 	}
 	
-	private void simulateAutoRollDie() {
+	// auto roll die to see which player first.
+	// if draw, roll again.
+	private Player getFirstPlayerToRoll() {
+		int[] res = null;
+		res = game.rollDices(DieInstance.SINGLE);
+		int bottomPlayerRoll = res[0];
+		int topPlayerRoll = res[1];
 		
+		if (bottomPlayerRoll > topPlayerRoll) {
+			return bottomPlayer;
+		} else if (topPlayerRoll > bottomPlayerRoll) {
+			return topPlayer;
+		} else {
+			return getFirstPlayerToRoll();
+		}
 	}
 	
 	/**

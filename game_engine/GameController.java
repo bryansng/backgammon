@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.DieInstance;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import javafx.scene.layout.HBox;
@@ -171,6 +172,9 @@ public class GameController extends VBox {
 	}
 	public int[] rollDices(PlayerPerspectiveFrom pov) {
 		return board.rollDices(pov);
+	}
+	public int[] rollDices(DieInstance instance) {
+		return board.rollDices(instance);
 	}
 	public MoveResult moveCheckers(int fro, int to) {
 		return board.moveCheckers(fro, to);

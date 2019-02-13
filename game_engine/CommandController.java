@@ -22,11 +22,13 @@ import javafx.util.Duration;
  */
 public class CommandController implements ColorParser {
 	private Stage stage;
+	private MainController root;
 	private GameController game;
 	private InfoPanel infoPnl;
 	
-	public CommandController(Stage stage, GameController game, InfoPanel infoPnl) {
+	public CommandController(Stage stage, MainController root, GameController game, InfoPanel infoPnl) {
 		this.stage = stage;
+		this.root = root;
 		this.game = game;
 		this.infoPnl = infoPnl;
 	}
@@ -44,6 +46,8 @@ public class CommandController implements ColorParser {
 			runMoveCommand(args);
 		} else if (command.equals("/roll")) {
 			runRollCommand(args);
+		} else if (command.equals("/start")) {
+			runStartCommand();
 		} else if (command.equals("/save")) {
 			runSaveCommand();
 		/**
@@ -159,6 +163,15 @@ public class CommandController implements ColorParser {
 		} else {
 			infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
 		}
+	}
+
+	/**
+	 * Command: /start
+	 * Starts the main game loop i.e. turns.
+	 */
+	public void runStartCommand() {
+		infoPnl.print("Starting game.");
+		root.startGameLoop();
 	}
 
 	/**
