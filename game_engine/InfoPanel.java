@@ -25,6 +25,8 @@ public class InfoPanel extends TextArea {
 		setWrapText(true);
 		setFocusTraversable(false);
 		print("Welcome to Backgammon!");
+		print("Roll the die to decide which player begins.");
+		print("Or enter \"/help\" below for a list of possible commands.");
 	}
 	
 	/**

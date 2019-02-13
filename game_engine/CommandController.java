@@ -1,5 +1,8 @@
 package game_engine;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import constants.MessageType;
 import constants.MoveResult;
@@ -50,7 +53,11 @@ public class CommandController implements ColorParser {
 			runTestCommand();
 		} else if (command.equals("/quit")) {	
 			runQuitCommand();
-		} else {
+		} else if (command.equals("/help")) {	
+			runHelpCommand();
+		} /**else if (command.equals("/name")) {	
+			runNameCommand(args);
+		} */else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
@@ -255,6 +262,52 @@ public class CommandController implements ColorParser {
 	public void runQuitCommand() {
 		Main.getStage().fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
+	
+	/**
+	 * Command: /help
+	 * Displays help commands on infoPnl
+	 */
+	public void runHelpCommand() {
+		String string = "\n";
+		String line = null;
+		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
+			while((line = reader.readLine()) != null) {
+				string += line + "\n";
+				System.out.println(line);
+			}
+			string +="\n";
+			infoPnl.print(string);
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Command: /name
+	 * Changes player name
+	 
+	public void runNameCommand(String [] args) {
+		int playerNum = Integer.parseInt(args[1]);
+		String playerName = args[2];
+		
+		switch(playerNum) {
+			case 1:
+				game.player1.setName(playerName);
+				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
+				break;
+			case 2:
+				game.player2.setName(playerName);
+				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
+				break;
+			default:
+				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
+		}
+		
+	}
+	*/
 	
 	/**
 	 * Check if the arguments of /move command is within bounds, i.e. 0-24.

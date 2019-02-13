@@ -22,8 +22,8 @@ public class GameController extends VBox {
 	private HomePanel leftHome, rightHome, mainHome;
 	
 	// will expand player related features in sprint 2
-	private Player player1;
-	private Player player2;
+	public Player player1;
+	public Player player2;
 	
 	/**
 	 * Default Constructor

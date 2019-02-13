@@ -31,7 +31,7 @@ public class PlayerPanel extends HBox {
 		}
 	}
 	
-	private Player player;	
+	private Player player;
 	private PlayerInfo playerName;
 	private PlayerInfo playerScore;
 	private PlayerInfo playerColour;
