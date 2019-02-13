@@ -8,6 +8,7 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 /**
@@ -23,6 +24,8 @@ import javafx.stage.Stage;
  *
  */
 public class MainController extends GridPane implements ColorParser {
+	private Player bottomPlayer;
+	private Player topPlayer;
 	private GameController game;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
@@ -39,7 +42,9 @@ public class MainController extends GridPane implements ColorParser {
 	 */
 	public MainController(Stage stage) {
 		super();
-		game = new GameController();
+		bottomPlayer = new Player("Player One", 0, Color.BLACK);
+		topPlayer = new Player("Player Two", 0, Color.WHITE);
+		game = new GameController(bottomPlayer, topPlayer);
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
@@ -75,6 +80,10 @@ public class MainController extends GridPane implements ColorParser {
 	}
 	
 	public void startGameLoop() {
+		
+	}
+	
+	private void simulateAutoRollDie() {
 		
 	}
 	

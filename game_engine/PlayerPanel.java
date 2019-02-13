@@ -14,7 +14,7 @@ import javafx.scene.text.Font;
  * @author @LxEmily, 17200573
  *
  */
-public class PlayerPanel extends HBox {
+public class PlayerPanel extends HBox implements ColorParser {
 	/**
 	 * This class represents labels that stores player info.
 	 */
@@ -54,8 +54,8 @@ public class PlayerPanel extends HBox {
 		playerName = new PlayerInfo("Name: " + player.getName());
 		playerScore = new PlayerInfo("Score: " + Double.toString(player.getScore()));
 		
-		// TODO put a checker colour beside instead of text, makes things more intuitive.
-		playerColour = new PlayerInfo("Colour: " + player.getColour().name());
+		// TODO put a checker color beside instead of text, makes things more intuitive.
+		playerColour = new PlayerInfo("Colour: " + parseColor(player.getColor()));
 	}
 	
 	private void initLayout() {

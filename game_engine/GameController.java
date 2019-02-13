@@ -1,7 +1,6 @@
 package game_engine;
 
 import constants.MoveResult;
-import game_engine.Player.Colour;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -21,33 +20,26 @@ public class GameController extends VBox {
 	private Board board;
 	private HomePanel leftHome, rightHome, mainHome;
 	
-	// will expand player related features in sprint 2
-	private Player player1;
-	private Player player2;
-	
 	/**
 	 * Default Constructor
 	 * 		- Initializes the modular panes.
 	 * 		- Initializes points with their initial checkers.
 	 */
-	public GameController() {
+	public GameController(Player bottomPlayer, Player topPlayer) {
 		super();
-		initGameComponents();
+		initGameComponents(bottomPlayer, topPlayer);
 	}
 	
 	/**
 	 * Initializes the board, by adding the modular panes to the board instance variable.
 	 * i.e. initializing the board layout.
 	 */
-	public void initGameComponents() {
+	public void initGameComponents(Player bottomPlayer, Player topPlayer) {
 		board = new Board();
 		leftHome = new HomePanel();
 		rightHome = new HomePanel();
 		mainHome = rightHome;
 		bars = new Bars();
-		
-		player1 = new Player("Player One", 0, Colour.WHITE);
-		player2 = new Player("Player Two", 0, Colour.BLACK);
 		
 		HBox middlePart = board;
 		middlePart.setMinWidth(Settings.getMiddlePartWidth());
@@ -55,8 +47,8 @@ public class GameController extends VBox {
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
 		
-		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), player2);
-		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), player1);
+		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), topPlayer);
+		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), bottomPlayer);
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
 		setStyle(Settings.getGameColour());

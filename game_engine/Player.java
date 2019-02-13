@@ -1,5 +1,7 @@
 package game_engine;
 
+import javafx.scene.paint.Color;
+
 /**
  * This class represents the player in the Backgammon game.
  * 
@@ -9,22 +11,14 @@ package game_engine;
  *
  */
 public class Player {
-	enum Colour {NONE, BLACK, WHITE};
-	
 	private String name;
 	private double score;
-	private Colour colour;
+	private Color color;
 	
-	public Player() {
-		name = "";
-		score = 0;
-		colour = Colour.NONE;
-	} 
-	
-	public Player(String name, double score, Colour colour) {
+	public Player(String name, double score, Color color) {
 		this.name = name;
 		this.score = score;
-		this.colour = colour;
+		this.color = color;
 	}
 	
 	public String getName() {
@@ -35,8 +29,8 @@ public class Player {
 		return score;
 	}
 	
-	public Colour getColour() {
-		return colour;
+	public Color getColor() {
+		return color;
 	}
 	
 	public void setName(String name) {
@@ -47,7 +41,7 @@ public class Player {
 		this.score = score;
 	}
 	
-	public void setColour(Colour colour) {
-		this.colour = colour;
+	public void setColor(Color color) {
+		this.color = color;
 	}
 } 
