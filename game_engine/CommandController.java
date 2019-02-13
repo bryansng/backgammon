@@ -3,6 +3,7 @@ package game_engine;
 import java.util.Arrays;
 import constants.MessageType;
 import constants.MoveResult;
+import constants.PlayerPerspectiveFrom;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
@@ -144,15 +145,15 @@ public class CommandController implements ColorParser {
 	 * 2 is the player with the perspective from the top, dices will be on the right.
 	 */
 	public void runRollCommand(String[] args) {
-		int playerNum;
+		PlayerPerspectiveFrom pov;
 		if (args.length == 1) {
-			playerNum = 1;
+			pov = PlayerPerspectiveFrom.BOTTOM;
 		} else {
-			playerNum = Integer.parseInt(args[1]);
+			pov = parsePlayerPerspective(args[1]);
 		}
 		
 		// rollDices returns null if playerNum is invalid.
-		int[] res = game.rollDices(playerNum);
+		int[] res = game.rollDices(pov);
 		if (res != null) {
 			infoPnl.print("Roll dice results: " + Arrays.toString(res));
 		} else {
@@ -284,5 +285,17 @@ public class CommandController implements ColorParser {
 			}
 		}
 		return isOutOfBounds;
+	}
+	
+	private PlayerPerspectiveFrom parsePlayerPerspective(String playerNum) {
+		PlayerPerspectiveFrom pov = null;
+		if (playerNum.equals("1")) {
+			pov = PlayerPerspectiveFrom.BOTTOM;
+		} else if (playerNum.equals("2")) {
+			pov = PlayerPerspectiveFrom.BOTTOM;
+		} else {
+			pov = PlayerPerspectiveFrom.NONE;
+		}
+		return pov;
 	}
 }

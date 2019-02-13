@@ -2,6 +2,7 @@ package game_engine;
 
 import constants.DieInstance;
 import constants.MoveResult;
+import constants.PlayerPerspectiveFrom;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -295,32 +296,27 @@ public class Board extends HBox {
 	
 	/**
 	 * Execute the roll dice methods of dices object.
+	 * BOTTOM is the player with the perspective from the bottom, dices will be on the left.
+	 * TOP is the player with the perspective from the top, dices will be on the right.
 	 * 
-	 * Based on the playerNum, draw the dices at the player's
-	 * respective side of the board.
-	 * 
-	 * playerNum is currently zero-based indexing.
-	 * 1 is the player with the perspective from the bottom, dices will be on the left.
-	 * 2 is the player with the perspective from the top, dices will be on the right.
-	 * 
-	 * @param playerNum - integer that represents which player it is. (i.e. player 1 or 2).
+	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
-	public int[] rollDices(int playerNum) {
+	public int[] rollDices(PlayerPerspectiveFrom pov) {
 		int[] res = null;
 		
-		switch (playerNum) {
-			case 1:
+		switch (pov) {
+			case TOP:
 				leftDice = dices;
 				rightDice = null;
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
-			case 2:
+			case BOTTOM:
 				leftDice = null;
 				rightDice = dices;
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
-			default:
+			case NONE:
 				leftDice = null;
 				rightDice = null;
 		}

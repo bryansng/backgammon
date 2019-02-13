@@ -1,6 +1,7 @@
 package game_engine;
 
 import constants.MoveResult;
+import constants.PlayerPerspectiveFrom;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -168,8 +169,8 @@ public class GameController extends VBox {
 	public void highlightPoints(int exceptPointNum) {
 		board.highlightPoints(exceptPointNum);
 	}
-	public int[] rollDices(int playerNum) {
-		return board.rollDices(playerNum);
+	public int[] rollDices(PlayerPerspectiveFrom pov) {
+		return board.rollDices(pov);
 	}
 	public MoveResult moveCheckers(int fro, int to) {
 		return board.moveCheckers(fro, to);
