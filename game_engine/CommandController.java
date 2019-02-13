@@ -25,9 +25,14 @@ public class CommandController implements ColorParser {
 	private GameController game;
 	private InfoPanel infoPnl;
 	
-	public CommandController(GameController game, InfoPanel infoPnl) {
+	private Player p1;
+	private Player p2;
+	
+	public CommandController(GameController game, InfoPanel infoPnl, Player p1, Player p2) {
 		this.game = game;
 		this.infoPnl = infoPnl;
+		this.p1 = p1;
+		this.p2 = p2;
 	}
 	
 	/**
@@ -55,9 +60,9 @@ public class CommandController implements ColorParser {
 			runQuitCommand();
 		} else if (command.equals("/help")) {	
 			runHelpCommand();
-		} /**else if (command.equals("/name")) {	
+		} else if (command.equals("/name")) {	
 			runNameCommand(args);
-		} */else {
+		} else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
@@ -288,18 +293,18 @@ public class CommandController implements ColorParser {
 	/**
 	 * Command: /name
 	 * Changes player name
-	 
+	 */
 	public void runNameCommand(String [] args) {
 		int playerNum = Integer.parseInt(args[1]);
 		String playerName = args[2];
 		
 		switch(playerNum) {
 			case 1:
-				game.player1.setName(playerName);
+				game.getBottomPlayerPanel().setPlayerName(p1, playerName);
 				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
 				break;
 			case 2:
-				game.player2.setName(playerName);
+				game.getTopPlayerPanel().setPlayerName(p2, playerName);
 				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
 				break;
 			default:
@@ -307,7 +312,7 @@ public class CommandController implements ColorParser {
 		}
 		
 	}
-	*/
+	
 	
 	/**
 	 * Check if the arguments of /move command is within bounds, i.e. 0-24.

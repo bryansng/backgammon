@@ -61,4 +61,9 @@ public class PlayerPanel extends HBox {
 	private void initLayout() {
 		getChildren().addAll(playerName, playerColour, playerScore);
 	}
+	
+	public void setPlayerName(Player player, String name) {
+		player.setName(name);
+		playerName.setText("Name: " + player.getName());
+	}
 }

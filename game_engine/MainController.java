@@ -4,6 +4,7 @@ import constants.MessageType;
 import java.util.Optional;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
+import game_engine.Player.Colour;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
@@ -39,6 +40,9 @@ public class MainController extends GridPane implements ColorParser {
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
+
+	private Player player1 = new Player("Player One", 0, Colour.WHITE);
+	private Player player2 = new Player("Player Two", 0, Colour.BLACK);
 	
 	/**
 	 * Default Constructor
@@ -49,11 +53,11 @@ public class MainController extends GridPane implements ColorParser {
 	 */
 	public MainController() {
 		super();
-		game = new GameController();
+		game = new GameController(player1, player2);
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
-		cmd = new CommandController(game, infoPnl);
+		cmd = new CommandController(game, infoPnl, player1, player2);
 		style();
 		initLayout();
 		initUIListeners();

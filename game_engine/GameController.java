@@ -1,7 +1,6 @@
 package game_engine;
 
 import constants.MoveResult;
-import game_engine.Player.Colour;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -21,33 +20,27 @@ public class GameController extends VBox {
 	private Board board;
 	private HomePanel leftHome, rightHome, mainHome;
 	
-	// will expand player related features in sprint 2
-	public Player player1;
-	public Player player2;
-	
 	/**
 	 * Default Constructor
 	 * 		- Initializes the modular panes.
 	 * 		- Initializes points with their initial checkers.
 	 */
-	public GameController() {
+	public GameController(Player p1, Player p2) {
 		super();
-		initGameComponents();
+		initGameComponents(p1, p2);
 	}
 	
 	/**
 	 * Initializes the board, by adding the modular panes to the board instance variable.
 	 * i.e. initializing the board layout.
 	 */
-	public void initGameComponents() {
+	public void initGameComponents(Player p1, Player p2) {
 		board = new Board();
 		leftHome = new HomePanel();
 		rightHome = new HomePanel();
 		mainHome = rightHome;
 		bars = new Bars();
 		
-		player1 = new Player("Player One", 0, Colour.WHITE);
-		player2 = new Player("Player Two", 0, Colour.BLACK);
 		
 		HBox middlePart = board;
 		middlePart.setMinWidth(Settings.getMiddlePartWidth());
@@ -55,8 +48,8 @@ public class GameController extends VBox {
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
 		
-		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), player2);
-		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), player1);
+		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), p2);
+		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), p1);
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
 		setStyle(Settings.getGameColour());
@@ -181,5 +174,15 @@ public class GameController extends VBox {
 	}
 	public MoveResult moveCheckers(int fro, int to) {
 		return board.moveCheckers(fro, to);
+	}
+	
+	/**
+	 * Setter and getters for player panels.
+	 */
+	public PlayerPanel getTopPlayerPanel() {
+		return topUserPnl;
+	}
+	public PlayerPanel getBottomPlayerPanel() {
+		return bottomUserPnl;
 	}
 }
