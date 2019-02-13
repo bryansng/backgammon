@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.DieInstance;
 import constants.MoveResult;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
@@ -312,12 +313,12 @@ public class Board extends HBox {
 			case 1:
 				leftDice = dices;
 				rightDice = null;
-				res = dices.getTotalRoll();
+				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
 			case 2:
 				leftDice = null;
 				rightDice = dices;
-				res = dices.getTotalRoll();
+				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
 			default:
 				leftDice = null;

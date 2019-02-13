@@ -17,6 +17,7 @@ import javafx.scene.paint.Color;
 public class Dice extends ImageView implements ColorParser {
 	private final int MAX_DICE_SIZE = 6;
 	private Image[] dices;
+	private int diceRollResult;
 	
 	/**
 	 * Default Constructor
@@ -44,16 +45,6 @@ public class Dice extends ImageView implements ColorParser {
 	}
 	
 	/**
-	 * Set the image of dice based on result.
-	 * i.e. If result is 1, show image with dice at 1.
-	 * @param result of rolling the dice.
-	 */
-	private void draw(int result) {
-		setImage(dices[result-1]);
-		rotate();
-	}
-	
-	/**
 	 * Rotate the dice.
 	 */
 	private void rotate() {
@@ -72,7 +63,21 @@ public class Dice extends ImageView implements ColorParser {
 	public int roll() {
 		Random rand = new Random();
 		int res = rand.nextInt(MAX_DICE_SIZE) + 1;
-		draw(res);
+		this.diceRollResult = res;
 		return res;
+	}
+	
+	/**
+	 * Set the image of dice based on result.
+	 * i.e. If result is 1, show image with dice at 1.
+	 * @param result of rolling the dice.
+	 */
+	public void draw(int result) {
+		setImage(dices[result-1]);
+		rotate();
+	}
+	public void draw() {
+		setImage(dices[diceRollResult-1]);
+		rotate();
 	}
 }
