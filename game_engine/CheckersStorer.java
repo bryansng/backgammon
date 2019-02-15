@@ -3,6 +3,7 @@ package game_engine;
 import events.CheckersStorerSelectedEvent;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.paint.Color;
 
 /**
  * This class should be extended by game components that will store checkers.
@@ -71,7 +72,7 @@ public class CheckersStorer extends Stack<Checker> {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the two checkers storer's top checkers are of the same colour.
+	 * Returns a boolean value indicating if the two checkers storer's top checkers are of the same color.
 	 * If the other object is empty, return true as well.
 	 * 
 	 * @param object, the other checker storer to be compared with.
@@ -82,5 +83,14 @@ public class CheckersStorer extends Stack<Checker> {
 			return true;
 		}
 		return (top().getColor()).equals(otherObject.top().getColor());
+	}
+	
+	/**
+	 * Returns a boolean value indicating if the checkers storer's top checkers has the same color as given color.
+	 * @param color given color to check.
+	 * @return the boolean value.
+	 */
+	public boolean topCheckerColourEquals(Color color) {
+		return (top().getColor()).equals(color);
 	}
 }

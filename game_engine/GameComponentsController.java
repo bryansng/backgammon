@@ -1,5 +1,7 @@
 package game_engine;
 
+import java.util.LinkedList;
+
 import constants.DieInstance;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
@@ -16,7 +18,7 @@ import javafx.scene.paint.Color;
  * @author @LxEmily, 17200573
  *
  */
-public class GameController extends VBox {
+public class GameComponentsController extends VBox {
 	private PlayerPanel topUserPnl, bottomUserPnl;
 	private Bars bars;
 	private Board board;
@@ -27,7 +29,7 @@ public class GameController extends VBox {
 	 * 		- Initializes the modular panes.
 	 * 		- Initializes points with their initial checkers.
 	 */
-	public GameController(Player bottomPlayer, Player topPlayer) {
+	public GameComponentsController(Player bottomPlayer, Player topPlayer) {
 		super();
 		initGameComponents(bottomPlayer, topPlayer);
 	}
@@ -114,6 +116,14 @@ public class GameController extends VBox {
 	}
 	
 	/**
+	 * Returns a boolean value indicating if the homes are filled.
+	 * @return the boolean value.
+	 */
+	public boolean isHomeFilled() {
+		return mainHome.isFilled();
+	}
+	
+	/**
 	 * Moves a checker from a point to its home.
 	 * i.e. pops a checker from bar and push it to a point.
 	 * 
@@ -178,5 +188,8 @@ public class GameController extends VBox {
 	}
 	public MoveResult moveCheckers(int fro, int to) {
 		return board.moveCheckers(fro, to);
+	}
+	public LinkedList<PipMove> getPossiblePipsToMove(int[] rollResult, Player pCurrent, Player pOpponent) {
+		return board.getPossiblePipsToMove(rollResult, pCurrent, pOpponent);
 	}
 }

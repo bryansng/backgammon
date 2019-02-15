@@ -25,13 +25,13 @@ import javafx.stage.WindowEvent;
 public class EventController implements ColorParser {
 	private Stage stage;
 	private MainController root;
-	private GameController game;
+	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
 	
-	public EventController(Stage stage, MainController root, GameController game, CommandPanel cmdPnl, CommandController cmd, InfoPanel infoPnl, RollDieButton rollDieBtn) {
+	public EventController(Stage stage, MainController root, GameComponentsController game, CommandPanel cmdPnl, CommandController cmd, InfoPanel infoPnl, RollDieButton rollDieBtn) {
 		this.stage = stage;
 		this.root = root;
 		this.game = game;
@@ -187,7 +187,7 @@ public class EventController implements ColorParser {
 			} else {
 				dieState = 1;
 			}
-			cmd.runCommand("/roll " + new Integer(dieState).toString());
+			cmd.runCommand("/roll " + Integer.toString(dieState));
 		});
 	}
 	

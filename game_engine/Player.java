@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.PlayerPerspectiveFrom;
 import javafx.scene.paint.Color;
 
 /**
@@ -14,11 +15,13 @@ public class Player {
 	private String name;
 	private double score;
 	private Color color;
+	private PlayerPerspectiveFrom pov;
 	
-	public Player(String name, double score, Color color) {
+	public Player(String name, double score, Color color, PlayerPerspectiveFrom pov) {
 		this.name = name;
 		this.score = score;
 		this.color = color;
+		this.pov = pov;
 	}
 	
 	public String getName() {
@@ -31,6 +34,10 @@ public class Player {
 	
 	public Color getColor() {
 		return color;
+	}
+	
+	public PlayerPerspectiveFrom getPOV() {
+		return pov;
 	}
 	
 	public void setName(String name) {

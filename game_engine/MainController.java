@@ -1,6 +1,6 @@
 package game_engine;
 
-import constants.DieInstance;
+import constants.PlayerPerspectiveFrom;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -24,16 +24,17 @@ import javafx.stage.Stage;
  * @author @LxEmily, 17200573
  *
  */
-public class MainController extends GridPane implements ColorParser {
+public class MainController extends GridPane {
 	private Player bottomPlayer;
 	private Player topPlayer;
-	private GameController game;
+	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
 	@SuppressWarnings("unused")
 	private EventController event;
+	private GameplayController gameplay;
 	
 	/**
 	 * Default Constructor
@@ -44,13 +45,14 @@ public class MainController extends GridPane implements ColorParser {
 	 */
 	public MainController(Stage stage) {
 		super();
-		bottomPlayer = new Player("Tea", 0, Color.WHITE);
-		topPlayer = new Player("Cup", 0, Color.BLACK);
-		game = new GameController(bottomPlayer, topPlayer);
+		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);
+		game = new GameComponentsController(bottomPlayer, topPlayer);
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
-		cmd = new CommandController(stage, this, game, infoPnl);
+		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
+		cmd = new CommandController(stage, game, gameplay, infoPnl);
 		event = new EventController(stage, this, game, cmdPnl, cmd, infoPnl, rollDieBtn);
 		style();
 		initLayout();
@@ -79,31 +81,6 @@ public class MainController extends GridPane implements ColorParser {
 		add(game, 0, 0, 1, 3);
 		add(terminal, 1, 0);
 		add(rollDieBtn, 1, 2);
-	}
-	
-	// should activate by /start.
-	public void startGameLoop() {
-		// get which player starts first.
-		Player firstPlayer;
-		firstPlayer = getFirstPlayerToRoll();
-		infoPnl.print("First player to move is: " + firstPlayer.getName() + ".");
-	}
-	
-	// auto roll die to see which player first.
-	// if draw, roll again.
-	private Player getFirstPlayerToRoll() {
-		int[] res = null;
-		res = game.rollDices(DieInstance.SINGLE);
-		int bottomPlayerRoll = res[0];
-		int topPlayerRoll = res[1];
-		
-		if (bottomPlayerRoll > topPlayerRoll) {
-			return bottomPlayer;
-		} else if (topPlayerRoll > bottomPlayerRoll) {
-			return topPlayer;
-		} else {
-			return getFirstPlayerToRoll();
-		}
 	}
 	
 	/**

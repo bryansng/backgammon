@@ -67,4 +67,12 @@ public class HomePanel extends BorderPane {
 		
 		return home;
 	}
+	
+	/**
+	 * Returns a boolean value indicating either homes are filled with checkers.
+	 * @return the boolean value.
+	 */
+	public boolean isFilled() {
+		return top.isFilled() || bottom.isFilled();
+	}
 }

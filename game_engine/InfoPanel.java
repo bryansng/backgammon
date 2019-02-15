@@ -41,6 +41,9 @@ public class InfoPanel extends TextArea {
 			case ERROR:
 				type = "[Error] ";
 				break;
+			case DEBUG:
+				type = "[DEBUG] ";
+				break;
 			case CHAT:
 				break;
 		}

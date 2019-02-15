@@ -22,14 +22,14 @@ import javafx.util.Duration;
  */
 public class CommandController implements ColorParser {
 	private Stage stage;
-	private MainController root;
-	private GameController game;
+	private GameComponentsController game;
+	private GameplayController gameplay;
 	private InfoPanel infoPnl;
 	
-	public CommandController(Stage stage, MainController root, GameController game, InfoPanel infoPnl) {
+	public CommandController(Stage stage, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl) {
 		this.stage = stage;
-		this.root = root;
 		this.game = game;
+		this.gameplay = gameplay;
 		this.infoPnl = infoPnl;
 	}
 	
@@ -50,6 +50,8 @@ public class CommandController implements ColorParser {
 			runStartCommand();
 		} else if (command.equals("/save")) {
 			runSaveCommand();
+		} else if (command.equals("/next")) {
+			runNextCommand();
 		/**
 		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
 		 * then print that amount of line with spaces.
@@ -77,7 +79,7 @@ public class CommandController implements ColorParser {
 		
 		// handle out of bounds input.
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
-			infoPnl.print("Invalid range, must be between 1-" + Settings.getNumberOfPoints() + ".", MessageType.ERROR);
+			infoPnl.print("Invalid range, must be between 1-" + Settings.NUMBER_OF_POINTS + ".", MessageType.ERROR);
 			return;
 		}
 		
@@ -149,31 +151,52 @@ public class CommandController implements ColorParser {
 	 * 2 is the player with the perspective from the top, dices will be on the right.
 	 */
 	public void runRollCommand(String[] args) {
-		PlayerPerspectiveFrom pov;
-		if (args.length == 1) {
-			pov = PlayerPerspectiveFrom.BOTTOM;
+		if (gameplay.isStarted()) {
+			boolean isRolled = gameplay.roll();
+			if (!isRolled) {
+				infoPnl.print("");
+			}
 		} else {
-			pov = parsePlayerPerspective(args[1]);
-		}
-		
-		// rollDices returns null if playerNum is invalid.
-		int[] res = game.rollDices(pov);
-		if (res != null) {
-			infoPnl.print("Roll dice results: " + Arrays.toString(res));
-		} else {
-			infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
+			PlayerPerspectiveFrom pov;
+			if (args.length == 1) {
+				pov = PlayerPerspectiveFrom.BOTTOM;
+			} else {
+				pov = parsePlayerPerspective(args[1]);
+			}
+			
+			// rollDices returns null if playerNum is invalid.
+			int[] res = game.rollDices(pov);
+			if (res != null) {
+				infoPnl.print("Roll dice results: " + Arrays.toString(res));
+			} else {
+				infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
+			}
 		}
 	}
 
+	// TODO after start, set a flag to prevent /start from being typed while game is running.
+	// flag should be initialized at CommandController.
 	/**
 	 * Command: /start
-	 * Starts the main game loop i.e. turns.
+	 * Rolls the dice to see which player goes first.
 	 */
 	public void runStartCommand() {
-		infoPnl.print("Starting game.");
-		root.startGameLoop();
+		infoPnl.print("Starting game...");
+		boolean isStarted = gameplay.start();
+		if (!isStarted) {
+			infoPnl.print("Game already started.", MessageType.ERROR);
+		}
 	}
-
+	
+	/**
+	 * Command: /next
+	 * Move on to the next player's turn.
+	 */
+	public void runNextCommand() {
+		Player pCurrent = gameplay.next();
+		infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+	}
+	
 	/**
 	 * Command: /save
 	 * Saves game log (text on info panel) to text file .
@@ -259,7 +282,7 @@ public class CommandController implements ColorParser {
 		hitTl.setCycleCount(3);
 		bearOnTL.setCycleCount(2);
 		bearOffTL.setCycleCount(2);
-		traversalTl.setCycleCount(Settings.getNumberOfPoints());
+		traversalTl.setCycleCount(Settings.NUMBER_OF_POINTS);
 
 		infoPnl.printNewline(2);
 		hitTl.play();
@@ -293,7 +316,7 @@ public class CommandController implements ColorParser {
 		}
 		
 		if (!isString) {
-			if (!(pipNum >= 0 && pipNum <= Settings.getNumberOfPoints())) {
+			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_POINTS)) {
 				isOutOfBounds = true;
 			}
 		}
@@ -305,7 +328,7 @@ public class CommandController implements ColorParser {
 		if (playerNum.equals("1")) {
 			pov = PlayerPerspectiveFrom.BOTTOM;
 		} else if (playerNum.equals("2")) {
-			pov = PlayerPerspectiveFrom.BOTTOM;
+			pov = PlayerPerspectiveFrom.TOP;
 		} else {
 			pov = PlayerPerspectiveFrom.NONE;
 		}

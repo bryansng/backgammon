@@ -1,8 +1,11 @@
 package game_engine;
 
+import java.util.Collections;
+import java.util.LinkedList;
 import constants.DieInstance;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
+import exceptions.PlayerNoPerspectiveException;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
@@ -20,7 +23,7 @@ import javafx.scene.paint.Color;
  *
  */
 public class Board extends HBox {
-	private final int MAXPOINTS = Settings.getNumberOfPoints();
+	private final int MAXPOINTS = Settings.NUMBER_OF_POINTS;
 	private Point[] points;
 	private BorderPane leftBoard, rightBoard;
 
@@ -227,25 +230,23 @@ public class Board extends HBox {
 	 * @param to, one-based index, the point number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public MoveResult moveCheckers(int fro, int to) {
+	public MoveResult moveCheckers(int fromPip, int toPip) {
 		// Adjust indexes to zero-based indexing.
-		fro--;
-		to--;
-		MoveResult moveResult = MoveResult.NOT_MOVED;
+		fromPip--;
+		toPip--;
+		MoveResult moveResult = isMove(fromPip, toPip, null);
 		
-		if (!points[fro].isEmpty()) {
-			if (points[fro].topCheckerColourEquals(points[to])) {
-				points[to].push(points[fro].pop());
-				moveResult = MoveResult.MOVED_TO_PIP;
-			} else {
-				if (points[to].size() == 1) {
-					moveResult = MoveResult.MOVE_TO_BAR;
-				}
-			}
-
-			points[to].drawCheckers();
-			points[fro].drawCheckers();
+		switch (moveResult) {
+			case MOVED_TO_PIP:
+				points[toPip].push(points[fromPip].pop());
+				points[toPip].drawCheckers();
+				points[fromPip].drawCheckers();
+				break;
+			case MOVED_TO_BAR:
+				break;
+			default:
 		}
+		
 		return moveResult;
 	}
 	
@@ -306,12 +307,12 @@ public class Board extends HBox {
 		int[] res = null;
 		
 		switch (pov) {
-			case TOP:
+			case BOTTOM:
 				leftDice = dices;
 				rightDice = null;
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
-			case BOTTOM:
+			case TOP:
 				leftDice = null;
 				rightDice = dices;
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
@@ -350,5 +351,109 @@ public class Board extends HBox {
 		rightBoard.setCenter(rightDice);
 		
 		return res;
+	}
+	
+	// 2ai. calculate the possible moves based on die roll.
+	// TODO consider homes.
+	public LinkedList<PipMove> getPossiblePipsToMove(int[] rollResult, Player pCurrent, Player pOpponent) {
+		LinkedList<PipMove> possibleMoves = new LinkedList<>();
+		PipMove aMove = null;
+		
+		for (int i = 0; i < points.length; i++) {
+			int possibleToPip = -1;
+			boolean hasMove = false;
+			aMove = new PipMove(i);
+			
+			// highlight this point if:
+			// 		- it has the player's checkers.
+			//		- there are valid moves to be moved from this point,
+			//
+			// valid moves constitute of:
+			//		- able to move based on rollResult.
+			//		- able to move based on sum of rollResult.
+			//		- able to hit other player's checkers.
+			for (int j = 0; j < rollResult.length; j++) {
+				possibleToPip = getPossibleToPip(pCurrent, i, rollResult[j]);
+				
+				if (isInRange(possibleToPip) && isMove(i, possibleToPip, pCurrent) != MoveResult.NOT_MOVED) {
+					aMove.getToPips().add(possibleToPip);
+					hasMove = true;
+				}
+			}
+			
+			// consider sum of die result.
+			possibleToPip = getPossibleToPip(pCurrent, i, getSum(rollResult));
+			if (isInRange(possibleToPip) && isMove(i, possibleToPip, pCurrent) != MoveResult.NOT_MOVED) {
+				aMove.getToPips().add(possibleToPip);
+				hasMove = true;
+			}
+			
+			// check if there's to pips or homes, else its not a possible move.
+			if (hasMove) {
+				Collections.sort(aMove.getToPips());
+				possibleMoves.add(aMove);
+			}
+		}
+		return possibleMoves;
+	}
+	
+	private boolean isInRange(int possibleToPip) {
+		return possibleToPip >= 0 && possibleToPip < Settings.NUMBER_OF_POINTS;
+	}
+	
+	private int getPossibleToPip(Player pCurrent, int fromPip, int diceResult) {
+		int possibleToPip = -1;
+		
+		// BOTTOM - home at bottom, point index from small to big, 1-24. 
+		// TOP - home at top, point index from big to small, 24-1.
+		switch (pCurrent.getPOV()) {
+			case BOTTOM:
+				possibleToPip = fromPip - diceResult;
+				break;
+			case TOP:
+				possibleToPip = fromPip + diceResult;
+				break;
+			default:
+				throw new PlayerNoPerspectiveException();
+		}
+		
+		return possibleToPip;
+	}
+	
+	// check if the toPip is a possible move, i.e. able to place checkers there.
+	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
+		MoveResult moveResult = MoveResult.NOT_MOVED;
+		
+		if (!points[fromPip].isEmpty() && isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
+			if (points[fromPip].topCheckerColourEquals(points[toPip])) {
+				moveResult = MoveResult.MOVED_TO_PIP;
+			} else {
+				if (points[toPip].size() == 1) {
+					moveResult = MoveResult.MOVE_TO_BAR;
+				}
+			}
+		}
+		
+		return moveResult;
+	}
+	
+	// return boolean value indicating if pip color equals player color.
+	// if player is null, return true.
+	private boolean isPipColorEqualsPlayerColor(int pipNum, Player player) {
+		boolean isFromPipColourEqualsPlayerColor = true;
+		
+		if (player != null && !points[pipNum].isEmpty()) {
+			isFromPipColourEqualsPlayerColor = points[pipNum].topCheckerColourEquals(player.getColor());
+		}
+		
+		return isFromPipColourEqualsPlayerColor;
+	}
+	
+	public int getSum(int[] arr) {
+		int sum = 0;
+		for (int i = 0; i < arr.length; i++) {
+			sum += arr[i];
+		}
+		return sum;
 	}
 }

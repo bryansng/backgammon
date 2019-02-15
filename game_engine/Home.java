@@ -34,4 +34,12 @@ public class Home extends CheckersStorer {
 	public Color getColour() {
 		return checkerColoursToStore;
 	}
+	
+	/**
+	 * Returns a boolean value indicating if the home is filled with checkers.
+	 * @return the boolean value.
+	 */
+	public boolean isFilled() {
+		return size() == Settings.MAX_CHECKERS_PER_CHECKERS_STORER;
+	}
 }

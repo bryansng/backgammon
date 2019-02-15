@@ -13,7 +13,7 @@ import javafx.scene.layout.VBox;
  * @author @LxEmily, 17200573
  */
 public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
-	private final int MAXSIZE = Settings.getPointMaxSize();
+	private final int MAXSIZE = Settings.MAX_CHECKERS_PER_CHECKERS_STORER;
 	private int size = 0;
 	private Node<E> top;
 	
@@ -53,8 +53,7 @@ public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 		if (size <= MAXSIZE) {
 			top = new Node<E>(e, top);
 			size++;
-		}
-		else {
+		} else {
 			throw new StackOverflowException("MAXSIZE: " + MAXSIZE + ", but current size: " + size);
 		}
 	}

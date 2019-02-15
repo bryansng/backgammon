@@ -18,6 +18,10 @@ import javafx.scene.image.Image;
  *
  */
 public class Settings {
+	public static final int MAX_CHECKERS_IN_GAME = 30;
+	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
+	public static final int NUMBER_OF_POINTS = 24; 
+	
 	/**
 	 * Screen sizes - Used to set scene width and height.
 	 * @return size of screen.
@@ -79,15 +83,6 @@ public class Settings {
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
-	}
-	
-	/**
-	 * Returns the total number of checkers allowed in the game by both players.
-	 * @return the total number of checkers.
-	 */
-	public static int getPointMaxSize() {
-		int totalNumberOfCheckers = 30;
-		return totalNumberOfCheckers;
 	}
 	
 	/**
@@ -159,14 +154,6 @@ public class Settings {
 		return spacing;
 	}
 	
-	/**
-	 * Returns the number of points in the game.
-	 * @return the number of points
-	 */
-	public static int getNumberOfPoints() {
-		int numberOfPoints = 24;
-		return numberOfPoints;
-	}
 	
 	/**
 	 * Returns the vertical gap distance between command panel, info panel and roll die button.
