@@ -24,6 +24,10 @@ public class Player {
 		this.pov = pov;
 	}
 	
+	public Player getPlayer() {
+		return this;
+	}
+	
 	public String getName() {
 		return name;
 	}

@@ -1,7 +1,6 @@
 package game_engine;
 
 import java.util.LinkedList;
-
 import constants.DieInstance;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
@@ -191,5 +190,15 @@ public class GameComponentsController extends VBox {
 	}
 	public LinkedList<PipMove> getPossiblePipsToMove(int[] rollResult, Player pCurrent, Player pOpponent) {
 		return board.getPossiblePipsToMove(rollResult, pCurrent, pOpponent);
+	}
+	
+	/**
+	 * Setter and getters for player panels.
+	 */
+	public PlayerPanel getTopPlayerPanel() {
+		return topUserPnl;
+	}
+	public PlayerPanel getBottomPlayerPanel() {
+		return bottomUserPnl;
 	}
 }

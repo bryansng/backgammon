@@ -1,5 +1,8 @@
 package game_engine;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Arrays;
 import constants.MessageType;
 import constants.MoveResult;
@@ -25,8 +28,11 @@ public class CommandController implements ColorParser {
 	private GameComponentsController game;
 	private GameplayController gameplay;
 	private InfoPanel infoPnl;
+	private Player bottomPlayer, topPlayer;
 	
-	public CommandController(Stage stage, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl) {
+	public CommandController(Stage stage, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+		this.bottomPlayer = bottomPlayer;
+		this.topPlayer = topPlayer;
 		this.stage = stage;
 		this.game = game;
 		this.gameplay = gameplay;
@@ -56,6 +62,10 @@ public class CommandController implements ColorParser {
 		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
 		 * then print that amount of line with spaces.
 		 */
+		} else if (command.equals("/name")) {	
+			runNameCommand(args);
+		} else if (command.equals("/help")) {	
+			runHelpCommand();
 		} else if (command.equals("/test")) {	
 			runTestCommand();
 		} else if (command.equals("/quit")) {	
@@ -295,6 +305,52 @@ public class CommandController implements ColorParser {
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
+	
+	/**
+	 * Command: /help
+	 * Displays help commands on info panel.
+	 */
+	public void runHelpCommand() {
+		String s = "\n";
+		String line = null;
+		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
+			while((line = reader.readLine()) != null) {
+				s += line + "\n";
+				System.out.println(line);
+			}
+			s +="\n";
+			infoPnl.print(s);
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Command: /name
+	 * Changes player name.
+	 */
+	public void runNameCommand(String [] args) {
+		int playerNum = Integer.parseInt(args[1]);
+		String playerName = args[2];
+		
+		switch(playerNum) {
+			case 1:
+				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
+				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
+				break;
+			case 2:
+				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
+				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
+				break;
+			default:
+				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
+		}
+		
+	}
+	
 	
 	/**
 	 * Check if the arguments of /move command is within bounds, i.e. 0-24.

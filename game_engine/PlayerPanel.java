@@ -31,7 +31,7 @@ public class PlayerPanel extends HBox implements ColorParser {
 		}
 	}
 	
-	private Player player;	
+	private Player player;
 	private PlayerInfo playerName;
 	private PlayerInfo playerScore;
 	private PlayerInfo playerColour;
@@ -60,5 +60,10 @@ public class PlayerPanel extends HBox implements ColorParser {
 	
 	private void initLayout() {
 		getChildren().addAll(playerName, playerColour, playerScore);
+	}
+	
+	public void setPlayerName(Player player, String name) {
+		player.setName(name);
+		playerName.setText("Name: " + player.getName());
 	}
 }
