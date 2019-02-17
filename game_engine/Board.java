@@ -292,6 +292,7 @@ public class Board extends AbstractBoard {
 					break;
 				}
 			}
+			if (intermediateMove != null) break;
 		}
 		return intermediateMove;
 	}
