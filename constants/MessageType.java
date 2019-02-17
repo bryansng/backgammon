@@ -9,5 +9,5 @@ package constants;
  *
  */
 public enum MessageType {
-	CHAT, SYSTEM, ERROR, DEBUG;
+	CHAT, ANNOUNCEMENT, SYSTEM, ERROR, DEBUG;
 }

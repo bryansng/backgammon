@@ -1,6 +1,5 @@
 package game_engine;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.MoveResult;
@@ -11,6 +10,9 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import move.Move;
+import move.PipToPip;
+import move.RollMoves;
 
 /**
  * This class represents the Board object in Backgammon.
@@ -226,14 +228,11 @@ public class Board extends HBox {
 	 * Moves a checker between points.
 	 * i.e. pops a checker from one point and push it to the other.
 	 * 
-	 * @param fro, one-based index, the point number to pop from.
-	 * @param to, one-based index, the point number to push to.
+	 * @param fromPip, zero-based index, the point number to pop from.
+	 * @param toPip, zero-based index, the point number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveCheckers(int fromPip, int toPip) {
-		// Adjust indexes to zero-based indexing.
-		fromPip--;
-		toPip--;
 		MoveResult moveResult = isMove(fromPip, toPip, null);
 		
 		switch (moveResult) {
@@ -253,9 +252,13 @@ public class Board extends HBox {
 	/**
 	 * Un-highlight the points.
 	 */
-	public void unhighlightPoints() {
+	public void unhighlightPipsAndCheckers() {
 		for (int i = 0; i < points.length; i++) {
-			points[i].setNormalImage(); 
+			points[i].setNormalImage();
+			
+			if (!points[i].isEmpty()) {
+				points[i].top().setNormalImage();
+			}
 		}
 	}
 	
@@ -263,14 +266,49 @@ public class Board extends HBox {
 	 * Highlight the points.
 	 * @param exceptPointNum, except this point number.
 	 */
-	public void highlightPoints(int exceptPointNum) {
+	public void highlightAllPipsExcept(int exceptPipNum) {
+		unhighlightPipsAndCheckers();
+		
 		for (int i = 0; i < points.length; i++) {
-			if (i == exceptPointNum) {
-				points[i].setNormalImage();
-			} else {
+			if (i != exceptPipNum) {
 				points[i].setHighlightImage();
 			}
 		}
+	}
+	
+	public void highlightFromPipsChecker(LinkedList<RollMoves> moves) {
+		unhighlightPipsAndCheckers();
+
+		PipToPip move = null;
+		for (RollMoves rollMoves : moves) {
+			for (Move aMove : rollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					move = (PipToPip) aMove;
+					points[move.getFromPip()].top().setHighlightImage();
+				}
+			}
+		}
+	}
+	
+	public void highlightToPips(LinkedList<RollMoves> moves, int fromPip) {
+		unhighlightPipsAndCheckers();
+		
+		boolean isFromPipInMoves = false;
+		for (RollMoves rollMoves : moves) {
+			for (Move aMove : rollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					if (move.getFromPip() == fromPip) {
+						isFromPipInMoves = true;
+						points[move.getToPip()].setHighlightImage();
+					}
+				}
+			}
+		}
+		
+		// Highlight the selected pip's top checker.
+		// Provided the fromPip is part of the moves.
+		if (isFromPipInMoves) points[fromPip].top().setHighlightImage();
 	}
 	
 	/**
@@ -354,51 +392,75 @@ public class Board extends HBox {
 	}
 	
 	// 2ai. calculate the possible moves based on die roll.
-	// TODO consider homes.
-	public LinkedList<PipMove> getPossiblePipsToMove(int[] rollResult, Player pCurrent, Player pOpponent) {
-		LinkedList<PipMove> possibleMoves = new LinkedList<>();
-		PipMove aMove = null;
+	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
+		// TODO before begin, check if its single or double cube instance.
+		//check here.
 		
-		for (int i = 0; i < points.length; i++) {
-			int possibleToPip = -1;
-			boolean hasMove = false;
-			aMove = new PipMove(i);
+		LinkedList<RollMoves> moves = new LinkedList<>();
+		
+		// take sum by pairs of rollResult.
+		int pairSum = 0;
+		
+		// consider each die result.
+		boolean hasMove;
+		RollMoves rollMoves = null;
+		for (int i = 0; i < 2; i++) {
+			hasMove = false;
+			pairSum += rollResult[i];
+			rollMoves = new RollMoves(rollResult[i], false);
 			
-			// highlight this point if:
-			// 		- it has the player's checkers.
-			//		- there are valid moves to be moved from this point,
-			//
-			// valid moves constitute of:
-			//		- able to move based on rollResult.
-			//		- able to move based on sum of rollResult.
-			//		- able to hit other player's checkers.
-			for (int j = 0; j < rollResult.length; j++) {
-				possibleToPip = getPossibleToPip(pCurrent, i, rollResult[j]);
-				
-				if (isInRange(possibleToPip) && isMove(i, possibleToPip, pCurrent) != MoveResult.NOT_MOVED) {
-					aMove.getToPips().add(possibleToPip);
-					hasMove = true;
-				}
+			// loop through points.
+			for (int fromPip = 0; fromPip < points.length; fromPip++) {
+				// addAsMove returns a boolean indicating if move is valid and added as move.
+				 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult[i], false)) {
+					 hasMove = true;
+				 }
 			}
-			
-			// consider sum of die result.
-			possibleToPip = getPossibleToPip(pCurrent, i, getSum(rollResult));
-			if (isInRange(possibleToPip) && isMove(i, possibleToPip, pCurrent) != MoveResult.NOT_MOVED) {
-				aMove.getToPips().add(possibleToPip);
-				hasMove = true;
-			}
-			
-			// check if there's to pips or homes, else its not a possible move.
 			if (hasMove) {
-				Collections.sort(aMove.getToPips());
-				possibleMoves.add(aMove);
+				moves.add(rollMoves);
+				// NOTE: if its a double instance, we simply add the rollMoves twice at the end.
+				//add here.
 			}
 		}
-		return possibleMoves;
+
+		// consider sum of die result.
+		hasMove = false;
+		rollMoves = new RollMoves(pairSum, true);
+		for (int fromPip = 0; fromPip < points.length; fromPip++) {
+			if (addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true)) {
+				hasMove = true;
+			}
+		}
+		if (hasMove) {
+			moves.add(rollMoves);
+			// NOTE: if its a double instance, we simply add the rollMoves twice at the end.
+			//add here.
+		}
+		
+		return moves;
 	}
 	
-	private boolean isInRange(int possibleToPip) {
-		return possibleToPip >= 0 && possibleToPip < Settings.NUMBER_OF_POINTS;
+	// Adds a new move to rollMoves depending if it is a valid move.
+	// Currently only considers PipToPip.
+	private boolean addedAsMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+		boolean addedAsMove = false;
+		
+		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
+		// TODO getPossibleToHome etc.
+		
+		// this seems like it can be refactored, play with isSumMove and isSumMove().
+		if (isSumMove) {
+			if (isInRange(toPip) && isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED && isSumMove(moves, fromPip, toPip)) {
+				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
+				addedAsMove = true;
+			}
+		} else {
+			if (isInRange(toPip) && isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED) {
+				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
+				addedAsMove = true;
+			}
+		}
+		return addedAsMove;
 	}
 	
 	private int getPossibleToPip(Player pCurrent, int fromPip, int diceResult) {
@@ -420,6 +482,10 @@ public class Board extends HBox {
 		return possibleToPip;
 	}
 	
+	private boolean isInRange(int toPip) {
+		return toPip >= 0 && toPip < Settings.NUMBER_OF_POINTS;
+	}
+	
 	// check if the toPip is a possible move, i.e. able to place checkers there.
 	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
@@ -437,6 +503,40 @@ public class Board extends HBox {
 		return moveResult;
 	}
 	
+	// it is sum move if it has an intermediate move in rollMoves.
+	private boolean isSumMove(LinkedList<RollMoves> moves, int fromPip, int toPip) {
+		boolean isSumMove = false;
+		for (RollMoves rollMove : moves) {
+			for (Move aMove : rollMove.getMoves()) {
+				if (hasIntermediate(aMove, fromPip, toPip)) {
+					isSumMove = true;
+					break;
+				}
+			}
+		}
+		return isSumMove;
+	}
+	
+	private boolean hasIntermediate(Move aMove, int fromPip, int toPip) {
+		boolean hasIntermediate = false;
+		if (aMove instanceof PipToPip) {
+			PipToPip move = (PipToPip) aMove;
+			if (fromPip == move.getFromPip()) {
+				if (toPip > fromPip) {
+					// if move's to pip is within the range of fromPip and toPip.
+					if (move.getToPip() > fromPip && move.getToPip() < toPip) {
+						hasIntermediate = true;
+					}
+				} else {
+					if (move.getToPip() < fromPip && move.getToPip() > toPip) {
+						hasIntermediate = true;
+					}
+				}
+			}
+		}
+		return hasIntermediate;
+	}
+	
 	// return boolean value indicating if pip color equals player color.
 	// if player is null, return true.
 	private boolean isPipColorEqualsPlayerColor(int pipNum, Player player) {
@@ -447,13 +547,5 @@ public class Board extends HBox {
 		}
 		
 		return isFromPipColourEqualsPlayerColor;
-	}
-	
-	public int getSum(int[] arr) {
-		int sum = 0;
-		for (int i = 0; i < arr.length; i++) {
-			sum += arr[i];
-		}
-		return sum;
 	}
 }

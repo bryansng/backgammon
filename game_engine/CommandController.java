@@ -23,7 +23,7 @@ import javafx.util.Duration;
  * @author @LxEmily, 17200573
  *
  */
-public class CommandController implements ColorParser {
+public class CommandController implements ColorParser, InputValidator {
 	private Stage stage;
 	private GameComponentsController game;
 	private GameplayController gameplay;
@@ -93,6 +93,24 @@ public class CommandController implements ColorParser {
 			return;
 		}
 		
+		// validate moves.
+		// isRolled only if it started.
+		if (gameplay.isRolled()) {
+			if (!gameplay.isMoved()) {
+				if (gameplay.isValidMove(fro, to)) {
+					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
+					gameplay.move();
+				} else {
+					game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
+					infoPnl.print("You can only move pieces to highlighted pips.", MessageType.ERROR);
+					return;
+				}
+			} else {
+				infoPnl.print("You have made your move.", MessageType.ERROR);
+				return;
+			}
+		}
+		
 		MoveResult moveResult;
 		// move from point/bar to home.
 		if (to.equals("white") || to.equals("black")) {
@@ -106,10 +124,10 @@ public class CommandController implements ColorParser {
 			
 			switch (moveResult) {
 				case MOVED_TO_HOME_FROM_PIP:
-					infoPnl.print("Moved checker from " + fro + " to home.");
+					infoPnl.print("Moved checker from " + (new Integer(fro).intValue()+1) + " to home.", MessageType.DEBUG);
 					break;
 				case MOVED_TO_HOME_FROM_BAR:
-					infoPnl.print("Moved checker from bar to home.");
+					infoPnl.print("Moved checker from bar to home.", MessageType.DEBUG);
 					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
@@ -122,13 +140,13 @@ public class CommandController implements ColorParser {
 			moveResult = game.moveFromBar(fromBar, toPip);
 			switch (moveResult) {
 				case MOVED_FROM_BAR:
-					infoPnl.print("Moving checker from bar to " + toPip + ".");
+					infoPnl.print("Moving checker from bar to " + (toPip+1) + ".", MessageType.DEBUG);
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
 					game.moveFromBar(fromBar, toPip);
-					infoPnl.print("Moving checker from " + toPip + " to bar.");
-					infoPnl.print("Moving checker from bar to " + toPip + ".");
+					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
+					infoPnl.print("Moving checker from bar to " + (toPip+1) + ".", MessageType.DEBUG);
 					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
@@ -138,21 +156,42 @@ public class CommandController implements ColorParser {
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
 			
-			moveResult = game.moveCheckers(fromPip, toPip);
+			moveResult = game.getBoard().moveCheckers(fromPip, toPip);
 			switch (moveResult) {
 				case MOVED_TO_PIP:
-					infoPnl.print("Moving checker from " + fromPip + " to " + toPip + ".");
+					infoPnl.print("Moving checker from " + (fromPip+1) + " to " + (toPip+1) + ".", MessageType.DEBUG);
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
-					game.moveCheckers(fromPip, toPip);
-					infoPnl.print("Moving checker from " + toPip + " to bar.");
-					infoPnl.print("Moving checker from " + fromPip + " to " + toPip + ".");
+					game.getBoard().moveCheckers(fromPip, toPip);
+					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
+					infoPnl.print("Moving checker from " + (fromPip+1) + " to " + (toPip+1) + ".", MessageType.DEBUG);
 					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
 		}
+		
+		if (gameplay.isMoved()) infoPnl.print("Move over.");
+	}
+	
+	/**
+	 * Check if the arguments of /move command is within bounds, i.e. 0-24.
+	 * It ignores bar or homes, it only checks for pip indexes.
+	 * 
+	 * @param arg Argument of the /move command.
+	 * @return boolean value indicating if the argument is out of bounds.
+	 */
+	private boolean isIndexOutOfBounds(String arg) {
+		// arg can be strings ("white" or "black"), so we deal with that.
+		boolean isOutOfBounds = false;
+		if (isPip(arg)) {
+			int pipNum = Integer.parseInt(arg);
+			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_POINTS)) {
+				isOutOfBounds = true;
+			}
+		}
+		return isOutOfBounds;
 	}
 
 	/**
@@ -162,9 +201,11 @@ public class CommandController implements ColorParser {
 	 */
 	public void runRollCommand(String[] args) {
 		if (gameplay.isStarted()) {
-			boolean isRolled = gameplay.roll();
-			if (!isRolled) {
-				infoPnl.print("");
+			if (!gameplay.isRolled()) {
+				infoPnl.print("Rolling...", MessageType.ANNOUNCEMENT);
+				gameplay.roll();
+			} else {
+				infoPnl.print("Die has already been rolled.", MessageType.ERROR);
 			}
 		} else {
 			PlayerPerspectiveFrom pov;
@@ -175,7 +216,7 @@ public class CommandController implements ColorParser {
 			}
 			
 			// rollDices returns null if playerNum is invalid.
-			int[] res = game.rollDices(pov);
+			int[] res = game.getBoard().rollDices(pov);
 			if (res != null) {
 				infoPnl.print("Roll dice results: " + Arrays.toString(res));
 			} else {
@@ -183,17 +224,28 @@ public class CommandController implements ColorParser {
 			}
 		}
 	}
+	
+	private PlayerPerspectiveFrom parsePlayerPerspective(String playerNum) {
+		PlayerPerspectiveFrom pov = null;
+		if (playerNum.equals("1")) {
+			pov = PlayerPerspectiveFrom.BOTTOM;
+		} else if (playerNum.equals("2")) {
+			pov = PlayerPerspectiveFrom.TOP;
+		} else {
+			pov = PlayerPerspectiveFrom.NONE;
+		}
+		return pov;
+	}
 
-	// TODO after start, set a flag to prevent /start from being typed while game is running.
-	// flag should be initialized at CommandController.
 	/**
 	 * Command: /start
 	 * Rolls the dice to see which player goes first.
 	 */
 	public void runStartCommand() {
-		infoPnl.print("Starting game...");
-		boolean isStarted = gameplay.start();
-		if (!isStarted) {
+		if (!gameplay.isStarted()) {
+			infoPnl.print("Starting game...", MessageType.ANNOUNCEMENT);
+			gameplay.start();
+		} else {
 			infoPnl.print("Game already started.", MessageType.ERROR);
 		}
 	}
@@ -203,8 +255,12 @@ public class CommandController implements ColorParser {
 	 * Move on to the next player's turn.
 	 */
 	public void runNextCommand() {
-		Player pCurrent = gameplay.next();
-		infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+		// isMoved only if it started and rolled, so this is suffice.
+		if (gameplay.isMoved()) {
+			infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
+			Player pCurrent = gameplay.next();
+			infoPnl.print("It is now " + pCurrent.getName() + "'s turn.", MessageType.ANNOUNCEMENT);
+		}
 	}
 	
 	/**
@@ -213,6 +269,59 @@ public class CommandController implements ColorParser {
 	 */
 	public void runSaveCommand() {
 		infoPnl.saveToFile();
+	}
+
+	/**
+	 * Command: /quit
+	 * Saves game log and prompts player to quit before quitting application.
+	 */
+	public void runQuitCommand() {
+		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+	}
+	
+	/**
+	 * Command: /help
+	 * Displays help commands on info panel.
+	 */
+	public void runHelpCommand() {
+		String s = "\n";
+		String line = null;
+		
+		try {
+			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
+			while((line = reader.readLine()) != null) {
+				s += line + "\n";
+				System.out.println(line);
+			}
+			s +="\n";
+			infoPnl.print(s);
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Command: /name
+	 * Changes player name.
+	 */
+	public void runNameCommand(String [] args) {
+		int playerNum = Integer.parseInt(args[1]);
+		String playerName = args[2];
+		
+		switch(playerNum) {
+			case 1:
+				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
+				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
+				break;
+			case 2:
+				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
+				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
+				break;
+			default:
+				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
+		}
+		
 	}
 	
 	/**
@@ -296,98 +405,5 @@ public class CommandController implements ColorParser {
 
 		infoPnl.printNewline(2);
 		hitTl.play();
-	}
-
-	/**
-	 * Command: /quit
-	 * Saves game log and prompts player to quit before quitting application.
-	 */
-	public void runQuitCommand() {
-		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-	}
-	
-	/**
-	 * Command: /help
-	 * Displays help commands on info panel.
-	 */
-	public void runHelpCommand() {
-		String s = "\n";
-		String line = null;
-		
-		try {
-			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
-			while((line = reader.readLine()) != null) {
-				s += line + "\n";
-				System.out.println(line);
-			}
-			s +="\n";
-			infoPnl.print(s);
-			reader.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	/**
-	 * Command: /name
-	 * Changes player name.
-	 */
-	public void runNameCommand(String [] args) {
-		int playerNum = Integer.parseInt(args[1]);
-		String playerName = args[2];
-		
-		switch(playerNum) {
-			case 1:
-				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
-				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
-				break;
-			case 2:
-				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
-				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
-				break;
-			default:
-				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
-		}
-		
-	}
-	
-	
-	/**
-	 * Check if the arguments of /move command is within bounds, i.e. 0-24.
-	 * It ignores bar or homes, it only checks for pip indexes.
-	 * 
-	 * @param arg Argument of the /move command.
-	 * @return boolean value indicating if the argument is out of bounds.
-	 */
-	private boolean isIndexOutOfBounds(String arg) {
-		// pipIndex can be strings ("white" or "black"), so we deal with that.
-		boolean isString = false;
-		boolean isOutOfBounds = false;
-		
-		int pipNum = -1;
-		try {
-			pipNum = Integer.parseInt(arg);
-		} catch (NumberFormatException e) {
-			isString = true;
-		}
-		
-		if (!isString) {
-			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_POINTS)) {
-				isOutOfBounds = true;
-			}
-		}
-		return isOutOfBounds;
-	}
-	
-	private PlayerPerspectiveFrom parsePlayerPerspective(String playerNum) {
-		PlayerPerspectiveFrom pov = null;
-		if (playerNum.equals("1")) {
-			pov = PlayerPerspectiveFrom.BOTTOM;
-		} else if (playerNum.equals("2")) {
-			pov = PlayerPerspectiveFrom.TOP;
-		} else {
-			pov = PlayerPerspectiveFrom.NONE;
-		}
-		return pov;
 	}
 }

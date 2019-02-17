@@ -32,8 +32,6 @@ public class MainController extends GridPane {
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
-	@SuppressWarnings("unused")
-	private EventController event;
 	private GameplayController gameplay;
 	
 	/**
@@ -53,7 +51,7 @@ public class MainController extends GridPane {
 		cmdPnl = new CommandPanel();
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, game, gameplay, infoPnl, bottomPlayer, topPlayer);
-		event = new EventController(stage, this, game, cmdPnl, cmd, infoPnl, rollDieBtn);
+		new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		style();
 		initLayout();
 	}

@@ -1,9 +1,6 @@
 package game_engine;
 
-import java.util.LinkedList;
-import constants.DieInstance;
 import constants.MoveResult;
-import constants.PlayerPerspectiveFrom;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -59,16 +56,23 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
+	 * Returns a boolean value indicating if the homes are filled.
+	 * @return the boolean value.
+	 */
+	public boolean isHomeFilled() {
+		return mainHome.isFilled();
+	}
+	
+	/**
 	 * Moves a checker from a point to the bar.
 	 * i.e. pops a checker from one point and push it to the bar.
 	 * 
-	 * @param fro, one-based index, the point number to pop from.
+	 * @param fro, zero-based index, the point number to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveToBar(int fro) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		fro--;
 		Point[] points = board.getPoints();
 		Bar bar = bars.getBar(points[fro].top().getColor());
 		// Checking if its empty is actually done by moveCheckers,
@@ -89,13 +93,12 @@ public class GameComponentsController extends VBox {
 	 * i.e. pops a checker from bar and push it to a point.
 	 * 
 	 * @param fromBar, color of the bar to pop from.
-	 * @param to, one-based index, the point number to push to.
+	 * @param to, zero-based index, the point number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveFromBar(Color fromBar, int to) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		to--;
 		Point[] points = board.getPoints();
 		Bar bar = bars.getBar(fromBar);
 		if (!bar.isEmpty()) {
@@ -115,24 +118,15 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the homes are filled.
-	 * @return the boolean value.
-	 */
-	public boolean isHomeFilled() {
-		return mainHome.isFilled();
-	}
-	
-	/**
 	 * Moves a checker from a point to its home.
 	 * i.e. pops a checker from bar and push it to a point.
 	 * 
-	 * @param fro, one-based index, the point number to pop from.
+	 * @param fro, zero-based index, the point number to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveToHome(int fro) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		fro--;
 		Point[] points = board.getPoints();
 		if (!points[fro].isEmpty()) {
 			Home home = mainHome.getHome(points[fro].top().getColor());
@@ -167,34 +161,9 @@ public class GameComponentsController extends VBox {
 		return moveResult;
 	}
 	
-	/**
-	 * Buffer methods for Board instance variable - Keep functionality separate.
-	 */
-	public Point[] getPoints() {
-		return board.getPoints();
+	public Board getBoard() {
+		return board;
 	}
-	public void unhighlightPoints() {
-		board.unhighlightPoints();
-	}
-	public void highlightPoints(int exceptPointNum) {
-		board.highlightPoints(exceptPointNum);
-	}
-	public int[] rollDices(PlayerPerspectiveFrom pov) {
-		return board.rollDices(pov);
-	}
-	public int[] rollDices(DieInstance instance) {
-		return board.rollDices(instance);
-	}
-	public MoveResult moveCheckers(int fro, int to) {
-		return board.moveCheckers(fro, to);
-	}
-	public LinkedList<PipMove> getPossiblePipsToMove(int[] rollResult, Player pCurrent, Player pOpponent) {
-		return board.getPossiblePipsToMove(rollResult, pCurrent, pOpponent);
-	}
-	
-	/**
-	 * Setter and getters for player panels.
-	 */
 	public PlayerPanel getTopPlayerPanel() {
 		return topUserPnl;
 	}

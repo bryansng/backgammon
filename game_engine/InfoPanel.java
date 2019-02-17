@@ -18,6 +18,8 @@ import javafx.scene.control.TextArea;
  * 
  */
 public class InfoPanel extends TextArea {
+	private boolean debugMode = false;
+	
 	public InfoPanel() {
 		super();
 		setPrefHeight(Settings.getHalfBoardSize().getHeight());
@@ -35,21 +37,29 @@ public class InfoPanel extends TextArea {
 	 * @param mtype - message type, (i.e., error or system message) 
 	 */
 	public void print(String text, MessageType mtype) {
+		String prefix = ">";
 		String type = "";
 		switch (mtype) {
+			case ANNOUNCEMENT:
+				prefix = "\n" + prefix;
 			case SYSTEM:
-				type = "[System] ";
+				type = "[System]";
 				break;
 			case ERROR:
-				type = "[Error] ";
+				type = "[Error]";
 				break;
 			case DEBUG:
-				type = "[DEBUG] ";
+				type = "[DEBUG]";
 				break;
 			case CHAT:
 				break;
 		}
-		appendText("> " + type + text + "\n");
+		
+		if (debugMode) {
+			appendText(prefix + " " + type + " " + text + "\n");
+		} else if (mtype != MessageType.DEBUG) {
+			appendText(prefix + " " + type + " " + text + "\n");
+		}
 	}
 	public void print(String text) {
 		print(text, MessageType.SYSTEM);

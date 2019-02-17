@@ -26,15 +26,17 @@ public class EventController implements ColorParser {
 	private Stage stage;
 	private MainController root;
 	private GameComponentsController game;
+	private GameplayController gameplay;
 	private InfoPanel infoPnl;
 	private RollDieButton rollDieBtn;
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
 	
-	public EventController(Stage stage, MainController root, GameComponentsController game, CommandPanel cmdPnl, CommandController cmd, InfoPanel infoPnl, RollDieButton rollDieBtn) {
+	public EventController(Stage stage, MainController root, GameComponentsController game, GameplayController gameplay, CommandPanel cmdPnl, CommandController cmd, InfoPanel infoPnl, RollDieButton rollDieBtn) {
 		this.stage = stage;
 		this.root = root;
 		this.game = game;
+		this.gameplay = gameplay;
 		this.cmdPnl = cmdPnl;
 		this.cmd = cmd;
 		this.infoPnl = infoPnl;
@@ -49,9 +51,14 @@ public class EventController implements ColorParser {
 	private void initGameListeners() {
 		// Exit point selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
-			game.unhighlightPoints();
+			game.getBoard().unhighlightPipsAndCheckers();
 			isPointSelectionMode = false;
 			isBarSelectionMode = false;
+			
+			// highlight again the possible moves if player hasn't move.
+			if (gameplay.isStarted() && !gameplay.isMoved()) {
+				game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
+			}
 		});
 
 		initCheckersStorersListeners();
@@ -72,24 +79,24 @@ public class EventController implements ColorParser {
 					// neither point nor bar selected, basis for fromPip selection.
 					if (!isPointSelectionMode && !isBarSelectionMode) {
 						storerSelected = object;
-						int fromPip = ((Point) storerSelected).getPointNumber() + 1;
-						game.highlightPoints(fromPip-1);
+						int fromPip = ((Point) storerSelected).getPointNumber();
+						highlightPips(fromPip);
 						isPointSelectionMode = true;
-						infoPnl.print("Point clicked is: " + fromPip + ".");
-					// either point or bar selected, basis for toPip selection.
+						infoPnl.print("Point clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
+					// either point or bar selected, basis for toPip or toBar selection.
 					} else {
 						// prevent moving checkers from point to bar.
 						// i.e select point, to bar.
-						int toPip = ((Point) object).getPointNumber() + 1;
+						int toPip = ((Point) object).getPointNumber();
 						
 						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
+							int fromPip = ((Point) storerSelected).getPointNumber();
 							cmd.runCommand("/move " + fromPip + " " + toPip);
 						} else if (isBarSelectionMode) {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toPip);
 						}
-						game.unhighlightPoints();
+						unhighlightPips();
 						isPointSelectionMode = false;
 						isBarSelectionMode = false;
 					}
@@ -98,9 +105,9 @@ public class EventController implements ColorParser {
 					// prevent entering into both point and bar selection mode.
 					if (!isPointSelectionMode) {
 						storerSelected = object;
-						game.highlightPoints(-1);
+						game.getBoard().highlightAllPipsExcept(-1);
 						isBarSelectionMode = true;
-						infoPnl.print("Bar clicked.");
+						infoPnl.print("Bar clicked.", MessageType.DEBUG);
 					}
 				// home selected, basis for toHome selection.
 				} else if (object instanceof Home) {
@@ -108,22 +115,47 @@ public class EventController implements ColorParser {
 						String toHome = parseColor(((Home) object).getColour());
 						
 						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber() + 1;
+							int fromPip = ((Point) storerSelected).getPointNumber();
 							cmd.runCommand("/move " + fromPip + " " + toHome);
 						} else if (isBarSelectionMode) {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toHome);
 						}
-						game.unhighlightPoints();
+						unhighlightPips();
 						isPointSelectionMode = false;
 						isBarSelectionMode = false;
 					}
-					infoPnl.print("Home clicked.");
+					infoPnl.print("Home clicked.", MessageType.DEBUG);
 				} else {
-					infoPnl.print("Other instances of checkersStorer were clicked.");
+					infoPnl.print("Other instances of checkersStorer were clicked.", MessageType.DEBUG);
 				}
 			}
 		});
+	}
+	
+	private void highlightPips(int fromPip) {
+		if (gameplay.isRolled()) {
+			game.getBoard().highlightToPips(gameplay.getValidMoves(), fromPip);
+			/*
+			PipMove aMove = gameplay.getMoveOf(fromPip);
+			if (aMove != null) {
+				game.getBoard().highlightToPips(aMove);
+			} else {
+				infoPnl.print("There is no possible moves related to fromPip: " + (fromPip+1), MessageType.DEBUG);
+			}
+			*/
+		} else {
+			game.getBoard().highlightAllPipsExcept(fromPip);
+		}
+	}
+	
+	private void unhighlightPips() {
+		if (gameplay.isStarted()) {
+			if (gameplay.isMoved()) game.getBoard().unhighlightPipsAndCheckers();
+			else game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
+		} else {
+			game.getBoard().unhighlightPipsAndCheckers();
+		}
 	}
 	
 	/**
@@ -197,20 +229,20 @@ public class EventController implements ColorParser {
 	@SuppressWarnings("unused")
 	private void initStageListeners() {
 		stage.setOnCloseRequest((WindowEvent event) -> {
-			// Alert settings
+			// Alert settings.
 			Alert exitCheck =  new Alert(Alert.AlertType.CONFIRMATION);
 			exitCheck.setHeaderText("Do you really want to exit Backgammon?");
 			exitCheck.initModality(Modality.APPLICATION_MODAL);
-			exitCheck.initOwner(stage);	
+			exitCheck.initOwner(stage);
 			
 			infoPnl.print("Trying to quit game.");
 			cmd.runSaveCommand();
 			
-			// Exit button
+			// Exit button.
 			Button exitBtn = (Button) exitCheck.getDialogPane().lookupButton(ButtonType.OK);
 			exitBtn.setText("Exit");
 			
-			// Exit application
+			// Exit application.
 			Optional<ButtonType> closeResponse = exitCheck.showAndWait();
 			if (!ButtonType.OK.equals(closeResponse.get())) {
 				event.consume();
