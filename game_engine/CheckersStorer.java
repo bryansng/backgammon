@@ -74,7 +74,6 @@ public class CheckersStorer extends Stack<Checker> {
 	/**
 	 * Returns a boolean value indicating if the two checkers storer's top checkers are of the same color.
 	 * If the other object is empty, return true as well.
-	 * 
 	 * @param object, the other checker storer to be compared with.
 	 * @return the boolean value.
 	 */
