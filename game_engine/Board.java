@@ -450,8 +450,9 @@ public class Board extends HBox {
 		
 		// this seems like it can be refactored, play with isSumMove and isSumMove().
 		if (isSumMove) {
-			if (isInRange(toPip) && isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED && isSumMove(moves, fromPip, toPip)) {
-				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
+			Move intermediateMove;
+			if (isInRange(toPip) && (isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED) && ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null)) {
+				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
 				addedAsMove = true;
 			}
 		} else {
@@ -504,37 +505,36 @@ public class Board extends HBox {
 	}
 	
 	// it is sum move if it has an intermediate move in rollMoves.
-	private boolean isSumMove(LinkedList<RollMoves> moves, int fromPip, int toPip) {
-		boolean isSumMove = false;
+	private Move isSumMove(LinkedList<RollMoves> moves, int fromPip, int toPip) {
+		Move intermediateMove = null;
 		for (RollMoves rollMove : moves) {
 			for (Move aMove : rollMove.getMoves()) {
-				if (hasIntermediate(aMove, fromPip, toPip)) {
-					isSumMove = true;
+				if ((intermediateMove = hasIntermediate(aMove, fromPip, toPip)) != null) {
 					break;
 				}
 			}
 		}
-		return isSumMove;
+		return intermediateMove;
 	}
 	
-	private boolean hasIntermediate(Move aMove, int fromPip, int toPip) {
-		boolean hasIntermediate = false;
+	private Move hasIntermediate(Move aMove, int fromPip, int toPip) {
+		Move intermediateMove = null;
 		if (aMove instanceof PipToPip) {
 			PipToPip move = (PipToPip) aMove;
 			if (fromPip == move.getFromPip()) {
 				if (toPip > fromPip) {
 					// if move's to pip is within the range of fromPip and toPip.
 					if (move.getToPip() > fromPip && move.getToPip() < toPip) {
-						hasIntermediate = true;
+						intermediateMove = move;
 					}
 				} else {
 					if (move.getToPip() < fromPip && move.getToPip() > toPip) {
-						hasIntermediate = true;
+						intermediateMove = move;
 					}
 				}
 			}
 		}
-		return hasIntermediate;
+		return intermediateMove;
 	}
 	
 	// return boolean value indicating if pip color equals player color.

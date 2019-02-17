@@ -6,6 +6,11 @@ public class PipToPip extends SumMove implements Move {
 	private int toPip;
 	
 	public PipToPip(int fromPip, int toPip, RollMoves rollMoves) {
+		this(fromPip, toPip, rollMoves, null);
+	}
+	
+	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, Move intermediateMove) {
+		super(intermediateMove);
 		this.rollMoves = rollMoves;
 		this.fromPip = fromPip;
 		this.toPip = toPip;
@@ -24,6 +29,10 @@ public class PipToPip extends SumMove implements Move {
 	}
 	
 	public String toString() {
-		return "fromPip: " + (fromPip+1) + ", toPip: " + (toPip+1);
+		String s = "fromPip: " + (fromPip+1) + ", toPip: " + (toPip+1);
+		if (this.hasIntermediateMove()) {
+			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMove();
+		}
+		return s;
 	}
 }

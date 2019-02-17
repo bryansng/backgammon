@@ -4,8 +4,8 @@ package move;
 public abstract class SumMove {
 	private Move intermediateMove;
 	
-	public SumMove() {
-		this.intermediateMove = null;
+	public SumMove(Move intermediateMove) {
+		this.intermediateMove = intermediateMove;
 	}
 	
 	public boolean hasIntermediateMove() {

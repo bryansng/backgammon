@@ -124,7 +124,7 @@ public class CommandController implements ColorParser, InputValidator {
 			
 			switch (moveResult) {
 				case MOVED_TO_HOME_FROM_PIP:
-					infoPnl.print("Moved checker from " + (new Integer(fro).intValue()+1) + " to home.", MessageType.DEBUG);
+					infoPnl.print("Moved checker from " + (Integer.parseInt(fro)+1) + " to home.", MessageType.DEBUG);
 					break;
 				case MOVED_TO_HOME_FROM_BAR:
 					infoPnl.print("Moved checker from bar to home.", MessageType.DEBUG);

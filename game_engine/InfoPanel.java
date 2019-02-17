@@ -18,7 +18,7 @@ import javafx.scene.control.TextArea;
  * 
  */
 public class InfoPanel extends TextArea {
-	private boolean debugMode = false;
+	private boolean debugMode = true;
 	
 	public InfoPanel() {
 		super();

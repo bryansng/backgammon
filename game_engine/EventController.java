@@ -60,7 +60,7 @@ public class EventController implements ColorParser {
 				game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
 			}
 		});
-
+		
 		initCheckersStorersListeners();
 	}
 	
