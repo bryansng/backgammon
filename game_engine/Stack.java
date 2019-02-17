@@ -1,7 +1,6 @@
 package game_engine;
 
 import java.util.Iterator;
-
 import exceptions.StackOverflowException;
 import javafx.scene.layout.VBox;
 

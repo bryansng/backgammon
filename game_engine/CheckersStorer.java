@@ -59,6 +59,7 @@ public class CheckersStorer extends Stack<Checker> {
 			for (Checker chk : this) {
 				ImageView checker = chk;
 				checker.setTranslateY(yOffset*(numCheckers-i-1));
+				checker.setViewOrder(i);
 				getChildren().add(checker);
 				i++;
 			}
