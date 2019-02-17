@@ -177,7 +177,7 @@ public class EventController implements ColorParser {
 			String text = cmdPnl.getText();
 			
 			if (text.startsWith("/")) {
-				cmd.runCommand(cmdPnl.getText());
+				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (text.equals("")) {
 				// ignores if user types nothing.
 			} else if (text.equals("quit")) {

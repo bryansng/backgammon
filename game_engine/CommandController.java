@@ -23,7 +23,7 @@ import javafx.util.Duration;
  * @author @LxEmily, 17200573
  *
  */
-public class CommandController implements ColorParser, InputValidator {
+public class CommandController implements ColorParser, InputValidator, IndexOffset {
 	private Stage stage;
 	private GameComponentsController game;
 	private GameplayController gameplay;
@@ -45,11 +45,14 @@ public class CommandController implements ColorParser, InputValidator {
 	 * @param text the string containing the command and its arguments.
 	 */
 	public void runCommand(String text) {
+		runCommand(text, false);
+	}
+	public void runCommand(String text, boolean isPlayerInput) {
 		String[] args = text.split(" ");
 		String command = args[0];
 		
 		if (command.equals("/move")) {
-			runMoveCommand(args);
+			runMoveCommand(args, isPlayerInput);
 		} else if (command.equals("/roll")) {
 			runRollCommand(args);
 		} else if (command.equals("/start")) {
@@ -74,7 +77,7 @@ public class CommandController implements ColorParser, InputValidator {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
-
+	
 	/*
 	 * Command: /move fromPip toPip			//both numbers
 	 * Command: /move fromBar toPip			//left is a color, right a number
@@ -83,9 +86,16 @@ public class CommandController implements ColorParser, InputValidator {
 	 * where fromBar is the bar color.
 	 * where toHome is the home color.
 	*/
-	public void runMoveCommand(String[] args) {
-		String fro = args[1];
-		String to = args[2];
+	public void runMoveCommand(String[] args, boolean isPlayerInput) {
+		// if it is player input, then its one-based index.
+		String fro, to;
+		if (isPlayerInput) {
+			fro = getZeroBasedIndex(args[1]);
+			to = getZeroBasedIndex(args[2]);
+		} else {
+			fro = args[1];
+			to = args[2];
+		}
 		
 		// handle out of bounds input.
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
