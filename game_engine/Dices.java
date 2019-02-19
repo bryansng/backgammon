@@ -1,6 +1,7 @@
 package game_engine;
 
 import constants.DieInstance;
+import constants.GameConstants;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -38,7 +39,7 @@ public class Dices extends HBox implements ColorParser {
 		this.color = color;
 		dices = new Dice[numberOfDices*2];
 		setAlignment(Pos.CENTER);
-		setSpacing(Settings.getDiceSize().getWidth() / 4.0);
+		setSpacing(GameConstants.getDiceSize().getWidth() / 4.0);
 		initDices();
 		drawDices(DieInstance.DOUBLE);
 	}

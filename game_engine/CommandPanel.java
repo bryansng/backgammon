@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.scene.control.TextField;
 
 /**
@@ -14,6 +15,6 @@ public class CommandPanel extends TextField {
 	public CommandPanel () {
 		super();
 		setPromptText("Player inputs text here, then hit Enter\n");
-		setMinHeight(Settings.getUIHeight());
+		setMinHeight(GameConstants.getUIHeight());
 	}
 }

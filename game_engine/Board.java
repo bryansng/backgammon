@@ -2,6 +2,7 @@ package game_engine;
 
 import java.util.LinkedList;
 import constants.DieInstance;
+import constants.GameConstants;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import exceptions.PlayerNoPerspectiveException;
@@ -287,7 +288,7 @@ public class Board extends BoardComponents {
 	}
 	
 	private boolean isInRange(int toPip) {
-		return toPip >= 0 && toPip < Settings.NUMBER_OF_PIPS;
+		return toPip >= 0 && toPip < GameConstants.NUMBER_OF_PIPS;
 	}
 	
 	// check if the toPip is a possible move, i.e. able to place checkers there.

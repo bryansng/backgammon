@@ -1,6 +1,8 @@
 package game_engine;
 
 import java.util.Iterator;
+
+import constants.GameConstants;
 import exceptions.StackOverflowException;
 import javafx.scene.layout.VBox;
 
@@ -12,7 +14,7 @@ import javafx.scene.layout.VBox;
  * @author @LxEmily, 17200573
  */
 public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
-	private final int MAXSIZE = Settings.MAX_CHECKERS_PER_CHECKERS_STORER;
+	private final int MAXSIZE = GameConstants.MAX_CHECKERS_PER_CHECKERS_STORER;
 	private int size = 0;
 	private Node<E> top;
 	

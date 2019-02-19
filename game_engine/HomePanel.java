@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.BorderPane;
@@ -24,8 +25,8 @@ public class HomePanel extends BorderPane {
 	
 	public HomePanel() {
 		super();
-		double halfBoardHeight = Settings.getHalfBoardSize().getHeight();
-		double pointWidth = Settings.getPipSize().getWidth();
+		double halfBoardHeight = GameConstants.getHalfBoardSize().getHeight();
+		double pointWidth = GameConstants.getPipSize().getWidth();
 		
 		setMinSize(pointWidth, halfBoardHeight);
 		setStyle("-fx-background-color: transparent");
@@ -40,7 +41,7 @@ public class HomePanel extends BorderPane {
 		bottom = new Home(Color.BLACK);
 		top.setRotate(180);
 		
-		double margin = Settings.getHomeMargin();
+		double margin = GameConstants.getHomeMargin();
 		
 		setMargin(top, new Insets(margin));
 		setAlignment(top, Pos.CENTER);

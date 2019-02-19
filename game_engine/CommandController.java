@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
+
+import constants.GameConstants;
 import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
@@ -105,7 +107,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		
 		// handle out of bounds input.
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
-			infoPnl.print("Invalid range, must be between 1-" + Settings.NUMBER_OF_PIPS + ".", MessageType.ERROR);
+			infoPnl.print("Invalid range, must be between 1-" + GameConstants.NUMBER_OF_PIPS + ".", MessageType.ERROR);
 			return;
 		}
 		
@@ -203,7 +205,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		boolean isOutOfBounds = false;
 		if (isPip(arg)) {
 			int pipNum = Integer.parseInt(arg);
-			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_PIPS)) {
+			if (!(pipNum >= 0 && pipNum <= GameConstants.NUMBER_OF_PIPS)) {
 				isOutOfBounds = true;
 			}
 		}
@@ -417,7 +419,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		hitTl.setCycleCount(3);
 		bearOnTL.setCycleCount(2);
 		bearOffTL.setCycleCount(2);
-		traversalTl.setCycleCount(Settings.NUMBER_OF_PIPS);
+		traversalTl.setCycleCount(GameConstants.NUMBER_OF_PIPS);
 
 		infoPnl.printNewline(2);
 		hitTl.play();

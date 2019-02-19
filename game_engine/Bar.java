@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
@@ -18,8 +19,8 @@ public class Bar extends CheckersStorer {
 		super();
 		checkerColoursToStore = color;
 		
-		double pointWidth = Settings.getPipSize().getWidth();
-		double pointHeight = Settings.getPipSize().getHeight();
+		double pointWidth = GameConstants.getPipSize().getWidth();
+		double pointHeight = GameConstants.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);

@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.scene.layout.BorderPane;
 
 /**
@@ -15,10 +16,10 @@ import javafx.scene.layout.BorderPane;
 public class HalfBoard extends BorderPane {
 	public HalfBoard() {
 		super();
-		double halfBoardWidth = Settings.getHalfBoardSize().getWidth();
-		double halfBoardHeight = Settings.getHalfBoardSize().getHeight();
+		double halfBoardWidth = GameConstants.getHalfBoardSize().getWidth();
+		double halfBoardHeight = GameConstants.getHalfBoardSize().getHeight();
 		
 		setPrefSize(halfBoardWidth, halfBoardHeight);
-		setStyle(Settings.getBoardColour());
+		setStyle(GameConstants.getBoardColour());
 	}
 }

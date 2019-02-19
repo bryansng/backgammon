@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
@@ -22,11 +23,11 @@ public class Bars extends VBox {
 	
 	public Bars() {
 		super();
-		double pointWidth = Settings.getPipSize().getWidth();
-		double pointHeight = Settings.getPipSize().getHeight();
+		double pointWidth = GameConstants.getPipSize().getWidth();
+		double pointHeight = GameConstants.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight*2);
-		setStyle(Settings.getGameColour());
+		setStyle(GameConstants.getGameColour());
 		
 		setAlignment(Pos.CENTER);
 		initIndividualBars();
@@ -42,8 +43,8 @@ public class Bars extends VBox {
 		
 		getChildren().addAll(top, bottom);
 		
-		setMargin(top, new Insets(Settings.getBarMargin(), 0.0, Settings.getBarMargin(), 0.0));
-		setMargin(bottom, new Insets(Settings.getBarMargin(), 0.0, Settings.getBarMargin(), 0.0));
+		setMargin(top, new Insets(GameConstants.getBarMargin(), 0.0, GameConstants.getBarMargin(), 0.0));
+		setMargin(bottom, new Insets(GameConstants.getBarMargin(), 0.0, GameConstants.getBarMargin(), 0.0));
 	}
 	
 	/**

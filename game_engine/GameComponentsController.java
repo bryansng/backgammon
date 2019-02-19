@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import constants.MoveResult;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -42,7 +43,7 @@ public class GameComponentsController extends VBox {
 		bars = new Bars();
 		
 		HBox middlePart = board;
-		middlePart.setMinWidth(Settings.getMiddlePartWidth());
+		middlePart.setMinWidth(GameConstants.getMiddlePartWidth());
 		middlePart.getChildren().add(1, bars);
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
@@ -51,7 +52,7 @@ public class GameComponentsController extends VBox {
 		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), bottomPlayer);
 		
 		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
-		setStyle(Settings.getGameColour());
+		setStyle(GameConstants.getGameColour());
 		setMaxHeight(topUserPnl.getMinHeight() + middlePart.getHeight() + bottomUserPnl.getMinHeight());
 	}
 	

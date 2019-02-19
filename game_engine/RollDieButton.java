@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.scene.control.Button;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.MouseEvent;
@@ -17,7 +18,7 @@ public class RollDieButton extends Button {
 	public RollDieButton () {
 		super("Roll Die");
 		setMaxWidth(Double.MAX_VALUE);
-		setMinHeight(Settings.getUIHeight());
+		setMinHeight(GameConstants.getUIHeight());
 		initEventEffects();
 	}
 	

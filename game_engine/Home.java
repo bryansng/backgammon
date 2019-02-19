@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Pos;
 import javafx.scene.paint.Color;
 
@@ -18,13 +19,13 @@ public class Home extends CheckersStorer {
 		super();
 		checkerColoursToStore = color;
 		
-		double pointHeight = Settings.getPipSize().getHeight();
-		double pointWidth = Settings.getPipSize().getWidth();
+		double pointHeight = GameConstants.getPipSize().getHeight();
+		double pointWidth = GameConstants.getPipSize().getWidth();
 
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);
-		setStyle(Settings.getBoardColour());
+		setStyle(GameConstants.getBoardColour());
 	}
 	
 	/**
@@ -40,6 +41,6 @@ public class Home extends CheckersStorer {
 	 * @return the boolean value.
 	 */
 	public boolean isFilled() {
-		return size() == Settings.MAX_CHECKERS_PER_CHECKERS_STORER;
+		return size() == GameConstants.MAX_CHECKERS_PER_CHECKERS_STORER;
 	}
 }

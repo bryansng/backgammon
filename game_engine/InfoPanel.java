@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import constants.MessageType;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -22,7 +23,7 @@ public class InfoPanel extends TextArea {
 	
 	public InfoPanel() {
 		super();
-		setPrefHeight(Settings.getHalfBoardSize().getHeight());
+		setPrefHeight(GameConstants.getHalfBoardSize().getHeight());
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);

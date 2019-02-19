@@ -1,15 +1,17 @@
 package game_engine;
 
+import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 public class BoardComponents extends HBox {
-	protected final int MAXPIPS = Settings.NUMBER_OF_PIPS;
+	protected final int MAXPIPS = GameConstants.NUMBER_OF_PIPS;
 	protected Pip[] pips;
 	protected BorderPane leftBoard, rightBoard;
+	
+	protected BoardQuadrant quad1, quad2, quad3, quad4;
 
 	protected HBox leftDice, rightDice;
 	protected Dices dices;
@@ -111,10 +113,10 @@ public class BoardComponents extends HBox {
 		 * 19-24, white home board.
 		 */
 		// Each quadrant has a set of 6 pips.
-		VBox quad4 = new BoardQuadrant(1, 6, PlayerPerspectiveFrom.BOTTOM, pips);
-		VBox quad3 = new BoardQuadrant(7, 12, PlayerPerspectiveFrom.BOTTOM, pips);
-		VBox quad2 = new BoardQuadrant(13, 18, PlayerPerspectiveFrom.TOP, pips);
-		VBox quad1 = new BoardQuadrant(19, 24, PlayerPerspectiveFrom.TOP, pips);
+		quad4 = new BoardQuadrant(1, 6, PlayerPerspectiveFrom.BOTTOM, pips);
+		quad3 = new BoardQuadrant(7, 12, PlayerPerspectiveFrom.BOTTOM, pips);
+		quad2 = new BoardQuadrant(13, 18, PlayerPerspectiveFrom.TOP, pips);
+		quad1 = new BoardQuadrant(19, 24, PlayerPerspectiveFrom.TOP, pips);
 
 		rightBoard.setBottom(quad4);
 		leftBoard.setBottom(quad3);

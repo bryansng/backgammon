@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -45,9 +46,9 @@ public class PlayerPanel extends HBox implements ColorParser {
 	}
 	
 	private void initStyle(double width) {
-		setMinSize(width, Settings.getPlayerPanelHeight());
+		setMinSize(width, GameConstants.getPlayerPanelHeight());
 		setAlignment(Pos.CENTER);
-		setSpacing(Settings.getPlayerLabelSpacing());
+		setSpacing(GameConstants.getPlayerLabelSpacing());
 	}
 	
 	private void initComponents() {

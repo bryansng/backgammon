@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -39,15 +40,15 @@ public class BoardQuadrant extends VBox {
 	 */
 	private HBox createSetOfLabels(int startRange, int endRange, PlayerPerspectiveFrom pov) {
 		HBox set = new HBox();
-		set.setPrefSize(Settings.getHalfBoardSize().getWidth(), Settings.getPipNumberLabelHeight());
+		set.setPrefSize(GameConstants.getHalfBoardSize().getWidth(), GameConstants.getPipNumberLabelHeight());
 		
 		// Handles the evenly distributed spacings between the points.
 		set.setAlignment(Pos.CENTER);
 		// why by 5 again?
-		double spacing = (Settings.getHalfBoardSize().getWidth()-6*(Settings.getPipSize().getWidth())) / 5;
+		double spacing = (GameConstants.getHalfBoardSize().getWidth()-6*(GameConstants.getPipSize().getWidth())) / 5;
 		set.setSpacing(spacing);
 		
-		set.setStyle(Settings.getGameColour());
+		set.setStyle(GameConstants.getGameColour());
 		
 		// If bottom of board, points are numbered from smallest to highest from right to left.
 		// Else, from smallest to highest from left to right.
@@ -72,12 +73,12 @@ public class BoardQuadrant extends VBox {
 	 */
 	private HBox createSetOfPoints(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
 		HBox set = new HBox();
-		set.setPrefSize(Settings.getHalfBoardSize().getWidth(), Settings.getPipSize().getHeight());
+		set.setPrefSize(GameConstants.getHalfBoardSize().getWidth(), GameConstants.getPipSize().getHeight());
 		
 		// Handles the evenly distributed spacings between the points.
 		set.setAlignment(Pos.CENTER);
 		// why by 5 again?
-		double spacing = (Settings.getHalfBoardSize().getWidth()-6*(Settings.getPipSize().getWidth())) / 5;
+		double spacing = (GameConstants.getHalfBoardSize().getWidth()-6*(GameConstants.getPipSize().getWidth())) / 5;
 		set.setSpacing(spacing);
 		
 		// If bottom of board, points are numbered from smallest to highest from right to left.

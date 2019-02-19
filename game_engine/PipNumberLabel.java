@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
@@ -21,6 +22,6 @@ public class PipNumberLabel extends Label {
 		super(Integer.toString(pipNum));
 		setAlignment(Pos.CENTER);
 		setTextFill(Color.WHITE);
-		setMinSize(Settings.getPipSize().getWidth(), Settings.getPipNumberLabelHeight());
+		setMinSize(GameConstants.getPipSize().getWidth(), GameConstants.getPipNumberLabelHeight());
 	}
 }
