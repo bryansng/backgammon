@@ -1,0 +1,10 @@
+/start    - to start the game
+/roll #   - to roll the die for player #
+/move # # - to move from pip # to pip #
+/next     - to switch player turns
+/save     - to save game log
+/name     - to change player name
+/quit     - to quit game
+/reset    - to reset the game
+/help     - to access this list
+/test     - to see moving checkers

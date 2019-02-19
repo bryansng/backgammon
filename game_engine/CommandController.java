@@ -304,11 +304,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		String line = null;
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
-			while((line = reader.readLine()) != null) {
+			BufferedReader reader = new BufferedReader(new FileReader("src/help.txt"));
+			while((line = reader.readLine()) != null)
 				s += line + "\n";
-				System.out.println(line);
-			}
 			s +="\n";
 			infoPnl.print(s);
 			reader.close();
