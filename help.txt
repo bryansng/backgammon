@@ -3,6 +3,7 @@
 /move # # - to move from pip # to pip #
 /next     - to switch player turns
 /save     - to save game log
+/clear    - to clear up info panel
 /name     - to change player name
 /quit     - to quit game
 /reset    - to reset the game

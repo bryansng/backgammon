@@ -61,12 +61,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			runSaveCommand();
 		} else if (command.equals("/next")) {
 			runNextCommand();
-		/**
-		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
-		 * then print that amount of line with spaces.
-		 */
 		} else if (command.equals("/name")) {	
 			runNameCommand(args);
+		} else if (command.equals("/clear")) {	
+			runClearCommand();
 		} else if (command.equals("/help")) {	
 			runHelpCommand();
 		} else if (command.equals("/test")) {	
@@ -337,6 +335,21 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 		
 	}
+	
+	/**
+	 * Command: /clear
+	 * Appends newlines to infoPnl to "clear" it out
+	 * 
+	 * Should print (height of infoPnl / font size) number of lines
+	 * But that prints more lines than required, probably shouldn't get infoPnl height?
+	 * 
+	 * TODO Scroll bar does not scroll to bottom automatically
+	 */
+	public void runClearCommand() {
+		infoPnl.print("Clearing panel...");
+		infoPnl.printNewline((int) (infoPnl.getHeight() / 21));
+	}
+	
 	
 	/**
 	 * Command: /test
