@@ -87,6 +87,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * where toHome is the home color.
 	*/
 	public void runMoveCommand(String[] args, boolean isPlayerInput) {
+		// error checking.
+		if (args.length != 3) {
+			infoPnl.print("Incorrect syntax: expected /move fro to.", MessageType.ERROR);
+			return;
+		}
+		
 		// if it is player input, then its one-based index.
 		String fro, to;
 		if (isPlayerInput) {
@@ -112,7 +118,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					gameplay.move();
 				} else {
 					game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
-					infoPnl.print("You can only move pieces to highlighted pips.", MessageType.ERROR);
+					infoPnl.print("You can only move highlighted checkers to highlighted pips.", MessageType.ERROR);
 					return;
 				}
 			} else {
@@ -269,7 +275,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (gameplay.isMoved()) {
 			infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
 			Player pCurrent = gameplay.next();
-			infoPnl.print("It is now " + pCurrent.getName() + "'s turn.", MessageType.ANNOUNCEMENT);
+			infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
 		}
 	}
 	

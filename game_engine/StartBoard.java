@@ -6,7 +6,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-public class AbstractBoard extends HBox {
+public class StartBoard extends HBox {
 	protected final int MAXPOINTS = Settings.NUMBER_OF_POINTS;
 	protected Point[] points;
 	protected BorderPane leftBoard, rightBoard;
@@ -20,7 +20,7 @@ public class AbstractBoard extends HBox {
 	 * 		- Initializes points with their initial checkers.
 	 * 		- Initializes dices.
 	 */
-	public AbstractBoard() {
+	public StartBoard() {
 		super();
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();

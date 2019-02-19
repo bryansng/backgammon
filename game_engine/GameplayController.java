@@ -10,9 +10,9 @@ import move.RollMoves;
 
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
-	private boolean startedFlag, rolledFlag, movedFlag;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag;
 	
-	private Player bottomPlayer, topPlayer, pPrevious, pCurrent, pOpponent;
+	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	
@@ -26,27 +26,50 @@ public class GameplayController implements ColorParser, InputValidator {
 		startedFlag = false;
 		rolledFlag = false;
 		movedFlag = false;
+		firstRollFlag = true;
 	}
 	
 	// should activate by /start.
+	// auto roll die to see which player first.
 	public void start() {
 		// reset game entirely.
 		reset();
 		
-		// get which player starts first.
-		pCurrent = getFirstPlayerToRoll();
-		//pPrevious = pCurrent;
-		pOpponent = getSecondPlayerToRoll(pCurrent);
-		infoPnl.print("First player to move is: " + pCurrent.getName() + ".");
+		// get roll.
+		roll();
 		
 		startedFlag = true;
 	}
 	
-	// auto roll die to see which player first.
-	// if draw, roll again.
-	private Player getFirstPlayerToRoll() {
-		int[] res = null;
-		res = game.getBoard().rollDices(DieInstance.SINGLE);
+	// should activate by /roll.
+	public void roll() {
+		// start() calls this method(),
+		// we only need to get the first player once.
+		int[] rollResult;
+		if (firstRollFlag) {
+			rollResult = game.getBoard().rollDices(DieInstance.SINGLE);
+			pCurrent = getFirstPlayerToRoll(rollResult);
+			pOpponent = getSecondPlayerToRoll(pCurrent);
+			infoPnl.print( "First player to move is: " + pCurrent.getName() + ".");
+			firstRollFlag = false;
+		} else {
+			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
+		}
+		
+		infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
+		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
+		
+		moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
+		for (RollMoves rollMoves : moves) {
+			infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
+		}
+		
+		game.getBoard().highlightFromPipsChecker(moves);
+		
+		rolledFlag = true;
+	}
+	
+	private Player getFirstPlayerToRoll(int[] res) {
 		int bottomPlayerRoll = res[0];
 		int topPlayerRoll = res[1];
 		
@@ -54,9 +77,8 @@ public class GameplayController implements ColorParser, InputValidator {
 			return bottomPlayer;
 		} else if (topPlayerRoll > bottomPlayerRoll) {
 			return topPlayer;
-		} else {
-			return getFirstPlayerToRoll();
 		}
+		return null;
 	}
 	
 	private Player getSecondPlayerToRoll(Player firstPlayer) {
@@ -67,33 +89,15 @@ public class GameplayController implements ColorParser, InputValidator {
 		}
 	}
 	
-	// should activate by /roll.
-	public void roll() {
-		if (!isGameOver() && !pCurrent.equals(pPrevious)) {
-			int[] rollResult;
-			
-			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
-			infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
-			infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
-			
-			moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
-			for (RollMoves rollMoves : moves) {
-				infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
-			}
-			
-			game.getBoard().highlightFromPipsChecker(moves);
-			
-			rolledFlag = true;
-		}
-	}
-	
 	public void move() {
 		// set flag only when there are no moves left.
 		if (moves.isEmpty()) {
 			movedFlag = true;
 		}
 
-		// TODO check if player 1's move caused a game over.
+		// TODO check if player's move caused a game over.
+		if (isGameOver()) {
+		}
 	}
 	
 	// check if it is valid to move checkers from 'fro' to 'to'.

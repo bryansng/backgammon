@@ -20,7 +20,7 @@ import move.RollMoves;
  * @author @LxEmily, 17200573
  *
  */
-public class Board extends AbstractBoard {
+public class Board extends StartBoard {
 	public Board() {
 		super();
 	}
@@ -146,7 +146,8 @@ public class Board extends AbstractBoard {
 	
 	/**
 	 * Execute the roll dice methods of dices object.
-	 * Used check which player rolls first.
+	 * Used to check which player rolls first.
+	 * If draw, roll again.
 	 * @param instance instance where the dices are single, double or default.
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
@@ -166,6 +167,11 @@ public class Board extends AbstractBoard {
 		}
 		leftBoard.setCenter(leftDice);
 		rightBoard.setCenter(rightDice);
+		
+		// if draw, roll again.
+		if (res[0] == res[1]) {
+			res = rollDices(instance);
+		}
 		
 		return res;
 	}
