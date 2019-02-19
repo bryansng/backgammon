@@ -25,7 +25,7 @@ public class HomePanel extends BorderPane {
 	public HomePanel() {
 		super();
 		double halfBoardHeight = Settings.getHalfBoardSize().getHeight();
-		double pointWidth = Settings.getPointSize().getWidth();
+		double pointWidth = Settings.getPipSize().getWidth();
 		
 		setMinSize(pointWidth, halfBoardHeight);
 		setStyle("-fx-background-color: transparent");

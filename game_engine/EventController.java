@@ -52,7 +52,7 @@ public class EventController implements ColorParser {
 		// Exit point selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
 			game.getBoard().unhighlightPipsAndCheckers();
-			isPointSelectionMode = false;
+			isPipSelectionMode = false;
 			isBarSelectionMode = false;
 			
 			// highlight again the possible moves if player hasn't move.
@@ -67,7 +67,7 @@ public class EventController implements ColorParser {
 	/**
 	 * Manages checkers storer listeners.
 	 */
-	private boolean isPointSelectionMode = false;
+	private boolean isPipSelectionMode = false;
 	private boolean isBarSelectionMode = false;
 	private CheckersStorer storerSelected;
 	private void initCheckersStorersListeners() {
@@ -75,35 +75,35 @@ public class EventController implements ColorParser {
 			@Override	
 			public void onClicked(CheckersStorer object) {
 				// point selected, basis for fromPip or toPip selection.
-				if (object instanceof Point) {
+				if (object instanceof Pip) {
 					// neither point nor bar selected, basis for fromPip selection.
-					if (!isPointSelectionMode && !isBarSelectionMode) {
+					if (!isPipSelectionMode && !isBarSelectionMode) {
 						storerSelected = object;
-						int fromPip = ((Point) storerSelected).getPointNumber();
+						int fromPip = ((Pip) storerSelected).getPipNumber();
 						highlightPips(fromPip);
-						isPointSelectionMode = true;
-						infoPnl.print("Point clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
+						isPipSelectionMode = true;
+						infoPnl.print("Pip clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
 					// either point or bar selected, basis for toPip or toBar selection.
 					} else {
 						// prevent moving checkers from point to bar.
 						// i.e select point, to bar.
-						int toPip = ((Point) object).getPointNumber();
+						int toPip = ((Pip) object).getPipNumber();
 						
-						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber();
+						if (isPipSelectionMode) {
+							int fromPip = ((Pip) storerSelected).getPipNumber();
 							cmd.runCommand("/move " + fromPip + " " + toPip);
 						} else if (isBarSelectionMode) {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toPip);
 						}
 						unhighlightPips();
-						isPointSelectionMode = false;
+						isPipSelectionMode = false;
 						isBarSelectionMode = false;
 					}
 				// bar selected, basis for fromBar selection.
 				} else if (object instanceof Bar) {
 					// prevent entering into both point and bar selection mode.
-					if (!isPointSelectionMode) {
+					if (!isPipSelectionMode) {
 						storerSelected = object;
 						game.getBoard().highlightAllPipsExcept(-1);
 						isBarSelectionMode = true;
@@ -111,18 +111,18 @@ public class EventController implements ColorParser {
 					}
 				// home selected, basis for toHome selection.
 				} else if (object instanceof Home) {
-					if (isPointSelectionMode || isBarSelectionMode) {
+					if (isPipSelectionMode || isBarSelectionMode) {
 						String toHome = parseColor(((Home) object).getColour());
 						
-						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber();
+						if (isPipSelectionMode) {
+							int fromPip = ((Pip) storerSelected).getPipNumber();
 							cmd.runCommand("/move " + fromPip + " " + toHome);
 						} else if (isBarSelectionMode) {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toHome);
 						}
 						unhighlightPips();
-						isPointSelectionMode = false;
+						isPipSelectionMode = false;
 						isBarSelectionMode = false;
 					}
 					infoPnl.print("Home clicked.", MessageType.DEBUG);

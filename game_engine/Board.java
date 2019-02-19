@@ -12,7 +12,7 @@ import move.RollMoves;
 
 /**
  * This class represents the Board object in Backgammon.
- * This class initializes an array of points with their starting checkers.
+ * This class initializes an array of pips with their starting checkers.
  * This class creates a board made out of modular panes.
  * 
  * @teamname TeaCup
@@ -20,13 +20,31 @@ import move.RollMoves;
  * @author @LxEmily, 17200573
  *
  */
-public class Board extends StartBoard {
+public class Board extends BoardComponents {
 	public Board() {
 		super();
 	}
 	
+	// swap the pip number labels based on current player's perspective.
+	// bottom - 1 start from bottom. 
+	// top - 1 start from top.
+	// ways:
+	// 1. re create and re draw the labels (+pips as well).
+	// 2. access them, parent to child.
+	// 2a. consider storing them in instance variables for easy updating.
+	public void swapPipLabels(PlayerPerspectiveFrom pov) {
+		switch (pov) {
+			case BOTTOM:
+				
+				break;
+			case TOP:
+				break;
+			default:
+		}
+	}
+	
 	/**
-	 * Moves a checker between points.
+	 * Moves a checker between pips.
 	 * i.e. pops a checker from one point and push it to the other.
 	 * 
 	 * @param fromPip, zero-based index, the point number to pop from.
@@ -38,9 +56,9 @@ public class Board extends StartBoard {
 		
 		switch (moveResult) {
 			case MOVED_TO_PIP:
-				points[toPip].push(points[fromPip].pop());
-				points[toPip].drawCheckers();
-				points[fromPip].drawCheckers();
+				pips[toPip].push(pips[fromPip].pop());
+				pips[toPip].drawCheckers();
+				pips[fromPip].drawCheckers();
 				break;
 			case MOVED_TO_BAR:
 				break;
@@ -51,28 +69,28 @@ public class Board extends StartBoard {
 	}
 	
 	/**
-	 * Un-highlight the points.
+	 * Un-highlight the pips.
 	 */
 	public void unhighlightPipsAndCheckers() {
-		for (int i = 0; i < points.length; i++) {
-			points[i].setNormalImage();
+		for (int i = 0; i < pips.length; i++) {
+			pips[i].setNormalImage();
 			
-			if (!points[i].isEmpty()) {
-				points[i].top().setNormalImage();
+			if (!pips[i].isEmpty()) {
+				pips[i].top().setNormalImage();
 			}
 		}
 	}
 	
 	/**
-	 * Highlight the points.
-	 * @param exceptPointNum, except this point number.
+	 * Highlight the pips.
+	 * @param exceptPipNum, except this point number.
 	 */
 	public void highlightAllPipsExcept(int exceptPipNum) {
 		unhighlightPipsAndCheckers();
 		
-		for (int i = 0; i < points.length; i++) {
+		for (int i = 0; i < pips.length; i++) {
 			if (i != exceptPipNum) {
-				points[i].setHighlightImage();
+				pips[i].setHighlightImage();
 			}
 		}
 	}
@@ -85,7 +103,7 @@ public class Board extends StartBoard {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					move = (PipToPip) aMove;
-					points[move.getFromPip()].top().setHighlightImage();
+					pips[move.getFromPip()].top().setHighlightImage();
 				}
 			}
 		}
@@ -101,7 +119,7 @@ public class Board extends StartBoard {
 					PipToPip move = (PipToPip) aMove;
 					if (move.getFromPip() == fromPip) {
 						isFromPipInMoves = true;
-						points[move.getToPip()].setHighlightImage();
+						pips[move.getToPip()].setHighlightImage();
 					}
 				}
 			}
@@ -109,7 +127,7 @@ public class Board extends StartBoard {
 		
 		// Highlight the selected pip's top checker.
 		// Provided the fromPip is part of the moves.
-		if (isFromPipInMoves) points[fromPip].top().setHighlightImage();
+		if (isFromPipInMoves) pips[fromPip].top().setHighlightImage();
 	}
 	
 	/**
@@ -194,8 +212,8 @@ public class Board extends StartBoard {
 			pairSum += rollResult[i];
 			rollMoves = new RollMoves(rollResult[i], false);
 			
-			// loop through points.
-			for (int fromPip = 0; fromPip < points.length; fromPip++) {
+			// loop through pips.
+			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 				// addAsMove returns a boolean indicating if move is valid and added as move.
 				 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult[i], false)) {
 					 hasMove = true;
@@ -211,7 +229,7 @@ public class Board extends StartBoard {
 		// consider sum of die result.
 		hasMove = false;
 		rollMoves = new RollMoves(pairSum, true);
-		for (int fromPip = 0; fromPip < points.length; fromPip++) {
+		for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 			if (addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true)) {
 				hasMove = true;
 			}
@@ -269,18 +287,18 @@ public class Board extends StartBoard {
 	}
 	
 	private boolean isInRange(int toPip) {
-		return toPip >= 0 && toPip < Settings.NUMBER_OF_POINTS;
+		return toPip >= 0 && toPip < Settings.NUMBER_OF_PIPS;
 	}
 	
 	// check if the toPip is a possible move, i.e. able to place checkers there.
 	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		if (!points[fromPip].isEmpty() && isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
-			if (points[fromPip].topCheckerColourEquals(points[toPip])) {
+		if (!pips[fromPip].isEmpty() && isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
+			if (pips[fromPip].topCheckerColourEquals(pips[toPip])) {
 				moveResult = MoveResult.MOVED_TO_PIP;
 			} else {
-				if (points[toPip].size() == 1) {
+				if (pips[toPip].size() == 1) {
 					moveResult = MoveResult.MOVE_TO_BAR;
 				}
 			}
@@ -328,8 +346,8 @@ public class Board extends StartBoard {
 	private boolean isPipColorEqualsPlayerColor(int pipNum, Player player) {
 		boolean isFromPipColourEqualsPlayerColor = true;
 		
-		if (player != null && !points[pipNum].isEmpty()) {
-			isFromPipColourEqualsPlayerColor = points[pipNum].topCheckerColourEquals(player.getColor());
+		if (player != null && !pips[pipNum].isEmpty()) {
+			isFromPipColourEqualsPlayerColor = pips[pipNum].topCheckerColourEquals(player.getColor());
 		}
 		
 		return isFromPipColourEqualsPlayerColor;

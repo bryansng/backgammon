@@ -18,8 +18,8 @@ public class Home extends CheckersStorer {
 		super();
 		checkerColoursToStore = color;
 		
-		double pointHeight = Settings.getPointSize().getHeight();
-		double pointWidth = Settings.getPointSize().getWidth();
+		double pointHeight = Settings.getPipSize().getHeight();
+		double pointWidth = Settings.getPipSize().getWidth();
 
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);

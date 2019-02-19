@@ -16,11 +16,11 @@ import javafx.scene.paint.Color;
  * @author @LxEmily, 17200573
  *
  */
-public class PointNumberLabel extends Label {
-	public PointNumberLabel(int pointNum) {
-		super(Integer.toString(pointNum));
+public class PipNumberLabel extends Label {
+	public PipNumberLabel(int pipNum) {
+		super(Integer.toString(pipNum));
 		setAlignment(Pos.CENTER);
 		setTextFill(Color.WHITE);
-		setMinSize(Settings.getPointSize().getWidth(), Settings.getPointNumberLabelHeight());
+		setMinSize(Settings.getPipSize().getWidth(), Settings.getPipNumberLabelHeight());
 	}
 }

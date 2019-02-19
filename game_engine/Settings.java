@@ -20,7 +20,7 @@ import javafx.scene.image.Image;
 public class Settings {
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
-	public static final int NUMBER_OF_POINTS = 24; 
+	public static final int NUMBER_OF_PIPS = 24; 
 	
 	/**
 	 * Screen sizes - Used to set scene width and height.
@@ -53,7 +53,7 @@ public class Settings {
 	 * Returns the size of the point based on its image.
 	 * @return size of point.
 	 */
-	public static Dimension getPointSize() {
+	public static Dimension getPipSize() {
 		Image img = new Image(getFile("img/board/white_point.png"));
 		
 		Dimension d = new Dimension();
@@ -108,7 +108,7 @@ public class Settings {
 	 * Returns the height of the point labels.
 	 * @return height of point label.
 	 */
-	public static double getPointNumberLabelHeight() {
+	public static double getPipNumberLabelHeight() {
 		return 15.0;
 	}
 	
@@ -122,7 +122,7 @@ public class Settings {
 	 * @return margin of the homes.
 	 */
 	public static double getHomeMargin() {
-		double margin = getPointNumberLabelHeight();
+		double margin = getPipNumberLabelHeight();
 		return margin;
 	}
 	

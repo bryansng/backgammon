@@ -18,8 +18,8 @@ public class Bar extends CheckersStorer {
 		super();
 		checkerColoursToStore = color;
 		
-		double pointWidth = Settings.getPointSize().getWidth();
-		double pointHeight = Settings.getPointSize().getHeight();
+		double pointWidth = Settings.getPipSize().getWidth();
+		double pointHeight = Settings.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);

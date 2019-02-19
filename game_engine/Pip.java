@@ -9,33 +9,33 @@ import javafx.scene.layout.BackgroundImage;
 import javafx.scene.paint.Color;
 
 /**
- * This class represents the Point/Pipe object in Backgammon.
- * This class helps Board class to initialize the checkers for each point object.
- * This class also add the checkers objects to the point object, to be drawn to the stage.
+ * This class represents the Pip object in Backgammon.
+ * This class helps Board class to initialize the checkers for each pip object.
+ * This class also add the checkers objects to the pip object, to be drawn to the stage.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
  *
  */
-public class Point extends CheckersStorer implements ColorParser {
+public class Pip extends CheckersStorer implements ColorParser {
 	private Image img;
 	private Image imgHighlighted; 
-	private int pointNum;
+	private int pipNum;
 	
 	/**
 	 * Default Constructor
-	 * 		- Initialize the img and imgHighlighteded instance variable of the checker.
-	 * 		- Set this point's transformation, alignment, size, etc.
-	 * 		- Set that img to be the background of this point.
-	 * 		- Initialize this point's listeners.
+	 * 		- Initialize the img and imgHighlighteded instance variable of the pip.
+	 * 		- Set this pip's transformation, alignment, size, etc.
+	 * 		- Set that img to be the background of this pip.
+	 * 		- Initialize this pip's listeners.
 	 * 
-	 * @param color of the point.
+	 * @param color of the pip.
 	 * @param rotation either 0 or 180. 0 = pointing upwards. 180 = pointing downwards. 
 	 */
-	public Point(Color color, double rotation, int pointNum) {
+	public Pip(Color color, double rotation, int pipNum) {
 		super();
-		this.pointNum = pointNum;
+		this.pipNum = pipNum;
 		String colorString = parseColor(color);
 		InputStream input1 = getClass().getResourceAsStream("img/board/" + colorString + "_point.png");
 		InputStream input2 = getClass().getResourceAsStream("img/board/" + colorString + "_point_highlighted.png");
@@ -80,7 +80,7 @@ public class Point extends CheckersStorer implements ColorParser {
 	 * Returns the pointNum instance variable (the number the point represents).
 	 * @return the pointNum instance variable.
 	 */
-	public int getPointNumber() {
-		return pointNum;
+	public int getPipNumber() {
+		return pipNum;
 	}
 }

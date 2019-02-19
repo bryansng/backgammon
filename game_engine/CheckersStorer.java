@@ -48,8 +48,8 @@ public class CheckersStorer extends Stack<Checker> {
 		
 		// If total height of checkers greater than point, we overlap the checkers.
 		int numCheckers = size();
-		double slack = Settings.getPointSize().getHeight() * 0.2;
-		double diff = numCheckers * Settings.getCheckerSize().getHeight() - Settings.getPointSize().getHeight() + slack;
+		double slack = Settings.getPipSize().getHeight() * 0.2;
+		double diff = numCheckers * Settings.getCheckerSize().getHeight() - Settings.getPipSize().getHeight() + slack;
 		
 		// If overlap, we basically add an y offset to the checkers so that they overlap each other.
 		// Else, we simply add them to the point without any offsets.

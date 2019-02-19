@@ -22,8 +22,8 @@ public class Bars extends VBox {
 	
 	public Bars() {
 		super();
-		double pointWidth = Settings.getPointSize().getWidth();
-		double pointHeight = Settings.getPointSize().getHeight();
+		double pointWidth = Settings.getPipSize().getWidth();
+		double pointHeight = Settings.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight*2);
 		setStyle(Settings.getGameColour());

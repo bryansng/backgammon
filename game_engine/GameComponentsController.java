@@ -23,7 +23,7 @@ public class GameComponentsController extends VBox {
 	/**
 	 * Default Constructor
 	 * 		- Initializes the modular panes.
-	 * 		- Initializes points with their initial checkers.
+	 * 		- Initializes pips with their initial checkers.
 	 */
 	public GameComponentsController(Player bottomPlayer, Player topPlayer) {
 		super();
@@ -73,16 +73,16 @@ public class GameComponentsController extends VBox {
 	public MoveResult moveToBar(int fro) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		Point[] points = board.getPoints();
-		Bar bar = bars.getBar(points[fro].top().getColor());
+		Pip[] pips = board.getPips();
+		Bar bar = bars.getBar(pips[fro].top().getColor());
 		// Checking if its empty is actually done by moveCheckers,
 		// since this method is always called after moveCheckers.
 		// so this is actually not needed, but is left here just in case.
-		if (!points[fro].isEmpty()) {
-			bar.push(points[fro].pop());
+		if (!pips[fro].isEmpty()) {
+			bar.push(pips[fro].pop());
 			moveResult = MoveResult.MOVED_TO_BAR;
 			
-			points[fro].drawCheckers();
+			pips[fro].drawCheckers();
 			bar.drawCheckers();
 		}
 		return moveResult;
@@ -99,19 +99,19 @@ public class GameComponentsController extends VBox {
 	public MoveResult moveFromBar(Color fromBar, int to) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		Point[] points = board.getPoints();
+		Pip[] pips = board.getPips();
 		Bar bar = bars.getBar(fromBar);
 		if (!bar.isEmpty()) {
-			if (bar.topCheckerColourEquals(points[to])) {
-				points[to].push(bar.pop());
+			if (bar.topCheckerColourEquals(pips[to])) {
+				pips[to].push(bar.pop());
 				moveResult = MoveResult.MOVED_FROM_BAR;
 			} else {
-				if (points[to].size() == 1) {
+				if (pips[to].size() == 1) {
 					moveResult = MoveResult.MOVE_TO_BAR;
 				}
 			}
 			
-			points[to].drawCheckers();
+			pips[to].drawCheckers();
 			bar.drawCheckers();
 		}
 		return moveResult;
@@ -127,13 +127,13 @@ public class GameComponentsController extends VBox {
 	public MoveResult moveToHome(int fro) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		Point[] points = board.getPoints();
-		if (!points[fro].isEmpty()) {
-			Home home = mainHome.getHome(points[fro].top().getColor());
-			home.push(points[fro].pop());
+		Pip[] pips = board.getPips();
+		if (!pips[fro].isEmpty()) {
+			Home home = mainHome.getHome(pips[fro].top().getColor());
+			home.push(pips[fro].pop());
 			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
 
-			points[fro].drawCheckers();
+			pips[fro].drawCheckers();
 			home.drawCheckers();
 		}
 		return moveResult;

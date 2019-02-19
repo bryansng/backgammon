@@ -105,7 +105,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		
 		// handle out of bounds input.
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
-			infoPnl.print("Invalid range, must be between 1-" + Settings.NUMBER_OF_POINTS + ".", MessageType.ERROR);
+			infoPnl.print("Invalid range, must be between 1-" + Settings.NUMBER_OF_PIPS + ".", MessageType.ERROR);
 			return;
 		}
 		
@@ -203,7 +203,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		boolean isOutOfBounds = false;
 		if (isPip(arg)) {
 			int pipNum = Integer.parseInt(arg);
-			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_POINTS)) {
+			if (!(pipNum >= 0 && pipNum <= Settings.NUMBER_OF_PIPS)) {
 				isOutOfBounds = true;
 			}
 		}
@@ -417,7 +417,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		hitTl.setCycleCount(3);
 		bearOnTL.setCycleCount(2);
 		bearOffTL.setCycleCount(2);
-		traversalTl.setCycleCount(Settings.NUMBER_OF_POINTS);
+		traversalTl.setCycleCount(Settings.NUMBER_OF_PIPS);
 
 		infoPnl.printNewline(2);
 		hitTl.play();

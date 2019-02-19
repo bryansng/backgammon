@@ -135,8 +135,8 @@ public class GameplayController implements ColorParser, InputValidator {
 					
 					// check if fromPip is empty, i.e. no checkers,
 					// if so, remove it from possible moves.
-					Point[] points = game.getBoard().getPoints();
-					if (points[fromPip].isEmpty()) {
+					Pip[] pips = game.getBoard().getPips();
+					if (pips[fromPip].isEmpty()) {
 						// remove the move from the set of moves in its RollMoves.
 						rollMoves.getMoves().remove(move);
 						isValidMove = false;
