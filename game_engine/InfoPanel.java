@@ -26,10 +26,18 @@ public class InfoPanel extends TextArea {
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);
+		welcome();
+	}
+	
+	/**
+	 * Outputs welcome message and prompts player to start game
+	 */
+	public void welcome() {
 		print("Welcome to Backgammon!");
 		print("Enter \"/start\" below to start a new game.");
 		print("Or enter \"/help\" for a list of possible commands.");
 	}
+	
 	
 	/**
 	 * Prints the given text to the information panel.

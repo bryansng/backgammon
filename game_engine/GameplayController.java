@@ -11,12 +11,14 @@ import move.RollMoves;
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag;
-	
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
+	
+	private MainController root;
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	
-	public GameplayController(GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public GameplayController(MainController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+		this.root = root;
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.game = game;
@@ -31,10 +33,7 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	// should activate by /start.
 	// auto roll die to see which player first.
-	public void start() {
-		// reset game entirely.
-		reset();
-		
+	public void start() {		
 		// get roll.
 		roll();
 		
@@ -189,11 +188,11 @@ public class GameplayController implements ColorParser, InputValidator {
 		return pCurrent;
 	}
 	
-	// TODO reset game entirely.
-	// reset board.
-	// reset flags.
+	/**
+	 * Resets game through Main Controller's reset
+	 */
 	public void reset() {
-		
+		root.reset();
 	}
 	
 	// game over when one of the player has all 15 checkers at their homes.

@@ -41,6 +41,8 @@ public class EventController implements ColorParser {
 		this.cmd = cmd;
 		this.infoPnl = infoPnl;
 		this.rollDieBtn = rollDieBtn;
+		resetGameListeners();
+		resetUIListeners();
 		initGameListeners();
 		initUIListeners();
 	}
@@ -65,72 +67,93 @@ public class EventController implements ColorParser {
 	}
 	
 	/**
+	 * Resets game listeners
+	 */
+	private void resetGameListeners() {
+		game.setOnMouseClicked(null);
+		resetCheckersStorersListeners();
+	}
+	
+	/**
 	 * Manages checkers storer listeners.
 	 */
 	private boolean isPointSelectionMode = false;
 	private boolean isBarSelectionMode = false;
 	private CheckersStorer storerSelected;
 	private void initCheckersStorersListeners() {
-		root.addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, new CheckersStorerHandler() {
-			@Override	
-			public void onClicked(CheckersStorer object) {
-				// point selected, basis for fromPip or toPip selection.
-				if (object instanceof Point) {
-					// neither point nor bar selected, basis for fromPip selection.
-					if (!isPointSelectionMode && !isBarSelectionMode) {
-						storerSelected = object;
-						int fromPip = ((Point) storerSelected).getPointNumber();
-						highlightPips(fromPip);
-						isPointSelectionMode = true;
-						infoPnl.print("Point clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
-					// either point or bar selected, basis for toPip or toBar selection.
-					} else {
-						// prevent moving checkers from point to bar.
-						// i.e select point, to bar.
-						int toPip = ((Point) object).getPointNumber();
-						
-						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber();
-							cmd.runCommand("/move " + fromPip + " " + toPip);
-						} else if (isBarSelectionMode) {
-							String fromBar = parseColor(((Bar) storerSelected).getColour());
-							cmd.runCommand("/move " + fromBar + " " + toPip);
-						}
-						unhighlightPips();
-						isPointSelectionMode = false;
-						isBarSelectionMode = false;
-					}
-				// bar selected, basis for fromBar selection.
-				} else if (object instanceof Bar) {
-					// prevent entering into both point and bar selection mode.
-					if (!isPointSelectionMode) {
-						storerSelected = object;
-						game.getBoard().highlightAllPipsExcept(-1);
-						isBarSelectionMode = true;
-						infoPnl.print("Bar clicked.", MessageType.DEBUG);
-					}
-				// home selected, basis for toHome selection.
-				} else if (object instanceof Home) {
-					if (isPointSelectionMode || isBarSelectionMode) {
-						String toHome = parseColor(((Home) object).getColour());
-						
-						if (isPointSelectionMode) {
-							int fromPip = ((Point) storerSelected).getPointNumber();
-							cmd.runCommand("/move " + fromPip + " " + toHome);
-						} else if (isBarSelectionMode) {
-							String fromBar = parseColor(((Bar) storerSelected).getColour());
-							cmd.runCommand("/move " + fromBar + " " + toHome);
-						}
-						unhighlightPips();
-						isPointSelectionMode = false;
-						isBarSelectionMode = false;
-					}
-					infoPnl.print("Home clicked.", MessageType.DEBUG);
+		root.addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, handler);
+	}
+	
+	/**
+	 * Event handler thats deals with checker storers
+	 * Separated from initCheckersStorersListeners() for easier removal
+	 */
+	CheckersStorerHandler handler = new CheckersStorerHandler() {
+		@Override	
+		public void onClicked(CheckersStorer object) {
+			// point selected, basis for fromPip or toPip selection.
+			if (object instanceof Point) {
+				// neither point nor bar selected, basis for fromPip selection.
+				if (!isPointSelectionMode && !isBarSelectionMode) {
+					storerSelected = object;
+					int fromPip = ((Point) storerSelected).getPointNumber();
+					highlightPips(fromPip);
+					isPointSelectionMode = true;
+					infoPnl.print("Point clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
+				// either point or bar selected, basis for toPip or toBar selection.
 				} else {
-					infoPnl.print("Other instances of checkersStorer were clicked.", MessageType.DEBUG);
+					// prevent moving checkers from point to bar.
+					// i.e select point, to bar.
+					int toPip = ((Point) object).getPointNumber();
+					
+					if (isPointSelectionMode) {
+						int fromPip = ((Point) storerSelected).getPointNumber();
+						cmd.runCommand("/move " + fromPip + " " + toPip);
+					} else if (isBarSelectionMode) {
+						String fromBar = parseColor(((Bar) storerSelected).getColour());
+						cmd.runCommand("/move " + fromBar + " " + toPip);
+					}
+					unhighlightPips();
+					isPointSelectionMode = false;
+					isBarSelectionMode = false;
 				}
+			// bar selected, basis for fromBar selection.
+			} else if (object instanceof Bar) {
+				// prevent entering into both point and bar selection mode.
+				if (!isPointSelectionMode) {
+					storerSelected = object;
+					game.getBoard().highlightAllPipsExcept(-1);
+					isBarSelectionMode = true;
+					infoPnl.print("Bar clicked.", MessageType.DEBUG);
+				}
+			// home selected, basis for toHome selection.
+			} else if (object instanceof Home) {
+				if (isPointSelectionMode || isBarSelectionMode) {
+					String toHome = parseColor(((Home) object).getColour());
+					
+					if (isPointSelectionMode) {
+						int fromPip = ((Point) storerSelected).getPointNumber();
+						cmd.runCommand("/move " + fromPip + " " + toHome);
+					} else if (isBarSelectionMode) {
+						String fromBar = parseColor(((Bar) storerSelected).getColour());
+						cmd.runCommand("/move " + fromBar + " " + toHome);
+					}
+					unhighlightPips();
+					isPointSelectionMode = false;
+					isBarSelectionMode = false;
+				}
+				infoPnl.print("Home clicked.", MessageType.DEBUG);
+			} else {
+				infoPnl.print("Other instances of checkersStorer were clicked.", MessageType.DEBUG);
 			}
-		});
+		}
+	};
+	
+	/**
+	 * Resets checker storers listeners
+	 */
+	private void resetCheckersStorersListeners() {
+		root.removeEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, handler);
 	}
 	
 	private void highlightPips(int fromPip) {
@@ -165,6 +188,15 @@ public class EventController implements ColorParser {
 		initCommandPanelListeners();
 		initRollDieButtonListeners();
 		//initStageListeners();
+	}
+	
+	/**
+	 * Resets all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
+	 */
+	private void resetUIListeners() {
+		resetCommandPanelListeners();
+		resetRollDieButtonListener();
+		//resetStageListeners();
 	}
 
 	/**
@@ -201,6 +233,12 @@ public class EventController implements ColorParser {
 			 */
 		});
 	}
+	/**
+	 * Removes command panels listeners.
+	 */
+	private void resetCommandPanelListeners () {
+		cmdPnl.setOnAction(null);
+	}
 	
 	/**
 	 * Initialize roll die button listeners.
@@ -221,6 +259,13 @@ public class EventController implements ColorParser {
 			}
 			cmd.runCommand("/roll " + Integer.toString(dieState));
 		});
+	}
+	
+	/**
+	 * Removes roll die button listeners
+	 */
+	private void resetRollDieButtonListener() {
+		rollDieBtn.setOnAction(null);
 	}
 	
 	/**
@@ -249,4 +294,13 @@ public class EventController implements ColorParser {
 			}
 		});
 	}
+	
+	/**
+	 * Removes stage listeners
+	 */
+	@SuppressWarnings("unused")
+	private void resetStageListeners() {
+		stage.setOnCloseRequest(null);
+	}
+	
 }
