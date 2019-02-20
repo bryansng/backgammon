@@ -34,6 +34,8 @@ public class MainController extends GridPane {
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
 	private GameplayController gameplay;
+	private EventController event;
+	private Stage stage;
 	
 	/**
 	 * Default Constructor
@@ -44,16 +46,30 @@ public class MainController extends GridPane {
 	 */
 	public MainController(Stage stage) {
 		super();
+		this.stage = stage;
+		resetApplication();
+		style();
+	}
+	
+	public void resetApplication() {
 		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);
-		game = new GameComponentsController(bottomPlayer, topPlayer);
+		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
+		startGame();
+	}
+	
+	public void restartGame() {
+		event.removeListeners();	// deactivate previous listeners.
+		startGame();
+	}
+	
+	private void startGame() {
+		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
-		cmd = new CommandController(stage, game, gameplay, infoPnl, bottomPlayer, topPlayer);
-		new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
-		style();
+		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
+		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
 	}
 	
@@ -77,6 +93,7 @@ public class MainController extends GridPane {
 		terminal.getChildren().addAll(infoPnl, cmdPnl);
 		terminal.setAlignment(Pos.CENTER);
 		
+		getChildren().clear();
 		add(game, 0, 0, 1, 3);
 		add(terminal, 1, 0);
 		add(rollDieBtn, 1, 2);

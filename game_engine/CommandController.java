@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.Arrays;
-
 import constants.GameConstants;
 import constants.MessageType;
 import constants.MoveResult;
@@ -31,11 +30,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private GameplayController gameplay;
 	private InfoPanel infoPnl;
 	private Player bottomPlayer, topPlayer;
+	private MainController root;
 	
-	public CommandController(Stage stage, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public CommandController(Stage stage, MainController root, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.stage = stage;
+		this.root = root;
 		this.game = game;
 		this.gameplay = gameplay;
 		this.infoPnl = infoPnl;
@@ -52,29 +53,31 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runCommand(String text, boolean isPlayerInput) {
 		String[] args = text.split(" ");
 		String command = args[0];
-		
+
 		if (command.equals("/move")) {
 			runMoveCommand(args, isPlayerInput);
 		} else if (command.equals("/roll")) {
 			runRollCommand(args);
 		} else if (command.equals("/start")) {
 			runStartCommand();
-		} else if (command.equals("/save")) {
-			runSaveCommand();
 		} else if (command.equals("/next")) {
 			runNextCommand();
-		/**
-		 * TODO /clear command, take the font size and height of info panel, calculate the number of lines.
-		 * then print that amount of line with spaces.
-		 */
-		} else if (command.equals("/name")) {	
-			runNameCommand(args);
-		} else if (command.equals("/help")) {	
+		} else if (command.equals("/help")) {
 			runHelpCommand();
-		} else if (command.equals("/test")) {	
-			runTestCommand();
-		} else if (command.equals("/quit")) {	
+		} else if (command.equals("/name")) {
+			runNameCommand(args);
+		} else if (command.equals("/clear")) {
+			runClearCommand();
+		} else if (command.equals("/save")) {
+			runSaveCommand();
+		} else if (command.equals("/reset")) {
+			runResetCommand();
+		} else if (command.equals("/restart")) {
+			runRestartCommand();
+		} else if (command.equals("/quit")) {
 			runQuitCommand();
+		} else if (command.equals("/test")) {
+			runTestCommand();
 		} else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
@@ -300,22 +303,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	/**
-	 * Command: /save
-	 * Saves game log (text on info panel) to text file .
-	 */
-	public void runSaveCommand() {
-		infoPnl.saveToFile();
-	}
-
-	/**
-	 * Command: /quit
-	 * Saves game log and prompts player to quit before quitting application.
-	 */
-	public void runQuitCommand() {
-		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
-	}
-	
-	/**
 	 * Command: /help
 	 * Displays help commands on info panel.
 	 */
@@ -324,13 +311,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		String line = null;
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("help.txt"));
-			while((line = reader.readLine()) != null) {
+			BufferedReader reader = new BufferedReader(new FileReader("src/help.txt"));
+			while((line = reader.readLine()) != null)
 				s += line + "\n";
-				System.out.println(line);
-			}
 			s +="\n";
-			infoPnl.print(s);
+			infoPnl.print(s, MessageType.ANNOUNCEMENT);
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -357,7 +342,55 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			default:
 				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
 		}
-		
+	}
+	
+	/**
+	 * Command: /clear
+	 * Appends newlines to infoPnl to "clear" it out
+	 * 
+	 * Should print (height of infoPnl / font size) number of lines
+	 * But that prints more lines than required, probably shouldn't get infoPnl height?
+	 * 
+	 * TODO Scroll bar does not scroll to bottom automatically
+	 */
+	public void runClearCommand() {
+		infoPnl.print("Clearing panel...");
+		infoPnl.printNewline((int) (infoPnl.getHeight() / 21));
+	}
+	
+	/**
+	 * Command: /save
+	 * Saves game log (text on info panel) to text file .
+	 */
+	public void runSaveCommand() {
+		infoPnl.saveToFile();
+	}
+
+	
+	/**
+	 * Command: /reset
+	 * Resets everything including player info.
+	 */
+	public void runResetCommand() {
+		root.resetApplication();
+		runClearCommand();
+		infoPnl.print("Game has been reset.");
+		infoPnl.welcome();
+	}	
+	
+	/**
+	 * Command: /restart
+	 * Starts a new instance of the game.
+	 */
+	public void runRestartCommand() {
+		root.restartGame();
+	}
+	/**
+	 * Command: /quit
+	 * Saves game log and prompts player to quit before quitting application.
+	 */
+	public void runQuitCommand() {
+		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
 	
 	/**

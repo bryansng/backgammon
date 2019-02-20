@@ -11,8 +11,8 @@ import move.RollMoves;
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
-	
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
+	
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	
@@ -32,10 +32,7 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	// should activate by /start.
 	// auto roll die to see which player first.
-	public void start() {
-		// reset game entirely.
-		reset();
-		
+	public void start() {		
 		// get roll.
 		roll();
 		
@@ -201,13 +198,6 @@ public class GameplayController implements ColorParser, InputValidator {
 		rolledFlag = false;
 		movedFlag = false;
 		return pCurrent;
-	}
-	
-	// TODO reset game entirely.
-	// reset board.
-	// reset flags.
-	public void reset() {
-		
 	}
 	
 	public void highlightPips(int fromPip) {
