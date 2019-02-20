@@ -23,7 +23,7 @@ public interface IndexOffset extends InputValidator {
 		String result = input;
 		if (isNumber(input)) {
 			int num = Integer.parseInt(input);
-			result = Integer.toString(GameConstants.NUMBER_OF_PIPS-num);
+			result = Integer.toString(GameConstants.NUMBER_OF_PIPS-num-1);
 		}
 		return result;
 	}

@@ -80,7 +80,7 @@ public class EventController implements ColorParser {
 					if (!isPipSelectionMode && !isBarSelectionMode) {
 						storerSelected = object;
 						int fromPip = ((Pip) storerSelected).getPipNumber();
-						highlightPips(fromPip);
+						gameplay.highlightPips(fromPip);
 						isPipSelectionMode = true;
 						infoPnl.print("Pip clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
 					// either point or bar selected, basis for toPip or toBar selection.
@@ -96,7 +96,7 @@ public class EventController implements ColorParser {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toPip);
 						}
-						unhighlightPips();
+						gameplay.unhighlightPips();
 						isPipSelectionMode = false;
 						isBarSelectionMode = false;
 					}
@@ -121,7 +121,7 @@ public class EventController implements ColorParser {
 							String fromBar = parseColor(((Bar) storerSelected).getColour());
 							cmd.runCommand("/move " + fromBar + " " + toHome);
 						}
-						unhighlightPips();
+						gameplay.unhighlightPips();
 						isPipSelectionMode = false;
 						isBarSelectionMode = false;
 					}
@@ -131,31 +131,6 @@ public class EventController implements ColorParser {
 				}
 			}
 		});
-	}
-	
-	private void highlightPips(int fromPip) {
-		if (gameplay.isRolled()) {
-			game.getBoard().highlightToPips(gameplay.getValidMoves(), fromPip);
-			/*
-			PipMove aMove = gameplay.getMoveOf(fromPip);
-			if (aMove != null) {
-				game.getBoard().highlightToPips(aMove);
-			} else {
-				infoPnl.print("There is no possible moves related to fromPip: " + (fromPip+1), MessageType.DEBUG);
-			}
-			*/
-		} else {
-			game.getBoard().highlightAllPipsExcept(fromPip);
-		}
-	}
-	
-	private void unhighlightPips() {
-		if (gameplay.isStarted()) {
-			if (gameplay.isMoved()) game.getBoard().unhighlightPipsAndCheckers();
-			else game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
-		} else {
-			game.getBoard().unhighlightPipsAndCheckers();
-		}
 	}
 	
 	/**
@@ -204,12 +179,6 @@ public class EventController implements ColorParser {
 	
 	/**
 	 * Initialize roll die button listeners.
-	 * 
-	 * TODO remove the dieState variable, it is used to show that the roll dice button works
-	 * and dices can be drawn to either side of the board.
-	 * 
-	 * When turns and players are implemented, then elaborate on this (i.e. display the
-	 * dices on the side where it's the player's roll). 
 	 */
 	private int dieState = 2;
 	private void initRollDieButtonListeners() {

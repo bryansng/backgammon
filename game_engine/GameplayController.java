@@ -191,7 +191,12 @@ public class GameplayController implements ColorParser, InputValidator {
 		pCurrent = pOpponent;
 		pOpponent = temp;
 		
-		if (pCurrent.equals(topPlayer)) topPlayerFlag = true;
+		if (pCurrent.equals(topPlayer)) {
+			topPlayerFlag = true;
+		} else {
+			topPlayerFlag = false;
+		}
+		
 		game.getBoard().swapPipLabels();
 		rolledFlag = false;
 		movedFlag = false;
@@ -203,6 +208,31 @@ public class GameplayController implements ColorParser, InputValidator {
 	// reset flags.
 	public void reset() {
 		
+	}
+	
+	public void highlightPips(int fromPip) {
+		if (isRolled()) {
+			game.getBoard().highlightToPips(getValidMoves(), fromPip);
+			/*
+			PipMove aMove = gameplay.getMoveOf(fromPip);
+			if (aMove != null) {
+				game.getBoard().highlightToPips(aMove);
+			} else {
+				infoPnl.print("There is no possible moves related to fromPip: " + (fromPip+1), MessageType.DEBUG);
+			}
+			*/
+		} else {
+			game.getBoard().highlightAllPipsExcept(fromPip);
+		}
+	}
+	
+	public void unhighlightPips() {
+		if (isStarted()) {
+			if (isMoved()) game.getBoard().unhighlightPipsAndCheckers();
+			else game.getBoard().highlightFromPipsChecker(getValidMoves());
+		} else {
+			game.getBoard().unhighlightPipsAndCheckers();
+		}
 	}
 	
 	// game over when one of the player has all 15 checkers at their homes.
