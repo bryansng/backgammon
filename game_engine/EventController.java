@@ -22,7 +22,7 @@ import javafx.stage.WindowEvent;
  * @author @LxEmily, 17200573
  *
  */
-public class EventController implements ColorParser {
+public class EventController implements ColorParser, InputValidator {
 	private Stage stage;
 	private MainController root;
 	private GameComponentsController game;
@@ -207,11 +207,12 @@ public class EventController implements ColorParser {
 	private void initCommandPanelListeners() {
 		cmdPnl.setOnAction((ActionEvent event) -> {
 			String text = cmdPnl.getText();
+			String[] args = text.split(" ");
 			
 			if (text.startsWith("/")) {
 				cmd.runCommand(cmdPnl.getText(), true);
-			} else if (text.equals("")) {
-				// ignores if user types nothing.
+			} else if (isPip(args[0]) && isPip(args[1])) {
+				cmd.runCommand("/move " + args[0] + " " + args[1], true);
 			} else if (text.equals("quit")) {
 				cmd.runCommand("/quit");
 			} else if (text.equals("save")) {
