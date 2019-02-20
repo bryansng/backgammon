@@ -41,7 +41,7 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	// should activate by /start.
 	// auto roll die to see which player first.
-	public void start() {		
+	public void start() {
 		// get roll.
 		roll();
 		

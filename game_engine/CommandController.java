@@ -283,7 +283,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runStartCommand() {
 		if (!gameplay.isStarted()) {
 			infoPnl.print("Starting game...", MessageType.ANNOUNCEMENT);
-			gameplay.start();
+			root.restartGame();
 		} else {
 			infoPnl.print("Game already started.", MessageType.ERROR);
 		}

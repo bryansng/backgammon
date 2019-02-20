@@ -57,23 +57,25 @@ public class MainController extends GridPane {
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
-		startGame();
+		initGame();
 	}
 	
-	public void restartGame() {
-		event.removeListeners();	// deactivate previous listeners.
-		startGame();
-		cmd.runClearCommand();
-		infoPnl.print("Game has been restarted.");
-		infoPnl.welcome();
-	}
-	
-	private void startGame() {
+	private void initGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
+	}
+	
+	public void restartGame() {
+		event.removeListeners();	// deactivate previous listeners.
+		startGame();
+	}
+	
+	public void startGame() {
+		initGame();
+		gameplay.start();
 	}
 	
 	/**
