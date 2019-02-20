@@ -8,9 +8,16 @@ import javafx.scene.layout.VBox;
 
 public class BoardQuadrant extends VBox {
 	private HBox setLabels, setPoints;
+	private PlayerPerspectiveFrom pov;
 	
 	public BoardQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
+		this.pov = pov;
 		initQuadrant(startRange, endRange, pov, pips);
+		drawQuadrant(setLabels);
+	}
+	
+	public HBox getLabels() {
+		return setLabels;
 	}
 
 	/**
@@ -23,7 +30,12 @@ public class BoardQuadrant extends VBox {
 	private void initQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
 		setLabels = createSetOfLabels(startRange, endRange, pov);
 		setPoints = createSetOfPoints(startRange, endRange, pov, pips);
-
+	}
+	
+	public void drawQuadrant(HBox newSetLabels) {
+		setLabels = newSetLabels;
+		getChildren().clear();
+		
 		if (pov == PlayerPerspectiveFrom.BOTTOM)
 			getChildren().addAll(setPoints, setLabels);
 		else {

@@ -10,7 +10,7 @@ import move.RollMoves;
 
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
 	
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	private GameComponentsController game;
@@ -27,6 +27,7 @@ public class GameplayController implements ColorParser, InputValidator {
 		rolledFlag = false;
 		movedFlag = false;
 		firstRollFlag = true;
+		topPlayerFlag = false;
 	}
 	
 	// should activate by /start.
@@ -52,6 +53,12 @@ public class GameplayController implements ColorParser, InputValidator {
 			pOpponent = getSecondPlayerToRoll(pCurrent);
 			infoPnl.print( "First player to move is: " + pCurrent.getName() + ".");
 			firstRollFlag = false;
+			
+			// if first player is top player, then we swap the pip number labels.
+			if (pCurrent.equals(topPlayer)) {
+				game.getBoard().swapPipLabels();
+				topPlayerFlag = true;
+			}
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
@@ -178,14 +185,16 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	// should activate by /next.
 	// Swap players - used to change turns.
+	// swap the pip labels at each turn.
 	public Player next() {
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
 		pOpponent = temp;
 		
+		if (pCurrent.equals(topPlayer)) topPlayerFlag = true;
+		game.getBoard().swapPipLabels();
 		rolledFlag = false;
 		movedFlag = false;
-		
 		return pCurrent;
 	}
 	
@@ -212,6 +221,10 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	public boolean isMoved() {
 		return movedFlag;
+	}
+	
+	public boolean isTopPlayer() {
+		return topPlayerFlag;
 	}
 	
 	public LinkedList<RollMoves> getValidMoves() {

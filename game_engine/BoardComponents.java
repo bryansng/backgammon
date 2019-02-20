@@ -123,6 +123,20 @@ public class BoardComponents extends HBox {
 		leftBoard.setTop(quad2);
 		rightBoard.setTop(quad1);
 	}
+
+	// quad1's = quad4's
+	// quad2's = quad3's
+	public void swapPipLabels() {
+		HBox temp;
+		
+		temp = quad1.getLabels();
+		quad1.drawQuadrant(quad4.getLabels());
+		quad4.drawQuadrant(temp);
+		
+		temp = quad2.getLabels();
+		quad2.drawQuadrant(quad3.getLabels());
+		quad3.drawQuadrant(temp);
+	}
 	
 	/**
 	 * Returns the pips instance variable (array of pips).

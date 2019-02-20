@@ -95,7 +95,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			return;
 		}
 		
-		// if it is player input, then its one-based index.
+		// conversion from one-based index to zero-based.
 		String fro, to;
 		if (isPlayerInput) {
 			fro = getZeroBasedIndex(args[1]);
@@ -109,6 +109,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
 			infoPnl.print("Invalid range, must be between 1-" + GameConstants.NUMBER_OF_PIPS + ".", MessageType.ERROR);
 			return;
+		}
+
+		// if it is the top player, then the player's perspective of the
+		// pip number label will be different from code's as code's is
+		// based on bottom player's, so we adjust accordingly.
+		if (isPlayerInput && gameplay.isTopPlayer()) {
+			fro = getTopPlayerOffset(fro);
+			to = getTopPlayerOffset(to);
 		}
 		
 		// validate moves.

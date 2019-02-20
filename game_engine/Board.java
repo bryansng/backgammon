@@ -26,24 +26,6 @@ public class Board extends BoardComponents {
 		super();
 	}
 	
-	// swap the pip number labels based on current player's perspective.
-	// bottom - 1 start from bottom. 
-	// top - 1 start from top.
-	// ways:
-	// 1. re create and re draw the labels (+pips as well).
-	// 2. access them, parent to child.
-	// 2a. consider storing them in instance variables for easy updating.
-	public void swapPipLabels(PlayerPerspectiveFrom pov) {
-		switch (pov) {
-			case BOTTOM:
-				
-				break;
-			case TOP:
-				break;
-			default:
-		}
-	}
-	
 	/**
 	 * Moves a checker between pips.
 	 * i.e. pops a checker from one point and push it to the other.
