@@ -195,6 +195,13 @@ public class GameplayController implements ColorParser, InputValidator {
 		root.reset();
 	}
 	
+	/**
+	 * Restarts the game through Main Controller's restart
+	 */
+	public void restart() {
+		root.restart();
+	}
+	
 	// game over when one of the player has all 15 checkers at their homes.
 	// check if the homes are full.
 	private boolean isGameOver() {

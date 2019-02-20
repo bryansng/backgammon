@@ -73,6 +73,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			runQuitCommand();
 		} else if (command.equals("/reset")) {	
 			runResetCommand();
+		} else if (command.equals("/restart")) {	
+			runRestartCommand();
 		} else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
@@ -363,6 +365,15 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		infoPnl.print("Game has been reset.");
 		infoPnl.welcome();
 	}	
+	
+	/**
+	 * Command: /restart
+	 * Restarts the entire game
+	 * Without quitting the application
+	 */
+	public void runRestartCommand() {
+		gameplay.restart();
+	}
 	
 	/**
 	 * Command: /test

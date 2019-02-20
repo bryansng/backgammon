@@ -63,11 +63,25 @@ public class MainController extends GridPane {
 	 * Player info and previous game log still intact
 	 */
 	public void reset() {
+		bottomPlayer.setScore(0);
+		topPlayer.setScore(0);
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(this, game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, game, gameplay, infoPnl, bottomPlayer, topPlayer);
 		new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
+	}
+	
+	/**
+	 * Restarts entire game application
+	 */
+	public void restart() {
+		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
+		infoPnl = new InfoPanel();
+		rollDieBtn = new RollDieButton();
+		cmdPnl = new CommandPanel();
+		reset();
 	}
 	
 	/**
