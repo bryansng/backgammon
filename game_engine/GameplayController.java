@@ -194,8 +194,8 @@ public class GameplayController implements ColorParser, InputValidator {
 			topPlayerFlag = false;
 		}
 		
+		roll();
 		game.getBoard().swapPipLabels();
-		rolledFlag = false;
 		movedFlag = false;
 		return pCurrent;
 	}
