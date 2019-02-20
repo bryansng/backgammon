@@ -234,15 +234,15 @@ public class Board extends BoardComponents {
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		// TODO getPossibleToHome etc.
 		
-		// this seems like it can be refactored, play with isSumMove and isSumMove().
-		if (isSumMove) {
-			Move intermediateMove;
-			if (isInRange(toPip) && (isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED) && ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null)) {
-				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
-				addedAsMove = true;
-			}
-		} else {
-			if (isInRange(toPip) && isMove(fromPip, toPip, pCurrent) != MoveResult.NOT_MOVED) {
+		MoveResult moveResult;
+		if (isInRange(toPip) && ((moveResult = isMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
+			if (isSumMove) {
+				Move intermediateMove;
+				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
+					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
+					addedAsMove = true;
+				}
+			} else {
 				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
 				addedAsMove = true;
 			}
@@ -277,14 +277,18 @@ public class Board extends BoardComponents {
 	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
-		if (!pips[fromPip].isEmpty() && isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
-			if (pips[fromPip].topCheckerColourEquals(pips[toPip])) {
-				moveResult = MoveResult.MOVED_TO_PIP;
-			} else {
-				if (pips[toPip].size() == 1) {
-					moveResult = MoveResult.MOVE_TO_BAR;
+		if (!pips[fromPip].isEmpty()) {
+			if (isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
+				if (pips[fromPip].topCheckerColourEquals(pips[toPip])) {
+					moveResult = MoveResult.MOVED_TO_PIP;
+				} else {
+					if (pips[toPip].size() == 1) {
+						moveResult = MoveResult.MOVE_TO_BAR;
+					}
 				}
 			}
+		} else {
+			moveResult = MoveResult.PIP_EMPTY;
 		}
 		
 		return moveResult;

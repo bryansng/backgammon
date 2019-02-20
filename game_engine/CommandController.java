@@ -155,6 +155,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				case MOVED_TO_HOME_FROM_BAR:
 					infoPnl.print("Moved checker from bar to home.", MessageType.DEBUG);
 					break;
+				case PIP_EMPTY:
+					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
+					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
@@ -174,6 +177,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
 					infoPnl.print("Moving checker from bar to " + (toPip+1) + ".", MessageType.DEBUG);
 					break;
+				case PIP_EMPTY:
+					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
+					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
@@ -192,6 +198,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					game.getBoard().moveCheckers(fromPip, toPip);
 					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
 					infoPnl.print("Moving checker from " + (fromPip+1) + " to " + (toPip+1) + ".", MessageType.DEBUG);
+					break;
+				case PIP_EMPTY:
+					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
 					break;
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
