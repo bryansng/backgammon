@@ -8,6 +8,15 @@ import move.Move;
 import move.PipToPip;
 import move.RollMoves;
 
+/**
+ * This class handles the gameplay of Backgammon.
+ * Sub-controller of MainController.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ *
+ */
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
@@ -151,6 +160,23 @@ public class GameplayController implements ColorParser, InputValidator {
 		if (isValidMove) removeRollMoves(theValidMove.getRollMoves());
 		
 		return isValidMove;
+	}
+	
+	// only used for mouse clicks of fro.
+	// atm, only consider pips, no bars.
+	public boolean isValidFro(int fromPip) {
+		boolean isValidFro = false;
+		for (RollMoves rollMoves : moves) {
+			for (Move aMove : rollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					if (((PipToPip) aMove).getFromPip() == fromPip) {
+						isValidFro = true;
+						break;
+					}
+				}
+			}
+		}
+		return isValidFro;
 	}
 	
 	// remove the rollMoves from the moves.

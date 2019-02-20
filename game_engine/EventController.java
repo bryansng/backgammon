@@ -49,7 +49,7 @@ public class EventController implements ColorParser, InputValidator {
 	 * Manages game listeners.
 	 */
 	private void initGameListeners() {
-		// Exit point selection mode when any part of the game board is clicked.
+		// Exit pip selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
 			game.getBoard().unhighlightPipsAndCheckers();
 			isPipSelectionMode = false;
@@ -81,19 +81,24 @@ public class EventController implements ColorParser, InputValidator {
 	CheckersStorerHandler checkersStorerHandler = new CheckersStorerHandler() {
 		@Override	
 		public void onClicked(CheckersStorer object) {
-			// point selected, basis for fromPip or toPip selection.
+			// pip selected, basis for fromPip or toPip selection.
 			if (object instanceof Pip) {
-				// neither point nor bar selected, basis for fromPip selection.
+				// neither pip nor bar selected, basis for fromPip selection.
 				if (!isPipSelectionMode && !isBarSelectionMode) {
 					storerSelected = object;
 					int fromPip = ((Pip) storerSelected).getPipNumber();
-					gameplay.highlightPips(fromPip);
-					isPipSelectionMode = true;
-					infoPnl.print("Pip clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
-				// either point or bar selected, basis for toPip or toBar selection.
+					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
+					if (!gameplay.isStarted() || gameplay.isValidFro(fromPip)) {
+						gameplay.highlightPips(fromPip);
+						isPipSelectionMode = true;
+						infoPnl.print("Pip clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
+					} else {
+						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
+					}
+				// either pip or bar selected, basis for toPip or toBar selection.
 				} else {
-					// prevent moving checkers from point to bar.
-					// i.e select point, to bar.
+					// prevent moving checkers from pip to bar.
+					// i.e select pip, to bar.
 					int toPip = ((Pip) object).getPipNumber();
 					
 					if (isPipSelectionMode) {
@@ -109,7 +114,7 @@ public class EventController implements ColorParser, InputValidator {
 				}
 			// bar selected, basis for fromBar selection.
 			} else if (object instanceof Bar) {
-				// prevent entering into both point and bar selection mode.
+				// prevent entering into both pip and bar selection mode.
 				if (!isPipSelectionMode) {
 					storerSelected = object;
 					game.getBoard().highlightAllPipsExcept(-1);

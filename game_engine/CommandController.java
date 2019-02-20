@@ -53,7 +53,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runCommand(String text, boolean isPlayerInput) {
 		String[] args = text.split(" ");
 		String command = args[0];
-
+		
 		if (command.equals("/move")) {
 			runMoveCommand(args, isPlayerInput);
 		} else if (command.equals("/roll")) {
@@ -299,6 +299,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
 			Player pCurrent = gameplay.next();
 			infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+		} else {
+			infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
 		}
 	}
 	
