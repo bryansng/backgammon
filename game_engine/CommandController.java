@@ -373,9 +373,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 */
 	public void runResetCommand() {
 		root.resetApplication();
-		runClearCommand();
-		infoPnl.print("Game has been reset.");
-		infoPnl.welcome();
 	}	
 	
 	/**

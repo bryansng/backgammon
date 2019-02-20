@@ -63,6 +63,9 @@ public class MainController extends GridPane {
 	public void restartGame() {
 		event.removeListeners();	// deactivate previous listeners.
 		startGame();
+		cmd.runClearCommand();
+		infoPnl.print("Game has been restarted.");
+		infoPnl.welcome();
 	}
 	
 	private void startGame() {
