@@ -2,23 +2,39 @@ package game_engine;
 
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.Optional;
 import constants.DieInstance;
 import constants.MessageType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.image.ImageView;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.control.ButtonType;
+import javafx.scene.layout.GridPane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.util.Pair;
 import move.Move;
 import move.PipToPip;
 import move.RollMoves;
 
 public class GameplayController implements ColorParser, InputValidator {
 	private LinkedList<RollMoves> moves;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, promptCancelFlag;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	
+	private Stage stage;
 	private GameComponentsController game;
+	private CommandController cmd;
 	private InfoPanel infoPnl;
 	
-	public GameplayController(GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public GameplayController(Stage stage, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
+		this.stage = stage;
 		this.game = game;
 		this.infoPnl = infoPnl;
 		
@@ -27,16 +43,20 @@ public class GameplayController implements ColorParser, InputValidator {
 		rolledFlag = false;
 		movedFlag = false;
 		firstRollFlag = true;
+		promptCancelFlag = false;
 		topPlayerFlag = false;
 	}
 	
 	// should activate by /start.
 	// auto roll die to see which player first.
-	public void start() {		
-		// get roll.
-		roll();
+	public void start() {	
+		promptPlayerInfos();
 		
-		startedFlag = true;
+		if (!promptCancelFlag) {
+			// get roll.
+			roll();
+			startedFlag = true;
+		}
 	}
 	
 	// should activate by /roll.
@@ -71,6 +91,79 @@ public class GameplayController implements ColorParser, InputValidator {
 		game.getBoard().highlightFromPipsChecker(moves);
 		
 		rolledFlag = true;
+	}
+	
+	/**
+	 * Displays a dialog that prompts players to input names and choose checker colors
+	 * Players can start the game with or without changing default names by clicking start
+	 * Players can cancel the game by clicking cancel
+	 * Players can NOT have empty names
+	 */
+	private void promptPlayerInfos() {
+		// Dialog to prompt player.
+		Dialog<Pair<String, String>> dialog =  new Dialog<>();
+		dialog.setTitle("Please enter players' names");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		
+		// Start and cancel buttons for dialog.
+		ButtonType button = new ButtonType("Start", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
+		
+		// Layout for player name fields.
+		GridPane pane = new GridPane();
+		pane.setPrefSize(game.getWidth() * 0.3, game.getHeight() * 0.15);
+		pane.setAlignment(Pos.CENTER);
+		pane.setPadding(new Insets(25, 10, 10, 10));
+		pane.setHgap(20);
+		pane.setVgap(10);
+		
+		// Player color labels.
+		ImageView white = new ImageView(this.getClass().getResource("img/checkers/white_checkers.png").toString());
+		ImageView black = new ImageView(this.getClass().getResource("img/checkers/black_checkers.png").toString());
+		Label wLabel = new Label("", white);
+		Label bLabel = new Label("", black);
+		
+		// Player name fields.
+		Insets inset = new Insets(5);
+		TextField wName =  new TextField();
+		wName.setPromptText("Default: Tea");
+		wName.setPadding(inset);
+		TextField bName = new TextField();
+		bName.setPromptText("Default: Cup");
+		bName.setPadding(inset);
+
+		// Add labels and name fields to pane.
+		pane.add(wLabel, 0, 0);
+		pane.add(wName, 1, 0);
+		pane.add(bLabel, 0, 1);
+		pane.add(bName, 1, 1);
+
+		// Add pane to dialog.
+		dialog.getDialogPane().setContent(pane);
+		
+		// On click start button, return player names as result.
+		// Else result is null, cancel the game.
+		dialog.setResultConverter(click -> {
+			if (click == button)
+				return new Pair<>(bName.getText(), wName.getText());
+			return null;
+		});
+		
+		// Show dialog to get player input.
+		Optional<Pair<String, String>> result = dialog.showAndWait();
+		
+		// If result is present and name is not empty, change player names
+		// If result is null, cancel starting the game
+		if (result.isPresent()) {
+			if (wName.getText().length() != 0) 
+				cmd.runCommand("/name 1 " + wName.getText());
+			if (bName.getText().length() != 0) 
+				cmd.runCommand("/name 2 " + bName.getText());
+		} else {
+			promptCancelFlag = true;
+			infoPnl.print("Game not started.");
+		}
 	}
 	
 	private Player getFirstPlayerToRoll(int[] res) {
@@ -249,5 +342,9 @@ public class GameplayController implements ColorParser, InputValidator {
 	
 	public LinkedList<RollMoves> getValidMoves() {
 		return moves;
+	}
+	
+	public void setCmd(CommandController cmd) {
+		this.cmd = cmd;
 	}
 }

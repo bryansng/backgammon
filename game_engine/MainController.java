@@ -70,8 +70,9 @@ public class MainController extends GridPane {
 	
 	private void startGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
-		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
+		gameplay = new GameplayController(stage, game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
+		gameplay.setCmd(cmd);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
 	}

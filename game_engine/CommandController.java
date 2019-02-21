@@ -326,7 +326,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /name
 	 * Changes player name.
 	 */
-	public void runNameCommand(String [] args) {
+	public void runNameCommand(String[] args) {
 		int playerNum = Integer.parseInt(args[1]);
 		String playerName = args[2];
 		
