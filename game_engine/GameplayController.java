@@ -127,17 +127,17 @@ public class GameplayController implements ColorParser, InputValidator {
 		// Player name fields.
 		Insets inset = new Insets(5);
 		TextField wName =  new TextField();
-		wName.setPromptText("Default: Tea");
+		wName.setPromptText("Default: Cup");
 		wName.setPadding(inset);
 		TextField bName = new TextField();
-		bName.setPromptText("Default: Cup");
+		bName.setPromptText("Default: Tea");
 		bName.setPadding(inset);
 
 		// Add labels and name fields to pane.
-		pane.add(wLabel, 0, 0);
-		pane.add(wName, 1, 0);
-		pane.add(bLabel, 0, 1);
-		pane.add(bName, 1, 1);
+		pane.add(bLabel, 0, 0);
+		pane.add(bName, 1, 0);
+		pane.add(wLabel, 0, 1);
+		pane.add(wName, 1, 1);
 
 		// Add pane to dialog.
 		dialog.getDialogPane().setContent(pane);

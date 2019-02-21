@@ -52,8 +52,8 @@ public class MainController extends GridPane {
 	}
 	
 	public void resetApplication() {
-		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
+		bottomPlayer = new Player("Cup", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Tea", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();

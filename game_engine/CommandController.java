@@ -332,12 +332,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		
 		switch(playerNum) {
 			case 1:
-				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
-				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
+				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
+				infoPnl.print("Player with black checkers is now " + "\"" + playerName + "\"");
 				break;
 			case 2:
-				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
-				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
+				game.getTopPlayerPanel().setPlayerName(bottomPlayer, playerName);
+				infoPnl.print("Player with white checkers is now " + "\"" + playerName + "\"");
 				break;
 			default:
 				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
