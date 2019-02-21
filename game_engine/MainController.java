@@ -1,7 +1,6 @@
 package game_engine;
 
 import java.util.Optional;
-
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import javafx.geometry.Insets;
@@ -110,8 +109,6 @@ public class MainController extends GridPane {
 		
 		if (!promptCancelFlag) gameplay.start();
 	}
-	
-
 	
 	/**
 	 * Displays a dialog that prompts players to input names and choose checker colors.

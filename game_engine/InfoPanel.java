@@ -19,8 +19,6 @@ import javafx.scene.control.TextArea;
  * 
  */
 public class InfoPanel extends TextArea {
-	private boolean debugMode = true;
-	
 	public InfoPanel() {
 		super();
 		setPrefHeight(GameConstants.getHalfBoardSize().getHeight());
@@ -63,8 +61,12 @@ public class InfoPanel extends TextArea {
 				break;
 		}
 		
-		// same as (debugMode || (!debugMode && mtype != MessageType.DEBUG))
-		if (debugMode || mtype != MessageType.DEBUG)
+		// same as
+		// (debugMode || (!debugMode && mtype != MessageType.DEBUG))
+		// (GameConstants.DEBUG_MODE || mtype != MessageType.DEBUG)
+		if (GameConstants.DEBUG_MODE)
+			appendText(prefix + " " + type + " " + text + "\n");
+		else if (mtype != MessageType.DEBUG)
 			appendText(prefix + " " + type + " " + text + "\n");
 	}
 	public void print(String text) {

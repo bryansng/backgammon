@@ -44,7 +44,6 @@ public class GameplayController implements ColorParser, InputValidator {
 	 * Called at /start.
 	 */
 	public void start() {
-		// get roll.
 		roll();
 		startedFlag = true;
 	}
