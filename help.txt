@@ -6,6 +6,14 @@
 /clear    - to clear up info panel
 /name     - to change player name
 /quit     - to quit game
-/reset    - to reset the game
+/reset    - to reset the application
+/restart  - to restart the game
 /help     - to access this list
 /test     - to see moving checkers
+
+
+Supported commands also include
+/move - "# #"
+/next - "next"
+/quit - "quit"
+/save - save
