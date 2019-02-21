@@ -137,28 +137,28 @@ public class MainController extends GridPane {
 		pane.setVgap(10);
 		
 		// Player color labels.
-		ImageView white = new ImageView(this.getClass().getResource("img/checkers/white_checkers.png").toString());
 		ImageView black = new ImageView(this.getClass().getResource("img/checkers/black_checkers.png").toString());
-		Label wLabel = new Label("", white);
+		ImageView white = new ImageView(this.getClass().getResource("img/checkers/white_checkers.png").toString());
 		Label bLabel = new Label("", black);
+		Label wLabel = new Label("", white);
 		
 		// Player name fields.
 		Insets inset = new Insets(5);
-		TextField wName =  new TextField();
-		wName.setPromptText("Default: Cup");
-		wName.setMinHeight(GameConstants.getUIHeight()*0.85);
-		wName.setPadding(inset);
 		TextField bName = new TextField();
 		bName.setPromptText("Default: Tea");
 		bName.setMinHeight(GameConstants.getUIHeight()*0.85);
 		bName.setPadding(inset);
-
+		TextField wName =  new TextField();
+		wName.setPromptText("Default: Cup");
+		wName.setMinHeight(GameConstants.getUIHeight()*0.85);
+		wName.setPadding(inset);
+		
 		// Add labels and name fields to pane.
 		pane.add(bLabel, 0, 0);
 		pane.add(bName, 1, 0);
 		pane.add(wLabel, 0, 1);
 		pane.add(wName, 1, 1);
-
+		
 		// Add pane to dialog.
 		dialog.getDialogPane().setContent(pane);
 		
@@ -176,10 +176,10 @@ public class MainController extends GridPane {
 		// If result is present and name is not empty, change player names.
 		// If result is null, cancel starting the game.
 		if (result.isPresent()) {
-			if (wName.getText().length() != 0) 
-				cmd.runCommand("/name 1 " + wName.getText());
-			if (bName.getText().length() != 0) 
-				cmd.runCommand("/name 2 " + bName.getText());
+			if (bName.getText().length() != 0)
+				cmd.runCommand("/name black " + bName.getText());
+			if (wName.getText().length() != 0)
+				cmd.runCommand("/name white " + wName.getText());
 		} else {
 			promptCancelFlag = true;
 			infoPnl.print("Game not started.");
