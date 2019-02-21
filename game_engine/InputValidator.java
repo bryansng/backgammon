@@ -1,6 +1,8 @@
 package game_engine;
 
 /**
+ * This interface is used to validate player inputs.
+ * Used by CommandController to parse player inputs.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
@@ -8,16 +10,29 @@ package game_engine;
  *
  */
 public interface InputValidator {
-	// check if input is a number, it is a pip if number.
+	/**
+	 * It is a pip if it is a number.
+	 * @param input
+	 * @return boolean value indicating if so.
+	 */
 	default boolean isPip(String input) {
 		return isNumber(input);
 	}
-	
-	// check if input is a string, it is a bar or home if string.
+
+	/**
+	 * It is a bar or home if it is a string.
+	 * @param input
+	 * @return boolean value indicating if so.
+	 */
 	default boolean isBarOrHome(String input) {
 		return isString(input);
 	}
-	
+
+	/**
+	 * Check if input is a number, i.e. it is a pip if number.
+	 * @param input
+	 * @return boolean value indicating if so.
+	 */
 	default boolean isNumber(String input) {
 		boolean isNumber = true;
 		try {
@@ -27,7 +42,12 @@ public interface InputValidator {
 		}
 		return isNumber;
 	}
-	
+
+	/**
+	 * Check if input is a string, i.e. it is a bar or home if string.
+	 * @param input
+	 * @return boolean value indicating if so.
+	 */
 	default boolean isString(String input) {
 		return !isNumber(input);
 	}

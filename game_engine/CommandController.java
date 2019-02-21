@@ -44,8 +44,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	
 	/**
 	 * Parse the text variable and runs it as a command.
-	 * 
 	 * @param text the string containing the command and its arguments.
+	 * @param isPlayerInput, true (if 'text' is a user input), false (if some code uses this command) 
 	 */
 	public void runCommand(String text) {
 		runCommand(text, false);
@@ -83,14 +83,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 	}
 	
-	/*
+	/**
 	 * Command: /move fromPip toPip			//both numbers
 	 * Command: /move fromBar toPip			//left is a color, right a number
 	 * Command: /move fromPip/bar toHome	//left is a color or number, right is a color.
 	 * where fromPip and toPip will be one-index number based.
 	 * where fromBar is the bar color.
 	 * where toHome is the home color.
-	*/
+	 */
 	public void runMoveCommand(String[] args, boolean isPlayerInput) {
 		// error checking.
 		if (args.length != 3) {
@@ -215,10 +215,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	/**
-	 * Check if the arguments of /move command is within bounds, i.e. 0-24.
+	 * Checks if the arguments of /move command is within bounds, i.e. 0-24.
 	 * It ignores bar or homes, it only checks for pip indexes.
-	 * 
-	 * @param arg Argument of the /move command.
+	 * @param arg Argument of /move command.
 	 * @return boolean value indicating if the argument is out of bounds.
 	 */
 	private boolean isIndexOutOfBounds(String arg) {
@@ -234,6 +233,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 
 	/**
+	 * Gameplay mode:
+	 * Command: /roll
+	 * 
+	 * Free for all mode:
 	 * Command: /roll playerNumber
 	 * 1 is the player with the perspective from the bottom, dices will be on the left.
 	 * 2 is the player with the perspective from the top, dices will be on the right.
@@ -264,6 +267,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 	}
 	
+	/**
+	 * Returns player perspective based on player number.
+	 * 1 is the player with the perspective from the bottom, dices will be on the left.
+	 * 2 is the player with the perspective from the top, dices will be on the right.
+	 * @param playerNum player number.
+	 * @return player's perspective.
+	 */
 	private PlayerPerspectiveFrom parsePlayerPerspective(String playerNum) {
 		PlayerPerspectiveFrom pov = null;
 		if (playerNum.equals("1")) {
@@ -278,7 +288,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 
 	/**
 	 * Command: /start
-	 * Rolls the dice to see which player goes first.
+	 * Enters into gameplay mode, i.e. start game.
 	 */
 	public void runStartCommand() {
 		if (!gameplay.isStarted()) {
@@ -325,24 +335,28 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	/**
-	 * Command: /name
+	 * Command: /name playerNumber newName
 	 * Changes player name.
 	 */
 	public void runNameCommand(String [] args) {
-		int playerNum = Integer.parseInt(args[1]);
+		if (args.length != 3) {
+			infoPnl.print("Incorrect syntax: expected /name playerNumber newName.", MessageType.ERROR);
+			return;
+		}
+		
+		PlayerPerspectiveFrom pov = parsePlayerPerspective(args[1]);
 		String playerName = args[2];
 		
-		switch(playerNum) {
-			case 1:
+		switch (pov) {
+			case BOTTOM:
 				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
 				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
 				break;
-			case 2:
+			case TOP:
 				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
 				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
 				break;
 			default:
-				infoPnl.print("Unable to change player name. Please try again", MessageType.ERROR);
 		}
 	}
 	
@@ -362,7 +376,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	
 	/**
 	 * Command: /save
-	 * Saves game log (text on info panel) to text file .
+	 * Saves game log (text on info panel) to text file.
 	 */
 	public void runSaveCommand() {
 		infoPnl.saveToFile();

@@ -7,11 +7,8 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 
 /**
- * This class should be extended by game components that will store checkers.
- * 
- * This class has all the common functions that will be needed by game components
- * to draw checkers.
- * 
+ * This class should be extended by game components (bar, home, pips) that will store checkers.
+ * This class has all the common functions that will be needed by game components to draw checkers.
  * This class extends Stack, of which extends VBox.
  * 
  * @teamname TeaCup
@@ -60,7 +57,7 @@ public class CheckersStorer extends Stack<Checker> {
 			for (Checker chk : this) {
 				ImageView checker = chk;
 				checker.setTranslateY(yOffset*(numCheckers-i-1));
-				checker.setViewOrder(i);
+				checker.setViewOrder(i);	// lower order - higher z-index, i.e. order 1 overlaps order 2.
 				getChildren().add(checker);
 				i++;
 			}

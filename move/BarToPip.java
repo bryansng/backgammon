@@ -1,11 +1,17 @@
 package move;
 
+/**
+ * This class represents a Bar to Pip move.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ *
+ */
 public class BarToPip implements Move {
-
-	@Override
+	private RollMoves rollMoves;
+	
 	public RollMoves getRollMoves() {
-		// TODO Auto-generated method stub
-		return null;
+		return rollMoves;
 	}
-
 }

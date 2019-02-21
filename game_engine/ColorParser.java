@@ -4,9 +4,10 @@ import javafx.scene.paint.Color;
 
 /**
  * This interface is used to parse colors,
- * implemented by objects that uses static constants from the Color library
- * but require the Colors in terms of string.
+ * implemented by classes that uses static constants from the Color library
+ * but require the Colors in terms of string or vice versa.
  * i.e. Color.WHITE -> "white"
+ * i.e. "white" -> Color.WHITE
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050

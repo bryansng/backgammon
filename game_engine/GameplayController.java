@@ -39,19 +39,22 @@ public class GameplayController implements ColorParser, InputValidator {
 		topPlayerFlag = false;
 	}
 	
-	// should activate by /start.
-	// auto roll die to see which player first.
+	/**
+	 * Auto roll die to see which player moves first.
+	 * Called at /start.
+	 */
 	public void start() {
-		// get roll.
 		roll();
-		
 		startedFlag = true;
 	}
 	
-	// should activate by /roll.
+	/**
+	 * Rolls die, calculates possible moves and highlight top checkers.
+	 * Called at /roll.
+	 */
 	public void roll() {
 		// start() calls this method(),
-		// we only need to get the first player once.
+		// we only get the first player once.
 		int[] rollResult;
 		if (firstRollFlag) {
 			rollResult = game.getBoard().rollDices(DieInstance.SINGLE);
@@ -72,19 +75,25 @@ public class GameplayController implements ColorParser, InputValidator {
 		infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
 		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
 		
+		// calculate possible moves.
 		moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
 		for (RollMoves rollMoves : moves) {
 			infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
 		}
 		
+		// highlight top checkers.
 		game.getBoard().highlightFromPipsChecker(moves);
-		
 		rolledFlag = true;
 	}
 	
-	private Player getFirstPlayerToRoll(int[] res) {
-		int bottomPlayerRoll = res[0];
-		int topPlayerRoll = res[1];
+	/**
+	 * Returns first player to roll based on roll die result.
+	 * @param rollResult roll die result.
+	 * @return first player to roll.
+	 */
+	private Player getFirstPlayerToRoll(int[] rollResult) {
+		int bottomPlayerRoll = rollResult[0];
+		int topPlayerRoll = rollResult[1];
 		
 		if (bottomPlayerRoll > topPlayerRoll) {
 			return bottomPlayer;
@@ -94,6 +103,12 @@ public class GameplayController implements ColorParser, InputValidator {
 		return null;
 	}
 	
+	/**
+	 * Returns the second player to roll based on first player.
+	 * i.e. its one or the other.
+	 * @param firstPlayer first player to roll.
+	 * @return second player to roll.
+	 */
 	private Player getSecondPlayerToRoll(Player firstPlayer) {
 		if (firstPlayer.equals(topPlayer)) {
 			return bottomPlayer;
@@ -102,19 +117,24 @@ public class GameplayController implements ColorParser, InputValidator {
 		}
 	}
 	
+	/**
+	 * Called at /move.
+	 */
 	public void move() {
 		// set flag only when there are no moves left.
-		if (moves.isEmpty()) {
-			movedFlag = true;
-		}
+		if (moves.isEmpty()) movedFlag = true;
 
 		// TODO check if player's move caused a game over.
-		if (isGameOver()) {
-		}
+		if (isGameOver()) {}
 	}
 	
-	// check if it is valid to move checkers from 'fro' to 'to'.
-	// i.e. is it part of the possible moves.
+	/**
+	 * Checks if it is valid to move checkers from 'fro' to 'to'.
+	 * i.e. is it part of possible moves.
+	 * @param fro either fromPip or fromBar
+	 * @param to either toPip or toHome (toBar automatically handled internally)
+	 * @return boolean value indicating if move is valid.
+	 */
 	public boolean isValidMove(String fro, String to) {
 		boolean isValidMove = false;
 		Move theValidMove = null;
@@ -138,7 +158,7 @@ public class GameplayController implements ColorParser, InputValidator {
 						}
 					}
 				}
-
+				
 				if (hasFromPip) {
 					// check if toPip is part of fromPip's possible toPips.
 					if (move.getToPip() == toPip) {
@@ -162,8 +182,13 @@ public class GameplayController implements ColorParser, InputValidator {
 		return isValidMove;
 	}
 	
-	// only used for mouse clicks of fro.
-	// atm, only consider pips, no bars.
+	/**
+	 * Checks if fromPip is part of possible moves.
+	 * Only used for mouse clicks of fro.
+	 * Atm, considers pips, no bars.
+	 * @param fromPip
+	 * @return boolean value indicating if fromPip is part of possible moves.
+	 */
 	public boolean isValidFro(int fromPip) {
 		boolean isValidFro = false;
 		for (RollMoves rollMoves : moves) {
@@ -179,22 +204,28 @@ public class GameplayController implements ColorParser, InputValidator {
 		return isValidFro;
 	}
 	
-	// remove the rollMoves from the moves.
-	// i.e. remove everything related to the dice roll result completely from moves.
+	/**
+	 * Remove the rollMoves from moves.
+	 * i.e. remove everything related to the dice roll result completely from moves.
+	 * @param rollMoves rollMoves to remove.
+	 */
 	private void removeRollMoves(RollMoves rollMoves) {
 		removeOtherRollMoves(rollMoves);
 		moves.remove(rollMoves);
 	}
 	
-	// Rules state,
-	// - if sum result is moved, then two other result is forfeited.
-	// - if either one result moved, sum result is forfeited.
+	/**
+	 * Removes other rollMoves from moves based on argument 'rollMoves'.
+	 * Rules state,
+	 * - if sum result is moved, then two other result is forfeited.
+	 * - if either one result moved, sum result is forfeited.
+	 * @param rollMoves rollMoves that was removed.
+	 */
 	private void removeOtherRollMoves(RollMoves rollMoves) {
 		// if sum moved, remove other two.
 		if (rollMoves.isSumMove()) {
 			moves = new LinkedList<>();
 		}
-		
 		// if not sum moved, remove sum.
 		if (rollMoves.isNormalMove()) {
 			for (RollMoves aRollMoves : moves) {
@@ -206,10 +237,13 @@ public class GameplayController implements ColorParser, InputValidator {
 		}
 	}
 	
-	// should activate by /next.
-	// Swap players - used to change turns.
-	// swap the pip labels at each turn.
+	/**
+	 * Swap players and pip number labels, used to change turns.
+	 * Called at /next.
+	 * @return the next player to roll.
+	 */
 	public Player next() {
+		// swap players.
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
 		pOpponent = temp;
@@ -220,39 +254,47 @@ public class GameplayController implements ColorParser, InputValidator {
 			topPlayerFlag = false;
 		}
 		
-		roll();
+		roll();		// auto roll.
 		game.getBoard().swapPipLabels();
 		movedFlag = false;
 		return pCurrent;
 	}
 	
+	/**
+	 * Highlight pips and checkers based on mode.
+	 * Used by EventController.
+	 * @param fromPip
+	 */
 	public void highlightPips(int fromPip) {
+		// gameplay mode.
 		if (isRolled()) {
 			game.getBoard().highlightToPips(getValidMoves(), fromPip);
-			/*
-			PipMove aMove = gameplay.getMoveOf(fromPip);
-			if (aMove != null) {
-				game.getBoard().highlightToPips(aMove);
-			} else {
-				infoPnl.print("There is no possible moves related to fromPip: " + (fromPip+1), MessageType.DEBUG);
-			}
-			*/
+		// free for all mode, i.e. before /start.
 		} else {
 			game.getBoard().highlightAllPipsExcept(fromPip);
 		}
 	}
 	
+	/**
+	 * Unhighlight pips based on mode. 
+	 * Used by EventController.
+	 */
 	public void unhighlightPips() {
+		// gameplay mode.
 		if (isStarted()) {
 			if (isMoved()) game.getBoard().unhighlightPipsAndCheckers();
 			else game.getBoard().highlightFromPipsChecker(getValidMoves());
+		// free for all mode, i.e. before /start.
 		} else {
 			game.getBoard().unhighlightPipsAndCheckers();
 		}
 	}
 	
-	// game over when one of the player has all 15 checkers at their homes.
-	// check if the homes are full.
+	/**
+	 * Check if any homes are filled.
+	 * Game over when one of the player has all 15 checkers at their home.
+	 * @return boolean value indicating if game is over.
+	 */
 	private boolean isGameOver() {
 		return game.isHomeFilled();
 	}

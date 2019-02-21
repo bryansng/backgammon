@@ -7,7 +7,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
 /**
- * This class represents the game in Backgammon.
+ * This class represents the game made up of separate components in Backgammon.
  * This class creates a game made out of modular panes/nodes.
  * 
  * @teamname TeaCup
@@ -23,8 +23,7 @@ public class GameComponentsController extends VBox {
 	
 	/**
 	 * Default Constructor
-	 * 		- Initializes the modular panes.
-	 * 		- Initializes pips with their initial checkers.
+	 * 		- Initializes the modular game components.
 	 */
 	public GameComponentsController(Player bottomPlayer, Player topPlayer) {
 		super();
@@ -32,15 +31,24 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Initializes the board, by adding the modular panes to the board instance variable.
-	 * i.e. initializing the board layout.
+	 * Initializes the game by creating the components and putting them together.
+	 * i.e. initializing the game layout.
 	 */
 	public void initGameComponents(Player bottomPlayer, Player topPlayer) {
 		board = new Board();
+		bars = new Bars();
 		leftHome = new HomePanel();
 		rightHome = new HomePanel();
-		mainHome = rightHome;
-		bars = new Bars();
+		switch (Settings.getMainQuadrant()) {
+			case BOTTOM_RIGHT:
+			case TOP_RIGHT:
+				mainHome = rightHome;
+				break;
+			case BOTTOM_LEFT:
+			case TOP_LEFT:
+				mainHome = leftHome;
+				break;
+		}
 		
 		HBox middlePart = board;
 		middlePart.setMinWidth(GameConstants.getMiddlePartWidth());
@@ -57,7 +65,7 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the homes are filled.
+	 * Returns a boolean value indicating if the any of the homes are filled.
 	 * @return the boolean value.
 	 */
 	public boolean isHomeFilled() {
@@ -65,10 +73,10 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Moves a checker from a point to the bar.
-	 * i.e. pops a checker from one point and push it to the bar.
+	 * Moves a checker from a pip to the bar.
+	 * i.e. pops a checker from one pip and push it to the bar.
 	 * 
-	 * @param fro, zero-based index, the point number to pop from.
+	 * @param fro, zero-based index, the pip number to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveToBar(int fro) {
@@ -90,11 +98,11 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Moves a checker from bar to a point.
-	 * i.e. pops a checker from bar and push it to a point.
+	 * Moves a checker from bar to a pip.
+	 * i.e. pops a checker from bar and push it to a pip.
 	 * 
 	 * @param fromBar, color of the bar to pop from.
-	 * @param to, zero-based index, the point number to push to.
+	 * @param to, zero-based index, the pip number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveFromBar(Color fromBar, int to) {
@@ -119,10 +127,10 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Moves a checker from a point to its home.
-	 * i.e. pops a checker from bar and push it to a point.
+	 * Moves a checker from a pip to its home.
+	 * i.e. pops a checker from bar and push it to a pip.
 	 * 
-	 * @param fro, zero-based index, the point number to pop from.
+	 * @param fro, zero-based index, the pip number to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveToHome(int fro) {
@@ -142,7 +150,7 @@ public class GameComponentsController extends VBox {
 	
 	/**
 	 * Moves a checker from bar to its home.
-	 * i.e. pops a checker from bar and push it to a point.
+	 * i.e. pops a checker from bar and push it to a pip.
 	 * 
 	 * @param fromBar, color of the bar to pop from.
 	 * @return returns a integer value indicating if the checker was moved.

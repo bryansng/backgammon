@@ -12,9 +12,7 @@ import move.PipToPip;
 import move.RollMoves;
 
 /**
- * This class represents the Board object in Backgammon.
- * This class initializes an array of pips with their starting checkers.
- * This class creates a board made out of modular panes.
+ * This class represents the Board object in Backgammon from the perspective of its functions.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
@@ -52,7 +50,7 @@ public class Board extends BoardComponents {
 	}
 	
 	/**
-	 * Un-highlight the pips.
+	 * Un-highlight the pips and checkers.
 	 */
 	public void unhighlightPipsAndCheckers() {
 		for (int i = 0; i < pips.length; i++) {
@@ -78,9 +76,13 @@ public class Board extends BoardComponents {
 		}
 	}
 	
+	/**
+	 * Highlight the top checkers of fromPips in possible moves.
+	 * @param moves the possible moves.
+	 */
 	public void highlightFromPipsChecker(LinkedList<RollMoves> moves) {
 		unhighlightPipsAndCheckers();
-
+		
 		PipToPip move = null;
 		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
@@ -92,6 +94,12 @@ public class Board extends BoardComponents {
 		}
 	}
 	
+	/**
+	 * Highlight the toPips of the fromPip in possible moves.
+	 * Used to highlight the toPips that player can move checkers from fromPip. 
+	 * @param moves the possible moves.
+	 * @param fromPip
+	 */
 	public void highlightToPips(LinkedList<RollMoves> moves, int fromPip) {
 		unhighlightPipsAndCheckers();
 		
@@ -117,7 +125,6 @@ public class Board extends BoardComponents {
 	 * Execute the roll dice methods of dices object.
 	 * BOTTOM is the player with the perspective from the bottom, dices will be on the left.
 	 * TOP is the player with the perspective from the top, dices will be on the right.
-	 * 
 	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
@@ -149,7 +156,7 @@ public class Board extends BoardComponents {
 	 * Execute the roll dice methods of dices object.
 	 * Used to check which player rolls first.
 	 * If draw, roll again.
-	 * @param instance instance where the dices are single, double or default.
+	 * @param instance, instance where the dices are single, double or default.
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
 	public int[] rollDices(DieInstance instance) {
@@ -173,11 +180,16 @@ public class Board extends BoardComponents {
 		if (res[0] == res[1]) {
 			res = rollDices(instance);
 		}
-		
 		return res;
 	}
 	
-	// 2ai. calculate the possible moves based on die roll.
+	/**
+	 * Calculate the possible moves based on die roll.
+	 * @param rollResult roll die result.
+	 * @param pCurrent current player.
+	 * @param pOpponent opponent player.
+	 * @return the possible moves.
+	 */
 	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
 		// TODO before begin, check if its single or double cube instance.
 		//check here.
@@ -226,8 +238,17 @@ public class Board extends BoardComponents {
 		return moves;
 	}
 	
-	// Adds a new move to rollMoves depending if it is a valid move.
-	// Currently only considers PipToPip.
+	/**
+	 * Adds a new move to rollMoves depending if it is a valid move.
+	 * Currently only considers PipToPip.
+	 * @param moves the possible moves
+	 * @param rollMoves the roll dice result related to the move at consideration to add.
+	 * @param pCurrent current player.
+	 * @param fromPip
+	 * @param diceResult roll dice result.
+	 * @param isSumMove boolean indicating if its a sum move, i.e. 5+10=15.
+	 * @return boolean value indicating if the move is added.
+	 */
 	private boolean addedAsMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		
@@ -250,6 +271,13 @@ public class Board extends BoardComponents {
 		return addedAsMove;
 	}
 	
+	/**
+	 * Calculates the possible toPips with the given fromPip, diceResult and pCurrent.
+	 * @param pCurrent current player.
+	 * @param fromPip
+	 * @param diceResult roll dice result.
+	 * @return toPip.
+	 */
 	private int getPossibleToPip(Player pCurrent, int fromPip, int diceResult) {
 		int possibleToPip = -1;
 		
@@ -265,15 +293,25 @@ public class Board extends BoardComponents {
 			default:
 				throw new PlayerNoPerspectiveException();
 		}
-		
 		return possibleToPip;
 	}
 	
+	/**
+	 * Checks if the toPip is within range 0-23.
+	 * @param toPip
+	 * @return the boolean value indicating if so.
+	 */
 	private boolean isInRange(int toPip) {
 		return toPip >= 0 && toPip < GameConstants.NUMBER_OF_PIPS;
 	}
 	
-	// check if the toPip is a possible move, i.e. able to place checkers there.
+	/**
+	 * Check if the toPip is a possible move, i.e. able to place checkers there.
+	 * @param fromPip
+	 * @param toPip
+	 * @param pCurrent current player.
+	 * @return the move result if we were to make that move.
+	 */
 	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
@@ -294,7 +332,14 @@ public class Board extends BoardComponents {
 		return moveResult;
 	}
 	
-	// it is sum move if it has an intermediate move in rollMoves.
+	/**
+	 * It is sum move if it has an intermediate move in rollMoves.
+	 * This function searches, hasIntermediate determines if it is an intermediate move.
+	 * @param moves, the possible moves.
+	 * @param fromPip
+	 * @param toPip
+	 * @return the intermediate move.
+	 */
 	private Move isSumMove(LinkedList<RollMoves> moves, int fromPip, int toPip) {
 		Move intermediateMove = null;
 		for (RollMoves rollMove : moves) {
@@ -308,7 +353,17 @@ public class Board extends BoardComponents {
 		return intermediateMove;
 	}
 	
+	/**
+	 * Determines and returns the intermediate move.
+	 * @param aMove the move that might be the intermediate move.
+	 * @param fromPip sumMove's fromPip.
+	 * @param toPip	sumMove's toPip.
+	 * @return the intermediate move.
+	 */
 	private Move hasIntermediate(Move aMove, int fromPip, int toPip) {
+		// it is an intermediate move if,
+		// the move's fromPip is sumMove's fromPip.
+		// the move's toPip lies between sumMove's fromPip and sumMove's toPip.
 		Move intermediateMove = null;
 		if (aMove instanceof PipToPip) {
 			PipToPip move = (PipToPip) aMove;
@@ -328,15 +383,19 @@ public class Board extends BoardComponents {
 		return intermediateMove;
 	}
 	
-	// return boolean value indicating if pip color equals player color.
-	// if player is null, return true.
+	/**
+	 * Returns boolean value indicating if pip's top checker color equals player color.
+	 * If player is null, return true.
+	 * @param pipNum pip number.
+	 * @param player
+	 * @return the boolean value.
+	 */
 	private boolean isPipColorEqualsPlayerColor(int pipNum, Player player) {
 		boolean isFromPipColourEqualsPlayerColor = true;
 		
 		if (player != null && !pips[pipNum].isEmpty()) {
 			isFromPipColourEqualsPlayerColor = pips[pipNum].topCheckerColourEquals(player.getColor());
 		}
-		
 		return isFromPipColourEqualsPlayerColor;
 	}
 }

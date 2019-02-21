@@ -10,8 +10,8 @@ import javafx.scene.paint.Color;
 
 /**
  * This class represents the Pip object in Backgammon.
- * This class helps Board class to initialize the checkers for each pip object.
- * This class also add the checkers objects to the pip object, to be drawn to the stage.
+ * This class helps BoardComponents class to initialize the checkers for each pip object.
+ * This class also adds the checkers objects to the pip object, to be drawn to the stage.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050

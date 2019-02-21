@@ -6,16 +6,24 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
+/**
+ * This class represents the Board object in Backgammon from the perspective of its components.
+ * This class initializes an array of pips with their starting checkers.
+ * This class creates a board made out of more components (quadrants of pip number labels and pips).
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ *
+ */
 public class BoardComponents extends HBox {
 	protected final int MAXPIPS = GameConstants.NUMBER_OF_PIPS;
 	protected Pip[] pips;
 	protected BorderPane leftBoard, rightBoard;
-	
 	protected BoardQuadrant quad1, quad2, quad3, quad4;
-
 	protected HBox leftDice, rightDice;
 	protected Dices dices;
-
+	
 	/**
 	 * Default Constructor
 	 * 		- Initializes board.
@@ -124,8 +132,11 @@ public class BoardComponents extends HBox {
 		rightBoard.setTop(quad1);
 	}
 
-	// quad1's = quad4's
-	// quad2's = quad3's
+	/**
+	 * Swap top and bottom pip labels. 
+	 * quad1's = quad4's
+	 * quad2's = quad3's
+	 */
 	public void swapPipLabels() {
 		HBox temp;
 		

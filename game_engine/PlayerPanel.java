@@ -40,12 +40,12 @@ public class PlayerPanel extends HBox implements ColorParser {
 	public PlayerPanel(double width, Player player) {
 		super();
 		this.player = player;
-		initStyle(width);
+		style(width);
 		initComponents();
 		initLayout();
 	}
 	
-	private void initStyle(double width) {
+	private void style(double width) {
 		setMinSize(width, GameConstants.getPlayerPanelHeight());
 		setAlignment(Pos.CENTER);
 		setSpacing(GameConstants.getPlayerLabelSpacing());

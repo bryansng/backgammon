@@ -4,7 +4,7 @@ import constants.GameConstants;
 import javafx.scene.control.TextField;
 
 /**
- * A TextArea that takes in player input.
+ * A TextField that takes in player input.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050

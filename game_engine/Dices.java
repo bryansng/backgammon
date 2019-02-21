@@ -37,7 +37,7 @@ public class Dices extends HBox implements ColorParser {
 	public Dices(Color color, int numberOfDices) {
 		super();
 		this.color = color;
-		dices = new Dice[numberOfDices*2];
+		dices = new Dice[numberOfDices*2];	// times 2 to leave space for double die instances.
 		setAlignment(Pos.CENTER);
 		setSpacing(GameConstants.getDiceSize().getWidth() / 4.0);
 		initDices();
@@ -84,7 +84,11 @@ public class Dices extends HBox implements ColorParser {
 		return res;
 	}
 	
-	// checks if result of die roll is a double instance.
+	/**
+	 * Checks if result of die roll is a double instance.
+	 * @param res, result of die roll.
+	 * @return boolean value indicating if so.
+	 */
 	private boolean isDouble(int[] res) {
 		boolean isDouble = true;
 		
@@ -103,7 +107,11 @@ public class Dices extends HBox implements ColorParser {
 		return isDouble;
 	}
 	
-	// upon calling, this method should double current cube objects in dices.
+	/**
+	 * Doubles the current cube objects in dices as well as the roll die result.
+	 * @param res the roll die result.
+	 * @return double the roll die result.
+	 */
 	private int[] addDoubleDie(int[] res) {
 		int[] newRes = new int[res.length*2];
 		for (int i = 0; i < newRes.length; i++) {

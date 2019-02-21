@@ -39,10 +39,10 @@ public class MainController extends GridPane {
 	
 	/**
 	 * Default Constructor
-	 * 		- Initialize all the instance variables.
-	 * 		- Initialize instance variables layouts.
-	 * 		- Initialize instance variables listeners.
-	 * 		- Initialize game components listeners (i.e. points, for now).
+	 * 		- Initialize all the components (game, commandPanel, InfoPanel, RollDieButton, etc).
+	 * 		- Initialize sub-controllers (Command, Gameplay, GameComponents, Event).
+	 * 		- Initialize the layout of the components.
+	 * 		- Style the application.
 	 */
 	public MainController(Stage stage) {
 		super();
@@ -51,15 +51,22 @@ public class MainController extends GridPane {
 		style();
 	}
 	
+	/**
+	 * Initialize players and UI components.
+	 */
 	public void resetApplication() {
 		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
+		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);
+		
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
 		initGame();
 	}
 	
+	/**
+	 * Initialize game components and sub-controllers.
+	 */
 	private void initGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
@@ -68,11 +75,18 @@ public class MainController extends GridPane {
 		initLayout();
 	}
 	
+	/**
+	 * Remove previous event listeners and start game.
+	 * Called every /start.
+	 */
 	public void restartGame() {
 		event.removeListeners();	// deactivate previous listeners.
 		startGame();
 	}
 	
+	/**
+	 * Re-initialize the game components and start the game.
+	 */
 	public void startGame() {
 		initGame();
 		gameplay.start();

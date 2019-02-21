@@ -7,7 +7,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 
 /**
- * This class represents the Dice object in Backgammon from the UI POV.
+ * This class represents the Dice object in Backgammon game.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050

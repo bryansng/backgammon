@@ -39,7 +39,6 @@ public class InfoPanel extends TextArea {
 		print("Or enter \"/help\" for a list of possible commands.");
 	}
 	
-	
 	/**
 	 * Prints the given text to the information panel.
 	 * @param text - string to be printed
@@ -64,11 +63,9 @@ public class InfoPanel extends TextArea {
 				break;
 		}
 		
-		if (debugMode) {
+		// same as (debugMode || (!debugMode && mtype != MessageType.DEBUG))
+		if (debugMode || mtype != MessageType.DEBUG)
 			appendText(prefix + " " + type + " " + text + "\n");
-		} else if (mtype != MessageType.DEBUG) {
-			appendText(prefix + " " + type + " " + text + "\n");
-		}
 	}
 	public void print(String text) {
 		print(text, MessageType.SYSTEM);

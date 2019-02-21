@@ -45,17 +45,14 @@ public class EventController implements ColorParser, InputValidator {
 		initUIListeners();
 	}
 	
-	/**
-	 * Manages game listeners.
-	 */
 	private void initGameListeners() {
-		// Exit pip selection mode when any part of the game board is clicked.
+		// Exit pip and bar selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
 			game.getBoard().unhighlightPipsAndCheckers();
 			isPipSelectionMode = false;
 			isBarSelectionMode = false;
 			
-			// highlight again the possible moves if player hasn't move.
+			// highlight the possible moves if player hasn't move.
 			if (gameplay.isStarted() && !gameplay.isMoved()) {
 				game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
 			}
@@ -64,15 +61,12 @@ public class EventController implements ColorParser, InputValidator {
 		initCheckersStorersListeners();
 	}
 	
-	/**
-	 * Manages checkers storer listeners.
-	 */
 	private void initCheckersStorersListeners() {
 		root.addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, checkersStorerHandler);
 	}
 	
 	/**
-	 * Event handler thats deals with checker storers,
+	 * Event handler for all checker storers (pips, bars, homes).
 	 * Separated from initCheckersStorersListeners() for easier removal.
 	 */
 	private boolean isPipSelectionMode = false;
@@ -155,6 +149,7 @@ public class EventController implements ColorParser, InputValidator {
 
 	/**
 	 * Manages command panel listeners.
+	 * 		- if its a command (i.e. start with '/'), run it.
 	 * 		- echoes player input to infoPanel.
 	 * 		- does not echo empty strings/whitespace.
 	 */
@@ -189,9 +184,6 @@ public class EventController implements ColorParser, InputValidator {
 		});
 	}
 	
-	/**
-	 * Initialize roll die button listeners.
-	 */
 	private int dieState = 2;
 	private void initRollDieButtonListeners() {
 		rollDieBtn.setOnAction((ActionEvent event) -> {

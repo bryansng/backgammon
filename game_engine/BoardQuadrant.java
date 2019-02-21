@@ -6,6 +6,14 @@ import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 
+/**
+ * This class represents the quadrant of pip number labels and pips of the Board in the Backgammon game.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ *
+ */
 public class BoardQuadrant extends VBox {
 	private HBox setLabels, setPoints;
 	private PlayerPerspectiveFrom pov;
@@ -32,6 +40,10 @@ public class BoardQuadrant extends VBox {
 		setPoints = createSetOfPoints(startRange, endRange, pov, pips);
 	}
 	
+	/**
+	 * Swaps its current pip number labels with that of newSetLabels.
+	 * @param newSetLabels new pip number labels.
+	 */
 	public void drawQuadrant(HBox newSetLabels) {
 		setLabels = newSetLabels;
 		getChildren().clear();
