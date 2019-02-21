@@ -335,28 +335,25 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	/**
-	 * Command: /name playerNumber newName
+	 * Command: /name colorPlayerRepresents newName
 	 * Changes player name.
 	 */
 	public void runNameCommand(String[] args) {
 		if (args.length != 3) {
-			infoPnl.print("Incorrect syntax: expected /name playerNumber newName.", MessageType.ERROR);
+			infoPnl.print("Incorrect syntax: expected /name color newName.", MessageType.ERROR);
 			return;
 		}
 		
-		PlayerPerspectiveFrom pov = parsePlayerPerspective(args[1]);
+		String color = args[1].toLowerCase();
 		String playerName = args[2];
-		
-		switch (pov) {
-			case BOTTOM:
-				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
-				infoPnl.print("Player with white checkers is now " + "\"" + playerName + "\"");
-				break;
-			case TOP:
-				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
-				infoPnl.print("Player with black checkers is now " + "\"" + playerName + "\"");
-				break;
-			default:
+		if (color.equals("white")) {
+			game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
+			infoPnl.print("Player with white checkers is now " + "\"" + playerName + "\".");
+		} else if (color.equals("black")) {
+			game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
+			infoPnl.print("Player with black checkers is now " + "\"" + playerName + "\".");
+		} else {
+			infoPnl.print("Incorrect syntax: expected white or black color in /name color newName.", MessageType.ERROR);
 		}
 	}
 	

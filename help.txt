@@ -12,8 +12,8 @@
 /test     - to see moving checkers
 
 
-Supported commands also include
-/move - "# #"
-/next - "next"
-/quit - "quit"
-/save - save
+Aliases
+"/move # #" = "# #"
+"/next" = "next"
+"/quit" = "quit"
+"/save" = "save"
