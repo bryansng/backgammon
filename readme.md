@@ -29,6 +29,8 @@ Personally, I prefer Eclipse for Java.
 9. Click Finish.
 10. Open and run Main.java.
 
+** Please check the correct version of source files.
+
 &nbsp;
 ## Authors
 * [bryansng](https://github.com/bryansng)
@@ -42,9 +44,73 @@ Personally, I prefer Eclipse for Java.
 - Oracle Documentations
 
 &nbsp;
----
-&nbsp;
+## How we did it as a whole:
+- **_Explore Objected Oriented Design concepts and techniques_**, to learn how to maintain our code. This is why we modularized and objectified almost everything in the application, this can be seen as a bit too much classes, but when it comes down to maintaining, you will know exactly where the problem is (i.e which class contains the culprit).
 
+- **_Separate interactions between objects_**. With OOP, comes the interaction between objects. For two objects to interact with each other, a class is used to facilitate the interaction, this class is called the Controller class.
+
+  The higher up the interaction chain, the more interaction there is, to the point where the top class handles all the interaction between all the objects. The lower down you go, the less interaction there is, to the point where the objects interact with themselves (i.e. initialize, set and get their own instance variables).
+
+  There are many controller classes used for the interaction between objects in this application. i.e. MainController (interaction between GameController, CommandPanel, InfoPanel, RollDieButton), GameController (Bar, Home, Board, UserPanels), Board (Points, Dices, Checkers), Point (Checkers), Bars (Bar), HomePanel (Home), etc.
+
+  If there's a bug in the code, what we do is understand how the objects interact with each other, then go to the class file that handles the interaction, then work our way down the interaction chain to find the bug.
+
+  For instance, for some reason, we typed /move 1 2, a black checker is at point 2, a white checker is at point 1, black checker is supposed to get hit and go to bar. Command is entered, but the black checker doesn't move. We know that /move commands relies on *CommandPanel* to work, relays system messages through *InfoPanel*, and moves are made through *Board*. The code of /move is definitely in MainController, which it is. Then you work your way down from MainController, to GameController or Board, or wherever to fix the bug, relying heavily on Java's error stack trace.
+
+&nbsp;
+## Sprint 2 - Short Documentation
+### Requirements:
+|     | Requirements              | Our interpretation        |
+| --- | ------------------------- | ------------------------- |
+| <ul><li>[x] </li></ul> | Announce the game.        | Welcome players at application start in Info Panel. Game is announced when players start it. |
+| <ul><li>[x] </li></ul> | Get player names and tell them their checkers' colors. | A dialog to prompt players to input their names and checker colors when they start the game. |
+| <ul><li>[x] </li></ul> | Roll to see who moves first. Roll results are used as starting value. Roll again if dice values are equal. | At game start, roll automatically and prompt players to move based on the rolls. The roll function recursively rolls until the die result are not equal, so to the players, the die result is never equal. |
+| <ul><li>[x] </li></ul> | Allow players to takes turns to roll and move around the board. | 👍 |
+| <ul><li>[x] </li></ul> | Rolls are automatic. | All rolls are automatic at start of game ("/start") and change of turn (i.e. "/next"). |
+| <ul><li>[x] </li></ul> | Moves should be entered as "'starting pip' 'ending pip'", e.g. "6 3". | Moves may be made using "/move # #", "# #", or mouse clicks. |
+| <ul><li>[x] </li></ul> | The program returns errors if there are no checkers at the starting pip, if the pip numbers are out of range, or if the command format is invalid. | Errors are returned for the former two. The program echoes whatever is not in the correct command format on the info panel. |
+| <ul><li>[x] </li></ul> | Players are allowed to enter a move again after an error. | Players are allowed to move as long as there are moves left, even in the case of an invalid move. |
+| <ul><li>[x] </li></ul> | Players are only allowed to enter one move at a time. | Move command takes in only 2 arguments, i.e. source and destination, which is only a move. |
+| <ul><li>[x] </li></ul> | The moves do not have to match the dice roll or avoid opponent blocks yet. The program does not need to check that the move is valid yet. | 👍 |
+| <ul><li>[x] </li></ul> | When the player enters "next", the current player's turn is over and the other player should then roll and move. | Player enter "/next" or "next" to switch turns. Die is rolled automatically each turn. |
+| <ul><li>[x] </li></ul> | The pip numbers at the edge of the board should be correct for the player who is moving their checkers, i.e. pip numbers change depending on whose move is it. | Depending on the player's perspective, pip numbers automatically change relative to that every "/next". |
+| <ul><li>[x] </li></ul> | Program terminates on "quit". | Done in Sprint 1. Players quit game using "/quit", "quit", or the window close button. |
+
+&nbsp;
+### Who did what:
+see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
+
+| Bryan         | Emily         |
+| ------------- | ------------- |
+| Roll to see who moves first. Use roll results as staring values. Roll again if dice values are equal. | Announce the game. (See info panel at application start and game start). |
+| Allow players to takes turns to roll and move around the board. | Get player names and tell them their checkers' colors, using a dialog prompt. |
+| Error checking on pips, checkers, moves, and commands. Players can move again after an error. Players can only enter one move at a time. | Rolls are automatic (at start of game and start of turn).  |
+| Player enters "next" to change turns. | Moves should be entered as "'starting pip' 'ending pip'", e.g. "6 3". (Note that moves may also be made with "/move # #" and mouse clicks.) |
+| The pip numbers at the edge of the board should be correct for the player who is moving their checkers. | Documentation. |
+
+#### Additionally, we also did
+##### Extra:
+- "/start" command to start a new game.
+- "/help" command to see a list of possible commands.
+- "/reset" command to reset the entire application.
+- "/restart" command to restart the game (without losing player info).
+- Parsing players' one-based input as zero-based values in game functions to prevent errors.
+- Calculate and validate possible moves depending on die roll (bar and home not considered yet).
+- Highlight top checkers and pips as possible moves.
+- Die displayed on board made prettier. (They rotate randomly).
+- Refactoring along the way.
+- Note that explicitly required commands can be called with or without "/". E.g. /move, /next, /quit.
+
+##### Restrictions:
+- "/start" can only be called when it is in free-for-all mode (i.e. not gameplay mode).
+- "/roll" called automatically after "/start" and "/next" in gameplay mode.
+- "/move" can only be called after "/roll" in gameplay mode.
+- "/next" can only be called after "/move" in gameplay mode.
+- "/start", "/roll" and "/move" can be called in free-for-all mode.
+- "/next" cannot be called in free-for-all mode.
+
+&nbsp;
+&nbsp;
 ## Sprint 1 - Short Documentation
 ### Requirements:
 #### UI-wise:
@@ -61,7 +127,7 @@ Personally, I prefer Eclipse for Java.
 - [x] Board with ability to move checkers around the board, bear-off, bear-on, get hit via mouse or keyboard.
 
 &nbsp;
-### Who did what
+### Who did what:
 see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 
 | Bryan         | Emily         |
@@ -81,18 +147,3 @@ Additionally, we also did
 - All our commands start with "/", but simply typing the keyword also works
 - Save (or auto save before quitting) contents of info panel to text file
 - Prompt player to confirm when quitting game
-
-&nbsp;
-### How we did it as a whole:
-- **_Explore Objected Oriented Design concepts and techniques_**, to learn how to maintain our code. This is why we modularized and objectified almost everything in the application, this can be seen as a bit too much classes, but when it comes down to maintaining, you will know exactly where the problem is (i.e which class contains the culprit).
-
-- **_Separate interactions between objects_**. With OOP, comes the interaction between objects. For two objects to interact with each other, a class is used to facilitate the interaction, this class is called the Controller class.
-
-  The higher up the interaction chain, the more interaction there is, to the point where the top class handles all the interaction between all the objects. The lower down you go, the less interaction there is, to the point where the objects interact with themselves (i.e. initialize, set and get their own instance variables).
-
-  There are many controller classes used for the interaction between objects in this application. i.e. MainController (interaction between GameController, CommandPanel, InfoPanel, RollDieButton), GameController (Bar, Home, Board, UserPanels), Board (Points, Dices, Checkers), Point (Checkers), Bars (Bar), HomePanel (Home), etc.
-
-  If there's a bug in the code, what we do is understand how the objects interact with each other, then go to the class file that handles the interaction, then work our way down the interaction chain to find the bug.
-
-  For instance, for some reason, we typed /move 1 2, a black checker is at point 2, a white checker is at point 1, black checker is supposed to get hit and go to bar. Command is entered, but the black checker doesn't move. We know that /move commands relies on *CommandPanel* to work, relays system messages through *InfoPanel*, and moves are made through *Board*. The code of /move is definitely in MainController, which it is. Then you work your way down from MainController, to GameController or Board, or wherever to fix the bug, relying heavily on Java's error stack trace.
-  

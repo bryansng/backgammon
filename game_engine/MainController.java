@@ -1,17 +1,27 @@
 package game_engine;
 
+import java.util.Optional;
+
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.ButtonType;
+import javafx.scene.control.Dialog;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Pair;
 
 /**
  * This class represents the entire component of the application,
@@ -36,6 +46,7 @@ public class MainController extends GridPane {
 	private GameplayController gameplay;
 	private EventController event;
 	private Stage stage;
+	private boolean playerInfosEnteredFirstTimeFlag, promptCancelFlag;
 	
 	/**
 	 * Default Constructor
@@ -55,12 +66,13 @@ public class MainController extends GridPane {
 	 * Initialize players and UI components.
 	 */
 	public void resetApplication() {
-		bottomPlayer = new Player("Tea", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Cup", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);
-		
+		bottomPlayer = new Player("Cup", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Tea", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
+		playerInfosEnteredFirstTimeFlag = true;
+		promptCancelFlag = false;
 		initGame();
 	}
 	
@@ -89,7 +101,92 @@ public class MainController extends GridPane {
 	 */
 	public void startGame() {
 		initGame();
-		gameplay.start();
+		
+		// prompt players for their infos only if it is their first time.
+		if (playerInfosEnteredFirstTimeFlag) {
+			promptPlayerInfos();
+			playerInfosEnteredFirstTimeFlag = false;
+		}
+		
+		if (!promptCancelFlag) gameplay.start();
+	}
+	
+
+	
+	/**
+	 * Displays a dialog that prompts players to input names and choose checker colors.
+	 * 
+	 * NOTE:
+	 * 		- Players can start the game with or without changing default names by clicking start.
+	 * 		- Players can cancel the game by clicking cancel.
+	 * 		- Players can NOT have empty names.
+	 */
+	private void promptPlayerInfos() {
+		// Dialog to prompt player.
+		Dialog<Pair<String, String>> dialog =  new Dialog<>();
+		dialog.setTitle("Please enter players' names");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		
+		// Start and cancel buttons for dialog.
+		ButtonType button = new ButtonType("Start", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
+		
+		// Layout for player name fields.
+		GridPane pane = new GridPane();
+		pane.setAlignment(Pos.CENTER);
+		pane.setPadding(new Insets(35, 55, 10, 55));
+		pane.setHgap(20);
+		pane.setVgap(10);
+		
+		// Player color labels.
+		ImageView white = new ImageView(this.getClass().getResource("img/checkers/white_checkers.png").toString());
+		ImageView black = new ImageView(this.getClass().getResource("img/checkers/black_checkers.png").toString());
+		Label wLabel = new Label("", white);
+		Label bLabel = new Label("", black);
+		
+		// Player name fields.
+		Insets inset = new Insets(5);
+		TextField wName =  new TextField();
+		wName.setPromptText("Default: Cup");
+		wName.setMinHeight(GameConstants.getUIHeight()*0.85);
+		wName.setPadding(inset);
+		TextField bName = new TextField();
+		bName.setPromptText("Default: Tea");
+		bName.setMinHeight(GameConstants.getUIHeight()*0.85);
+		bName.setPadding(inset);
+
+		// Add labels and name fields to pane.
+		pane.add(bLabel, 0, 0);
+		pane.add(bName, 1, 0);
+		pane.add(wLabel, 0, 1);
+		pane.add(wName, 1, 1);
+
+		// Add pane to dialog.
+		dialog.getDialogPane().setContent(pane);
+		
+		// On click start button, return player names as result.
+		// Else result is null, cancel the game.
+		dialog.setResultConverter(click -> {
+			if (click == button)
+				return new Pair<>(bName.getText(), wName.getText());
+			return null;
+		});
+		
+		// Show dialog to get player input.
+		Optional<Pair<String, String>> result = dialog.showAndWait();
+		
+		// If result is present and name is not empty, change player names.
+		// If result is null, cancel starting the game.
+		if (result.isPresent()) {
+			if (wName.getText().length() != 0) 
+				cmd.runCommand("/name 1 " + wName.getText());
+			if (bName.getText().length() != 0) 
+				cmd.runCommand("/name 2 " + bName.getText());
+		} else {
+			promptCancelFlag = true;
+			infoPnl.print("Game not started.");
+		}
 	}
 	
 	/**

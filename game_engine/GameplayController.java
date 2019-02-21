@@ -44,6 +44,7 @@ public class GameplayController implements ColorParser, InputValidator {
 	 * Called at /start.
 	 */
 	public void start() {
+		// get roll.
 		roll();
 		startedFlag = true;
 	}
@@ -85,7 +86,7 @@ public class GameplayController implements ColorParser, InputValidator {
 		game.getBoard().highlightFromPipsChecker(moves);
 		rolledFlag = true;
 	}
-	
+
 	/**
 	 * Returns first player to roll based on roll die result.
 	 * @param rollResult roll die result.

@@ -338,7 +338,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /name playerNumber newName
 	 * Changes player name.
 	 */
-	public void runNameCommand(String [] args) {
+	public void runNameCommand(String[] args) {
 		if (args.length != 3) {
 			infoPnl.print("Incorrect syntax: expected /name playerNumber newName.", MessageType.ERROR);
 			return;
@@ -350,11 +350,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		switch (pov) {
 			case BOTTOM:
 				game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
-				infoPnl.print("Player One is now " + "\"" + playerName + "\"");
+				infoPnl.print("Player with white checkers is now " + "\"" + playerName + "\"");
 				break;
 			case TOP:
 				game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
-				infoPnl.print("Player Two is now " + "\"" + playerName + "\"");
+				infoPnl.print("Player with black checkers is now " + "\"" + playerName + "\"");
 				break;
 			default:
 		}
