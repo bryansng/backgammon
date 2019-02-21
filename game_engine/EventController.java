@@ -166,6 +166,8 @@ public class EventController implements ColorParser, InputValidator {
 				cmd.runCommand("/quit");
 			} else if (text.equals("save")) {
 				cmd.runCommand("/save");
+			} else if (text.equals("next")) {
+				cmd.runCommand("/next");
 			} else if (text.trim().isEmpty()) {
 				// ignores if string empty or whitespace only.
 			} else {
