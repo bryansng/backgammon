@@ -1,6 +1,8 @@
 package game_engine;
 
 import java.util.Optional;
+
+import constants.GameConstants;
 import constants.MessageType;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
@@ -144,7 +146,9 @@ public class EventController implements ColorParser, InputValidator {
 	private void initUIListeners() {
 		initCommandPanelListeners();
 		initRollDieButtonListeners();
-		//initStageListeners();
+		
+		if (!GameConstants.DEBUG_MODE)
+			initStageListeners();
 	}
 
 	/**
@@ -198,7 +202,6 @@ public class EventController implements ColorParser, InputValidator {
 		});
 	}
 	
-	@SuppressWarnings("unused")
 	private void initStageListeners() {
 		// checks if player really wants to exit game prevents accidental exits
 		stage.setOnCloseRequest((WindowEvent event) -> {

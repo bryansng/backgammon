@@ -1,8 +1,8 @@
 package game_engine;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.Arrays;
 import constants.GameConstants;
 import constants.MessageType;
@@ -117,7 +117,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// if it is the top player, then the player's perspective of the
 		// pip number label will be different from code's as code's is
 		// based on bottom player's, so we adjust accordingly.
-		if (isPlayerInput && gameplay.isTopPlayer()) {
+		if (isPlayerInput && gameplay.isTopPlayer() && gameplay.isStarted()) {
 			fro = getTopPlayerOffset(fro);
 			to = getTopPlayerOffset(to);
 		}
@@ -323,7 +323,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		String line = null;
 		
 		try {
-			BufferedReader reader = new BufferedReader(new FileReader("src/help.txt"));
+			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("help.txt")));
 			while((line = reader.readLine()) != null)
 				s += line + "\n";
 			s +="\n";
@@ -416,10 +416,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			switch (step) {
 				case 1:
 					infoPnl.print("Testing hit.");
-					runCommand("/move 1 2");
+					runCommand("/move 1 2", true);
 					break;
 				case 2:
-					runCommand("/move 6 2");
+					runCommand("/move 6 2", true);
 					break;
 				default:
 					infoPnl.print("Hit testing done.");
@@ -436,7 +436,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			switch (step) {
 				case 1:
 					infoPnl.print("Testing bear-on.");
-					runCommand("/move black 2");
+					runCommand("/move black 2", true);
 					break;
 				default:
 					infoPnl.print("Bear-on testing done.");
@@ -454,7 +454,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			switch (step) {
 				case 1:
 					infoPnl.print("Testing bear-off.");
-					runCommand("/move 6 white");
+					runCommand("/move 6 white", true);
 					break;
 				default:
 					infoPnl.print("Bear-off testing done.");
@@ -474,7 +474,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				infoPnl.printNewline(2);
 				return;
 			}
-			runCommand("/move " + checkerPos + " " + (checkerPos-1));
+			runCommand("/move " + checkerPos + " " + (checkerPos-1), true);
 			checkerPos--;
 		}));
 		hitTl.setCycleCount(3);

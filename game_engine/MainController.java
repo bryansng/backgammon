@@ -137,8 +137,8 @@ public class MainController extends GridPane {
 		pane.setVgap(10);
 		
 		// Player color labels.
-		ImageView black = new ImageView(this.getClass().getResource("img/checkers/black_checkers.png").toString());
-		ImageView white = new ImageView(this.getClass().getResource("img/checkers/white_checkers.png").toString());
+		ImageView black = new ImageView(getClass().getResource("img/checkers/black_checkers.png").toString());
+		ImageView white = new ImageView(getClass().getResource("img/checkers/white_checkers.png").toString());
 		Label bLabel = new Label("", black);
 		Label wLabel = new Label("", white);
 		

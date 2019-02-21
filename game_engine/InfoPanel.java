@@ -101,6 +101,6 @@ public class InfoPanel extends TextArea {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		print("Game log saved to backgammonn.txt");	
+		print("Game log saved to backgammon.txt");	
 	}
 }

@@ -8,7 +8,6 @@
 # But not these files...
 !.gitignore
 !readme.md
-!help.txt
 
 # And not these folders...
 !/game_engine/
