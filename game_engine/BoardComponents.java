@@ -35,8 +35,13 @@ public class BoardComponents extends HBox {
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
 		getChildren().addAll(leftBoard, rightBoard);
-		initPips();
 		initDices();
+		
+		if (!GameConstants.DEBUG_MODE) {
+			initPips();
+		} else {
+			initDebugPips();
+		}
 	}
 	
 	/**
@@ -104,6 +109,39 @@ public class BoardComponents extends HBox {
 					break;
 				case 23:
 					pips[i].initCheckers(2, Color.WHITE);
+					break;
+			}
+		}
+		drawPips();
+	}
+	
+	/**
+	 * Initializes the debug pips, used for testing.
+	 */
+	private void initDebugPips() {
+		pips = new Pip[MAXPIPS];
+		for (int i = 0; i < MAXPIPS; i++) {
+			// Handles rotation of point.
+			double rotation = 0;
+			if (i >= 0 && i <= 11) {
+				rotation = 0;
+			} else if (i >= 12 && i <= 23) {
+				rotation = 180;
+			}
+			
+			// Handles point color.
+			if ((i+1) % 2 != 0) {
+				pips[i] = new Pip(Color.BLACK, rotation, i);
+			} else {
+				pips[i] = new Pip(Color.WHITE, rotation, i);
+			}
+			
+			switch (i) {
+				case 12:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 11:
+					pips[i].initCheckers(1, Color.WHITE);
 					break;
 			}
 		}

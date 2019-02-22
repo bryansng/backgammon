@@ -126,6 +126,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// isRolled only if it started.
 		if (gameplay.isRolled()) {
 			if (!gameplay.isMoved()) {
+				game.getBoard().unhighlightPipsAndCheckers();
 				if (gameplay.isValidMove(fro, to)) {
 					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
 					gameplay.move();
@@ -209,7 +210,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
 		}
-		
+
 		gameplay.unhighlightPips();
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
 	}

@@ -123,6 +123,11 @@ public class GameplayController implements ColorParser, InputValidator {
 	public void move() {
 		// set flag only when there are no moves left.
 		if (moves.isEmpty()) movedFlag = true;
+		
+		// prints moves left.
+		for (RollMoves rollMoves : moves) {
+			infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
+		}
 
 		// TODO check if player's move caused a game over.
 		if (isGameOver()) {}
@@ -175,11 +180,47 @@ public class GameplayController implements ColorParser, InputValidator {
 						isValidMove = false;
 					}
 				}
+				
 			}
 		}
-		if (isValidMove) removeRollMoves(theValidMove.getRollMoves());
 		
+		if (isValidMove) {
+			removeRollMoves(theValidMove.getRollMoves());
+			
+			// Pre-emption: if its a valid move, check if it caused the pip to be empty.
+			// if so, remove all moves with this fromPip.
+			removeMovesOfEmptyCheckersStorer(theValidMove);
+		}
 		return isValidMove;
+	}
+	
+	/**
+	 * Helper function of isValidMove().
+	 * Used to check if by executing 'theMove', the fromPip of 'theMove' becomes empty.
+	 * If the fromPip will become empty, we remove all other possible moves that rely
+	 * on this fromPip (because no checker at the fromPip means no move, plus nullException
+	 * will be raised).
+	 * @param theMove 'theMove'.
+	 */
+	private void removeMovesOfEmptyCheckersStorer(Move theMove) {
+		if (theMove instanceof PipToPip) {
+			Pip[] pips = game.getBoard().getPips();
+			int fromPip = ((PipToPip) theMove).getFromPip();
+			if (pips[fromPip].size() == 1) {
+				for (RollMoves rollMoves : moves) {
+					for (Move aMove : rollMoves.getMoves()) {
+						if (aMove instanceof PipToPip) {
+							if (((PipToPip) aMove).getFromPip() == fromPip) {
+								rollMoves.getMoves().remove(aMove);
+							}
+						}
+					}
+					
+					// removes the entire rollMoves if it has no moves left.
+					if (rollMoves.getMoves().isEmpty()) moves.remove(rollMoves);
+				}
+			}
+		}
 	}
 	
 	/**
