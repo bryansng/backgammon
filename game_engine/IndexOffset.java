@@ -24,19 +24,6 @@ public interface IndexOffset extends InputValidator {
 		}
 		return result;
 	}
-
-	/**
-	 * Returns a one-based index number in terms of string.
-	 * @param input, should be zero-based index in terms of string.
-	 * @return offset index in terms of string.
-	 */
-	default String getOneBasedIndex(String input) {
-		String result = input;
-		if (isNumber(input)) {
-			result = Integer.toString((Integer.parseInt(input)+1));
-		}
-		return result;
-	}
 	
 	/**
 	 * Converts pip numbers from one perspective to the other.
@@ -62,5 +49,40 @@ public interface IndexOffset extends InputValidator {
 			// Formula: 24 - 21 - 1 = 2, or 24 - 2 - 1 = 21.
 		}
 		return result;
+	}
+	
+	/**
+	 * Get the correct output pip number, based on perspective of player.
+	 * @param pipNum pip number.
+	 * @param isTopPlayer, boolean value indicating if its top player.
+	 * @return correct pip number in terms of string.
+	 */
+	default String getOutputPipNumber(int pipNum, boolean isTopPlayer) {
+		String correctNum;
+		
+		if (isTopPlayer) {
+			correctNum = getOneBasedIndex(Integer.parseInt(getTopPlayerOffset(Integer.toString(pipNum))));
+		} else {
+			correctNum = getOneBasedIndex(pipNum);
+		}
+		
+		return correctNum;
+	}
+	
+	/**
+	 * Shorter, less cluttering, manageable way of calling getOutputPipNumber.
+	 * Abstract so that the controllers can implement and pass the isTopPlayer boolean.
+	 * @param pipNum
+	 * @return correct pip number in terms of string.
+	 */
+	String correct(int pipNum);
+
+	/**
+	 * Returns a one-based index number in terms of string.
+	 * @param input, should be zero-based index.
+	 * @return offset index in terms of string.
+	 */
+	default String getOneBasedIndex(int num) {
+		return Integer.toString(num+1);
 	}
 }

@@ -36,6 +36,7 @@ public class PipToPip extends SumMove implements Move {
 		return toPip;
 	}
 	
+	// not used atm.
 	public String toString() {
 		String s = "fromPip: " + (fromPip+1) + ", toPip: " + (toPip+1);
 		if (this.hasIntermediateMove()) {

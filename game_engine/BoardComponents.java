@@ -37,7 +37,9 @@ public class BoardComponents extends HBox {
 		getChildren().addAll(leftBoard, rightBoard);
 		initDices();
 		
-		if (!GameConstants.DEBUG_MODE) {
+		if (GameConstants.TEST_ACTUAL_GAME) {
+			initPips();
+		} else if (!GameConstants.DEBUG_MODE) {
 			initPips();
 		} else {
 			initDebugPips();

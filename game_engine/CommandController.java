@@ -142,7 +142,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 		
 		MoveResult moveResult;
-		// move from point/bar to home.
+		// move from pip/bar to home.
 		if (to.equals("white") || to.equals("black")) {
 			if (fro.equals("white") || fro.equals("black")) {
 				Color fromBar = parseColor(fro);
@@ -154,10 +154,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			
 			switch (moveResult) {
 				case MOVED_TO_HOME_FROM_PIP:
-					infoPnl.print("Moved checker from " + (Integer.parseInt(fro)+1) + " to home.", MessageType.DEBUG);
+					infoPnl.print("Moved checker from " + correct(Integer.parseInt(fro)) + " to home.");
 					break;
 				case MOVED_TO_HOME_FROM_BAR:
-					infoPnl.print("Moved checker from bar to home.", MessageType.DEBUG);
+					infoPnl.print("Moved checker from bar to home.");
 					break;
 				case PIP_EMPTY:
 					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
@@ -165,7 +165,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
-		// move from bar to point.
+		// move from bar to pip.
 		} else if (fro.equals("white") || fro.equals("black")) {
 			Color fromBar = parseColor(fro);
 			int toPip = Integer.parseInt(to);
@@ -173,13 +173,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			moveResult = game.moveFromBar(fromBar, toPip);
 			switch (moveResult) {
 				case MOVED_FROM_BAR:
-					infoPnl.print("Moving checker from bar to " + (toPip+1) + ".", MessageType.DEBUG);
+					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
 					game.moveFromBar(fromBar, toPip);
-					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
-					infoPnl.print("Moving checker from bar to " + (toPip+1) + ".", MessageType.DEBUG);
+					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
+					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
 					break;
 				case PIP_EMPTY:
 					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
@@ -187,7 +187,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				default:
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
-		// move from point to point.
+		// move from pip to pip.
 		} else {
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
@@ -195,13 +195,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			moveResult = game.getBoard().moveCheckers(fromPip, toPip);
 			switch (moveResult) {
 				case MOVED_TO_PIP:
-					infoPnl.print("Moving checker from " + (fromPip+1) + " to " + (toPip+1) + ".", MessageType.DEBUG);
+					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
 					game.getBoard().moveCheckers(fromPip, toPip);
-					infoPnl.print("Moving checker from " + (toPip+1) + " to bar.", MessageType.DEBUG);
-					infoPnl.print("Moving checker from " + (fromPip+1) + " to " + (toPip+1) + ".", MessageType.DEBUG);
+					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
+					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
 					break;
 				case PIP_EMPTY:
 					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
@@ -213,6 +213,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 
 		gameplay.unhighlightPips();
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
+	}
+	
+	public String correct(int pipNum) {
+		return gameplay.correct(pipNum);
 	}
 	
 	/**

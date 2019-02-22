@@ -87,7 +87,7 @@ public class EventController implements ColorParser, InputValidator {
 					if (!gameplay.isStarted() || gameplay.isValidFro(fromPip)) {
 						gameplay.highlightPips(fromPip);
 						isPipSelectionMode = true;
-						infoPnl.print("Pip clicked is: " + (fromPip+1) + ".", MessageType.DEBUG);
+						infoPnl.print("Pip clicked is: " + gameplay.correct(fromPip) + ".", MessageType.DEBUG);
 					} else {
 						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
 					}

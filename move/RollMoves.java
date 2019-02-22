@@ -44,6 +44,7 @@ public class RollMoves {
 		return rollResult;
 	}
 	
+	// not used atm.
 	public String toString() {
 		String s = "Roll of " + rollResult + "\n";
 		for (int i = 0; i < moves.size(); i++) {

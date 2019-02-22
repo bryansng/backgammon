@@ -17,7 +17,7 @@ import move.RollMoves;
  * @author @LxEmily, 17200573
  *
  */
-public class GameplayController implements ColorParser, InputValidator {
+public class GameplayController implements ColorParser, InputValidator, IndexOffset {
 	private LinkedList<RollMoves> moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
@@ -77,13 +77,27 @@ public class GameplayController implements ColorParser, InputValidator {
 		
 		// calculate possible moves.
 		moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
-		for (RollMoves rollMoves : moves) {
-			infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
-		}
+		printMoves();
 		
 		// highlight top checkers.
 		game.getBoard().highlightFromPipsChecker(moves);
 		rolledFlag = true;
+	}
+	
+	// prints possible moves, with an useless letter beside the moves.
+	private void printMoves() {
+		char prefix = 'A';
+		for (RollMoves aRollMoves : moves) {
+			String msg = "Roll of " + aRollMoves.getRollResult() + "\n";
+			for (Move aMove : aRollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					msg += "  " + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
+				}
+				prefix++;
+			}
+			infoPnl.print(msg);
+		}
 	}
 
 	/**
@@ -144,6 +158,33 @@ public class GameplayController implements ColorParser, InputValidator {
 		boolean isValidMove = false;
 		Move theValidMove = null;
 		
+		if ((theValidMove = isValidPipToPip(fro, to)) != null) {
+			isValidMove = true;
+		}
+		
+		if (isValidMove) {
+			removeRollMoves(theValidMove.getRollMoves());
+			
+			// Pre-emption: if its a valid move, check if it caused the pip to be empty.
+			// if so, remove all moves with this fromPip.
+			removeMovesOfEmptyCheckersStorer(theValidMove);
+		}
+		return isValidMove;
+	}
+	
+	@SuppressWarnings("unused")
+	private Move isValidPipToHome() {
+		return null;
+	}
+	
+	@SuppressWarnings("unused")
+	private Move isValidBarToPip() {
+		return null;
+	}
+	
+	private Move isValidPipToPip(String fro, String to) {
+		Move theValidMove = null;
+		
 		if (isPip(fro) && isPip(to)) {
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
@@ -166,10 +207,7 @@ public class GameplayController implements ColorParser, InputValidator {
 				
 				if (hasFromPip) {
 					// check if toPip is part of fromPip's possible toPips.
-					if (move.getToPip() == toPip) {
-						isValidMove = true;
-						theValidMove = (Move) move;
-					}
+					if (move.getToPip() == toPip) theValidMove = (Move) move;
 					
 					// check if fromPip is empty, i.e. no checkers,
 					// if so, remove it from possible moves.
@@ -177,21 +215,12 @@ public class GameplayController implements ColorParser, InputValidator {
 					if (pips[fromPip].isEmpty()) {
 						// remove the move from the set of moves in its RollMoves.
 						rollMoves.getMoves().remove(move);
-						isValidMove = false;
+						theValidMove = null;
 					}
 				}
-				
 			}
 		}
-		
-		if (isValidMove) {
-			removeRollMoves(theValidMove.getRollMoves());
-			
-			// Pre-emption: if its a valid move, check if it caused the pip to be empty.
-			// if so, remove all moves with this fromPip.
-			removeMovesOfEmptyCheckersStorer(theValidMove);
-		}
-		return isValidMove;
+		return theValidMove;
 	}
 	
 	/**
@@ -338,6 +367,10 @@ public class GameplayController implements ColorParser, InputValidator {
 	 */
 	private boolean isGameOver() {
 		return game.isHomeFilled();
+	}
+	
+	public String correct(int pipNum) {
+		return getOutputPipNumber(pipNum, topPlayerFlag);
 	}
 	
 	public boolean isStarted() {
