@@ -29,8 +29,6 @@ Personally, I prefer Eclipse for Java.
 9. Click Finish.
 10. Open and run Main.java.
 
-** Please check the correct version of source files.
-
 &nbsp;
 ## Authors
 * [bryansng](https://github.com/bryansng)
@@ -56,6 +54,12 @@ Personally, I prefer Eclipse for Java.
   If there's a bug in the code, what we do is understand how the objects interact with each other, then go to the class file that handles the interaction, then work our way down the interaction chain to find the bug.
 
   For instance, for some reason, we typed /move 1 2, a black checker is at point 2, a white checker is at point 1, black checker is supposed to get hit and go to bar. Command is entered, but the black checker doesn't move. We know that /move commands relies on *CommandPanel* to work, relays system messages through *InfoPanel*, and moves are made through *Board*. The code of /move is definitely in MainController, which it is. Then you work your way down from MainController, to GameController or Board, or wherever to fix the bug, relying heavily on Java's error stack trace.
+
+- **_Classes with a lot of interactions between objects, separated via specialized classes and inheritance_**. As the project progresses, classes like MainController and Board will have a lot of functions, which means a lot of lines of code. A way to refactor would be to use specialized classes.
+
+  For example, MainController used to store all interactions between Command Panel, Info Panel, RollDieButton and the Game, these interactions include *handling events* and *handling commands*. Therefore, we separate the codes using specialized classes like *EventController* and *CommandController*. Further increasing maintainability of code.
+  
+  For instance, Board used to handle its *functions* (moveCheckers, action methods) and its *initialization* (itself, dices, pips and checkers). Since maintaining code generally happens in the *functions* side of things, it would be nice to separate *functions* and *initialization*. Hence, BoardComponents is the superclass with *initialization* and Board is the subclass that has all the *functions*.
 
 &nbsp;
 ## Sprint 2 - Short Documentation
