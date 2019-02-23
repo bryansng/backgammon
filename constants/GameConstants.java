@@ -48,7 +48,7 @@ public class GameConstants {
 	 */
 	public static Dimension getHalfBoardSize() {
 		Dimension d = new Dimension();
-		d.setSize(389, 639);
+		d.setSize(381, 589);
 		return d;
 	}
 	
