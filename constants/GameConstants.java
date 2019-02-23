@@ -15,8 +15,12 @@ import javafx.scene.image.Image;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = false;
-	public static final boolean TEST_ACTUAL_GAME = true;
+	public static final boolean DEBUG_MODE = true;
+	
+	// force ways to init pips and checkers.
+	public static final boolean FORCE_ACTUAL_GAME = false;
+	public static final boolean FORCE_ONE_CHECKER = false;
+	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = true;
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;

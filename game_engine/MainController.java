@@ -17,7 +17,6 @@ import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
-import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -65,8 +64,8 @@ public class MainController extends GridPane {
 	 * Initialize players and UI components.
 	 */
 	public void resetApplication() {
-		bottomPlayer = new Player("Cup", 0, Color.WHITE, PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Tea", 0, Color.BLACK, PlayerPerspectiveFrom.TOP);	
+		bottomPlayer = new Player("Cup", 0, Settings.getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Tea", 0, Settings.getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();

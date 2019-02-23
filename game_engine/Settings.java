@@ -1,5 +1,7 @@
 package game_engine;
 
+import javafx.scene.paint.Color;
+import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
 
 /**
@@ -16,5 +18,27 @@ public class Settings {
 	// by default, 1 starts at bottom right of screen, i.e. quadrant 4.
 	public static Quadrant getMainQuadrant() {
 		return Quadrant.BOTTOM_RIGHT;
+	}
+	
+	public static Color getColor(PlayerPerspectiveFrom pov) {
+		Color color = null;
+		switch (pov) {
+			case BOTTOM:
+				color = getBottomPerspectiveColor();
+				break;
+			case TOP:
+				color = getTopPerspectiveColor();
+				break;
+			default:
+		}
+		return color;
+	}
+	
+	private static Color getTopPerspectiveColor() {
+		return Color.BLACK;
+	}
+	
+	private static Color getBottomPerspectiveColor() {
+		return Color.WHITE;
 	}
 }

@@ -36,14 +36,7 @@ public class BoardComponents extends HBox {
 		rightBoard = new HalfBoard();
 		getChildren().addAll(leftBoard, rightBoard);
 		initDices();
-		
-		if (GameConstants.TEST_ACTUAL_GAME) {
-			initPips();
-		} else if (!GameConstants.DEBUG_MODE) {
-			initPips();
-		} else {
-			initDebugPips();
-		}
+		initPips();
 	}
 	
 	/**
@@ -87,64 +80,65 @@ public class BoardComponents extends HBox {
 				pips[i] = new Pip(Color.WHITE, rotation, i);
 			}
 			
-			switch (i) {
-				case 0:
-					pips[i].initCheckers(2, Color.BLACK);
-					break;
-				case 5:
-					pips[i].initCheckers(5, Color.WHITE);
-					break;
-				case 7:
-					pips[i].initCheckers(3, Color.WHITE);
-					break;
-				case 11:
-					pips[i].initCheckers(5, Color.BLACK);
-					break;
-				case 12:
-					pips[i].initCheckers(5, Color.WHITE);
-					break;
-				case 16:
-					pips[i].initCheckers(3, Color.BLACK);
-					break;
-				case 18:
-					pips[i].initCheckers(5, Color.BLACK);
-					break;
-				case 23:
-					pips[i].initCheckers(2, Color.WHITE);
-					break;
-			}
-		}
-		drawPips();
-	}
-	
-	/**
-	 * Initializes the debug pips, used for testing.
-	 */
-	private void initDebugPips() {
-		pips = new Pip[MAXPIPS];
-		for (int i = 0; i < MAXPIPS; i++) {
-			// Handles rotation of point.
-			double rotation = 0;
-			if (i >= 0 && i <= 11) {
-				rotation = 0;
-			} else if (i >= 12 && i <= 23) {
-				rotation = 180;
-			}
-			
-			// Handles point color.
-			if ((i+1) % 2 != 0) {
-				pips[i] = new Pip(Color.BLACK, rotation, i);
-			} else {
-				pips[i] = new Pip(Color.WHITE, rotation, i);
-			}
-			
-			switch (i) {
-				case 12:
-					pips[i].initCheckers(1, Color.BLACK);
-					break;
-				case 11:
-					pips[i].initCheckers(1, Color.WHITE);
-					break;
+			if (GameConstants.FORCE_ACTUAL_GAME) {
+				switch (i) {
+					case 0:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 5:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 7:
+						pips[i].initCheckers(3, Color.WHITE);
+						break;
+					case 11:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+					case 12:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 16:
+						pips[i].initCheckers(3, Color.BLACK);
+						break;
+					case 18:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+					case 23:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+				}
+			} else if (GameConstants.FORCE_ONE_CHECKER) {
+				switch (i) {
+					case 12:
+						pips[i].initCheckers(1, Color.BLACK);
+						break;
+					case 11:
+						pips[i].initCheckers(1, Color.WHITE);
+						break;
+				}
+			} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD) {
+				switch (i) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+					case 5:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 23:
+					case 22:
+					case 21:
+					case 20:
+					case 19:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 18:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+				}
 			}
 		}
 		drawPips();

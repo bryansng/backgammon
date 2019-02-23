@@ -13,11 +13,11 @@ import javafx.scene.paint.Color;
  */
 public class Player {
 	private String name;
-	private double score;
+	private int score;
 	private Color color;
 	private PlayerPerspectiveFrom pov;
 	
-	public Player(String name, double score, Color color, PlayerPerspectiveFrom pov) {
+	public Player(String name, int score, Color color, PlayerPerspectiveFrom pov) {
 		this.name = name;
 		this.score = score;
 		this.color = color;
@@ -32,7 +32,7 @@ public class Player {
 		return name;
 	}
 	
-	public double getScore() {
+	public int getScore() {
 		return score;
 	}
 	
@@ -48,7 +48,7 @@ public class Player {
 		this.name = name;
 	}
 	
-	public void setScore(double score) {
+	public void setScore(int score) {
 		this.score = score;
 	}
 	
