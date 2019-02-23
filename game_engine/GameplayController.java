@@ -1,6 +1,7 @@
 package game_engine;
 
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.MessageType;
@@ -86,18 +87,20 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
+		String spaces = "  ";
 		char prefix = 'A';
+		String msg = "Remaining moves:";
 		for (RollMoves aRollMoves : moves) {
-			String msg = "Roll of " + aRollMoves.getRollResult() + "\n";
+			msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
 			for (Move aMove : aRollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
-					msg += "  " + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
+					msg += spaces+spaces+spaces + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
 				}
 				prefix++;
 			}
-			infoPnl.print(msg);
 		}
+		infoPnl.print(msg);
 	}
 
 	/**
@@ -139,9 +142,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		if (moves.isEmpty()) movedFlag = true;
 		
 		// prints moves left.
-		for (RollMoves rollMoves : moves) {
-			infoPnl.print(rollMoves.toString(), MessageType.DEBUG);
-		}
+		printMoves();
 
 		// TODO check if player's move caused a game over.
 		if (isGameOver()) {}
@@ -253,6 +254,44 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	}
 	
 	/**
+	 * Remove the rollMoves from moves.
+	 * i.e. remove everything related to the dice roll result completely from moves.
+	 * @param rollMoves rollMoves to remove.
+	 */
+	private void removeRollMoves(RollMoves rollMoves) {
+		removeOtherRollMoves(rollMoves);
+		moves.remove(rollMoves);
+	}
+	
+	/**
+	 * Removes other rollMoves from moves based on argument 'rollMoves'.
+	 * Rules state,
+	 * - if sum result is moved, then two other result is forfeited.
+	 * - if either one result moved, sum result is forfeited.
+	 * @param rollMoves rollMoves that was removed.
+	 */
+	private void removeOtherRollMoves(RollMoves rollMoves) {
+		// we use this way of iterating and use iter.remove() to remove,
+		// if not while removing will raised ConcurrentModificationException.
+		int count = 1;
+		for (Iterator<RollMoves> iter = moves.iterator(); iter.hasNext();) {
+			RollMoves aRollMoves = iter.next();
+
+			// if sum moved, remove other two.
+			if (rollMoves.isSumMove() && aRollMoves.isNormalMove()) {
+				iter.remove();
+				if (count == 2) break;
+				count++;
+			}
+			// if not sum moved, remove sum.
+			if (rollMoves.isNormalMove() && aRollMoves.isSumMove()) {
+				iter.remove();
+				break;
+			}
+		}
+	}
+	
+	/**
 	 * Checks if fromPip is part of possible moves.
 	 * Only used for mouse clicks of fro.
 	 * Atm, considers pips, no bars.
@@ -272,39 +311,6 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			}
 		}
 		return isValidFro;
-	}
-	
-	/**
-	 * Remove the rollMoves from moves.
-	 * i.e. remove everything related to the dice roll result completely from moves.
-	 * @param rollMoves rollMoves to remove.
-	 */
-	private void removeRollMoves(RollMoves rollMoves) {
-		removeOtherRollMoves(rollMoves);
-		moves.remove(rollMoves);
-	}
-	
-	/**
-	 * Removes other rollMoves from moves based on argument 'rollMoves'.
-	 * Rules state,
-	 * - if sum result is moved, then two other result is forfeited.
-	 * - if either one result moved, sum result is forfeited.
-	 * @param rollMoves rollMoves that was removed.
-	 */
-	private void removeOtherRollMoves(RollMoves rollMoves) {
-		// if sum moved, remove other two.
-		if (rollMoves.isSumMove()) {
-			moves = new LinkedList<>();
-		}
-		// if not sum moved, remove sum.
-		if (rollMoves.isNormalMove()) {
-			for (RollMoves aRollMoves : moves) {
-				if (aRollMoves.isSumMove()) {
-					moves.remove(aRollMoves);
-					break;
-				}
-			}
-		}
 	}
 	
 	/**

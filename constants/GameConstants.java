@@ -17,6 +17,10 @@ import javafx.scene.image.Image;
 public class GameConstants {
 	public static final boolean DEBUG_MODE = true;
 	public static final boolean TEST_ACTUAL_GAME = true;
+	
+	// first roll after /start will not appear as doubles, but internally is.
+	public static final boolean FORCE_DOUBLE_INSTANCE = false;
+	
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
 	public static final int NUMBER_OF_PIPS = 24; 

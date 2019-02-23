@@ -191,8 +191,14 @@ public class Board extends BoardComponents {
 	 * @return the possible moves.
 	 */
 	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
-		// TODO before begin, check if its single or double cube instance.
-		//check here.
+		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
+			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
+		}
+		
+		DieInstance instance = DieInstance.DEFAULT;
+		if (rollResult[0] == rollResult[1]) {
+			instance = DieInstance.DOUBLE;
+		}
 		
 		LinkedList<RollMoves> moves = new LinkedList<>();
 		
@@ -216,8 +222,7 @@ public class Board extends BoardComponents {
 			}
 			if (hasMove) {
 				moves.add(rollMoves);
-				// NOTE: if its a double instance, we simply add the rollMoves twice at the end.
-				//add here.
+				if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
 			}
 		}
 
@@ -231,8 +236,7 @@ public class Board extends BoardComponents {
 		}
 		if (hasMove) {
 			moves.add(rollMoves);
-			// NOTE: if its a double instance, we simply add the rollMoves twice at the end.
-			//add here.
+			if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
 		}
 		
 		return moves;
