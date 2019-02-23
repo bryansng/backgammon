@@ -230,9 +230,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		boolean isOutOfBounds = false;
 		if (isPip(arg)) {
 			int pipNum = Integer.parseInt(arg);
-			if (!(pipNum >= 0 && pipNum <= GameConstants.NUMBER_OF_PIPS)) {
-				isOutOfBounds = true;
-			}
+			if (!game.getBoard().isInRange(pipNum)) isOutOfBounds = true;
 		}
 		return isOutOfBounds;
 	}

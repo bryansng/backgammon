@@ -233,21 +233,25 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @param theMove 'theMove'.
 	 */
 	private void removeMovesOfEmptyCheckersStorer(Move theMove) {
+		// we use this way of iterating and use iter.remove() to remove,
+		// if not while removing will raised ConcurrentModificationException.
 		if (theMove instanceof PipToPip) {
 			Pip[] pips = game.getBoard().getPips();
 			int fromPip = ((PipToPip) theMove).getFromPip();
 			if (pips[fromPip].size() == 1) {
-				for (RollMoves rollMoves : moves) {
-					for (Move aMove : rollMoves.getMoves()) {
+				for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
+					RollMoves aRollMoves = iterRollMoves.next();
+					for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
+						Move aMove = iterMove.next();
 						if (aMove instanceof PipToPip) {
 							if (((PipToPip) aMove).getFromPip() == fromPip) {
-								rollMoves.getMoves().remove(aMove);
+								iterMove.remove();
 							}
 						}
 					}
 					
 					// removes the entire rollMoves if it has no moves left.
-					if (rollMoves.getMoves().isEmpty()) moves.remove(rollMoves);
+					if (aRollMoves.getMoves().isEmpty()) iterRollMoves.remove();
 				}
 			}
 		}

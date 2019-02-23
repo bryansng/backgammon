@@ -305,7 +305,7 @@ public class Board extends BoardComponents {
 	 * @param toPip
 	 * @return the boolean value indicating if so.
 	 */
-	private boolean isInRange(int toPip) {
+	public boolean isInRange(int toPip) {
 		return toPip >= 0 && toPip < GameConstants.NUMBER_OF_PIPS;
 	}
 	
