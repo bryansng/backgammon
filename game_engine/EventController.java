@@ -50,13 +50,13 @@ public class EventController implements ColorParser, InputValidator {
 	private void initGameListeners() {
 		// Exit pip and bar selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
-			game.getBoard().unhighlightPipsAndCheckers();
+			game.unhighlightAll();
 			isPipSelectionMode = false;
 			isBarSelectionMode = false;
 			
 			// highlight the possible moves if player hasn't move.
 			if (gameplay.isStarted() && !gameplay.isMoved()) {
-				game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
+				game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
 			}
 		});
 		
@@ -101,7 +101,7 @@ public class EventController implements ColorParser, InputValidator {
 						int fromPip = ((Pip) storerSelected).getPipNumber();
 						cmd.runCommand("/move " + fromPip + " " + toPip);
 					} else if (isBarSelectionMode) {
-						String fromBar = parseColor(((Bar) storerSelected).getColour());
+						String fromBar = parseColor(((Bar) storerSelected).getColor());
 						cmd.runCommand("/move " + fromBar + " " + toPip);
 					}
 					gameplay.unhighlightPips();
@@ -120,13 +120,13 @@ public class EventController implements ColorParser, InputValidator {
 			// home selected, basis for toHome selection.
 			} else if (object instanceof Home) {
 				if (isPipSelectionMode || isBarSelectionMode) {
-					String toHome = parseColor(((Home) object).getColour());
+					String toHome = parseColor(((Home) object).getColor());
 					
 					if (isPipSelectionMode) {
 						int fromPip = ((Pip) storerSelected).getPipNumber();
 						cmd.runCommand("/move " + fromPip + " " + toHome);
 					} else if (isBarSelectionMode) {
-						String fromBar = parseColor(((Bar) storerSelected).getColour());
+						String fromBar = parseColor(((Bar) storerSelected).getColor());
 						cmd.runCommand("/move " + fromBar + " " + toHome);
 					}
 					gameplay.unhighlightPips();

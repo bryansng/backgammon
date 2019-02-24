@@ -2,9 +2,11 @@ package game_engine;
 
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
+import constants.Quadrant;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 
 /**
  * This class represents the quadrant of pip number labels and pips of the Board in the Backgammon game.
@@ -15,29 +17,81 @@ import javafx.scene.layout.VBox;
  *
  */
 public class BoardQuadrant extends VBox {
-	private HBox setLabels, setPoints;
+	private int startRange, endRange;	// NOTE: These are zero-based index.
+	private HBox setOfLabels, setOfPoints;
 	private PlayerPerspectiveFrom pov;
+	private Pip[] pips;
+	private boolean isWhiteHome, isBlackHome;
 	
-	public BoardQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
+	public BoardQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Quadrant quadrant, Pip[] pips) {
+		this.startRange = startRange-1;
+		this.endRange = endRange-1;
 		this.pov = pov;
-		initQuadrant(startRange, endRange, pov, pips);
-		drawQuadrant(setLabels);
+		this.pips = pips;
+		specifyHomes(quadrant);
+		initQuadrant();
+		drawQuadrant(setOfLabels);
+	}
+	
+	// loop through the quadrant's pip to search if there is a checker of color 'color'.
+	public boolean hasCheckerColor(Color color) {
+		boolean hasCheckerColor = false;
+		for (int pipNum = startRange; pipNum <= endRange; pipNum++) {
+			if (!pips[pipNum].isEmpty()) {
+				if (pips[pipNum].topCheckerColorEquals(color)) {
+					hasCheckerColor = true;
+					break;
+				}
+			}
+		}
+		return hasCheckerColor;
+	}
+	
+	// Has better pips to bear off if there are pips
+	// that are not empty and has the same number as the dice result.
+	public boolean hasBetterPipsToBearOff(int fromPip, int diceResult) {
+		boolean hasBetter = false;
+		
+		// loop range, pips further away from home (inclusive) - fromPip (exclusive).
+		if (isWhiteHome) {
+			for (int pipNum = endRange; pipNum > fromPip; pipNum--) {
+				if (!pips[pipNum].isEmpty() && pipNum == (diceResult-1)) {
+					hasBetter = true;
+					break;
+				}
+			}
+		} else if (isBlackHome) {
+			for (int pipNum = startRange; pipNum < fromPip; pipNum++) {
+				if (!pips[pipNum].isEmpty() && (GameConstants.NUMBER_OF_PIPS-pipNum) == (diceResult-1)) {
+					hasBetter = true;
+					break;
+				}
+			}
+		}
+		
+		return hasBetter;
 	}
 	
 	public HBox getLabels() {
-		return setLabels;
+		return setOfLabels;
+	}
+	
+	private void specifyHomes(Quadrant quadrant) {
+		if (quadrant == Settings.getWhiteHomeQuadrant()) {
+			isWhiteHome = true;
+			isBlackHome = false;
+		} else if (quadrant == Settings.getBlackHomeQuadrant()) {
+			isBlackHome = true;
+			isWhiteHome = false;
+		}
 	}
 
 	/**
 	 * Creates a VBox with the points and their labels.
-	 * @param startRange One-based index, starting index.
-	 * @param endRange One-based index, ending index.
-	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
-	 * @return VBox with HBox of points and HBox of labels as children.
 	 */
-	private void initQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
-		setLabels = createSetOfLabels(startRange, endRange, pov);
-		setPoints = createSetOfPoints(startRange, endRange, pov, pips);
+	private void initQuadrant() {
+		setOfLabels = createSetOfLabels();
+		setOfPoints = createSetOfPoints();
 	}
 	
 	/**
@@ -45,24 +99,21 @@ public class BoardQuadrant extends VBox {
 	 * @param newSetLabels new pip number labels.
 	 */
 	public void drawQuadrant(HBox newSetLabels) {
-		setLabels = newSetLabels;
+		setOfLabels = newSetLabels;
 		getChildren().clear();
 		
 		if (pov == PlayerPerspectiveFrom.BOTTOM)
-			getChildren().addAll(setPoints, setLabels);
+			getChildren().addAll(setOfPoints, setOfLabels);
 		else {
-			getChildren().addAll(setLabels, setPoints);
+			getChildren().addAll(setOfLabels, setOfPoints);
 		}
 	}
 
 	/**
 	 * Creates a HBox with the labels within the range of startRange and endRange.
-	 * @param startRange One-based index, starting index.
-	 * @param endRange One-based index, ending index.
-	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return HBox with the labels as children.
 	 */
-	private HBox createSetOfLabels(int startRange, int endRange, PlayerPerspectiveFrom pov) {
+	private HBox createSetOfLabels() {
 		HBox set = new HBox();
 		set.setPrefSize(GameConstants.getHalfBoardSize().getWidth(), GameConstants.getPipNumberLabelHeight());
 		
@@ -72,16 +123,16 @@ public class BoardQuadrant extends VBox {
 		double spacing = (GameConstants.getHalfBoardSize().getWidth()-6*(GameConstants.getPipSize().getWidth())) / 5;
 		set.setSpacing(spacing);
 		
-		set.setStyle(GameConstants.getGameColour());
+		set.setStyle(GameConstants.getGameColor());
 		
 		// If bottom of board, points are numbered from smallest to highest from right to left.
 		// Else, from smallest to highest from left to right.
 		if (pov == PlayerPerspectiveFrom.BOTTOM)
-			for (int i = endRange-1; i >= startRange-1; i--) {
+			for (int i = endRange; i >= startRange; i--) {
 				set.getChildren().add(new PipNumberLabel(i+1));
 			}
 		else {
-			for (int i = startRange-1; i < endRange; i++) {
+			for (int i = startRange; i <= endRange; i++) {
 				set.getChildren().add(new PipNumberLabel(i+1));
 			}
 		}
@@ -90,12 +141,9 @@ public class BoardQuadrant extends VBox {
 	
 	/**
 	 * Creates a HBox with the points within the range of startRange and endRange.
-	 * @param startRange One-based index, starting index.
-	 * @param endRange One-based index, ending index.
-	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return HBox with the points as children.
 	 */
-	private HBox createSetOfPoints(int startRange, int endRange, PlayerPerspectiveFrom pov, Pip[] pips) {
+	private HBox createSetOfPoints() {
 		HBox set = new HBox();
 		set.setPrefSize(GameConstants.getHalfBoardSize().getWidth(), GameConstants.getPipSize().getHeight());
 		
@@ -108,14 +156,18 @@ public class BoardQuadrant extends VBox {
 		// If bottom of board, points are numbered from smallest to highest from right to left.
 		// Else, from smallest to highest from left to right.
 		if (pov == PlayerPerspectiveFrom.BOTTOM)
-			for (int i = endRange-1; i >= startRange-1; i--) {
+			for (int i = endRange; i >= startRange; i--) {
 				set.getChildren().add(pips[i]);
 			}
 		else {
-			for (int i = startRange-1; i < endRange; i++) {
+			for (int i = startRange; i <= endRange; i++) {
 				set.getChildren().add(pips[i]);
 			}
 		}
 		return set;
+	}
+	
+	public String toString() {
+		return "Quad with: " + (startRange+1) + "-" + (endRange+1);
 	}
 }

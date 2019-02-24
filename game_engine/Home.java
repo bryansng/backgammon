@@ -13,27 +13,27 @@ import javafx.scene.paint.Color;
  *
  */
 public class Home extends CheckersStorer {
-	private Color checkerColoursToStore;
+	private Color checkerColorsToStore;
 
 	public Home(Color color) {
 		super();
-		checkerColoursToStore = color;
+		checkerColorsToStore = color;
 		
 		double pointHeight = GameConstants.getPipSize().getHeight();
 		double pointWidth = GameConstants.getPipSize().getWidth();
-
+		
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);
-		setStyle(GameConstants.getBoardColour());
+		unhighlight();
 	}
 	
 	/**
 	 * Returns the color that this home in particular represents.
 	 * @return color that this home represents.
 	 */
-	public Color getColour() {
-		return checkerColoursToStore;
+	public Color getColor() {
+		return checkerColorsToStore;
 	}
 	
 	/**
@@ -42,5 +42,13 @@ public class Home extends CheckersStorer {
 	 */
 	public boolean isFilled() {
 		return size() == GameConstants.MAX_CHECKERS_PER_CHECKERS_STORER;
+	}
+	
+	public void highlight() {
+		setStyle(GameConstants.getBoardColor() + "-fx-border-color: yellow; -fx-border-width: 3; -fx-border-style: solid;");
+	}
+	
+	public void unhighlight() {
+		setStyle(GameConstants.getBoardColor() + "-fx-border-color: " + GameConstants.BOARD_COLOR + "; -fx-border-width: 3; -fx-border-style: solid;");
 	}
 }

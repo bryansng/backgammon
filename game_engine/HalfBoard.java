@@ -18,6 +18,6 @@ public class HalfBoard extends BorderPane {
 		double halfBoardHeight = GameConstants.getHalfBoardSize().getHeight();
 		
 		setPrefSize(halfBoardWidth, halfBoardHeight);
-		setStyle(GameConstants.getBoardColour());
+		setStyle(GameConstants.getBoardColor());
 	}
 }

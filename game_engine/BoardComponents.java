@@ -1,7 +1,9 @@
 package game_engine;
 
+import java.util.LinkedList;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
+import constants.Quadrant;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -20,7 +22,8 @@ public class BoardComponents extends HBox {
 	protected final int MAXPIPS = GameConstants.NUMBER_OF_PIPS;
 	protected Pip[] pips;
 	protected BorderPane leftBoard, rightBoard;
-	protected BoardQuadrant quad1, quad2, quad3, quad4;
+	protected BoardQuadrant quad1, quad2, quad3, quad4, whiteQuad, blackQuad;
+	protected LinkedList<BoardQuadrant> quads;
 	protected HBox leftDice, rightDice;
 	protected Dices dices;
 	
@@ -32,6 +35,7 @@ public class BoardComponents extends HBox {
 	 */
 	public BoardComponents() {
 		super();
+		quads = new LinkedList<>();
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
 		getChildren().addAll(leftBoard, rightBoard);
@@ -155,17 +159,65 @@ public class BoardComponents extends HBox {
 		 * 19-24, white home board.
 		 */
 		// Each quadrant has a set of 6 pips.
-		quad4 = new BoardQuadrant(1, 6, PlayerPerspectiveFrom.BOTTOM, pips);
-		quad3 = new BoardQuadrant(7, 12, PlayerPerspectiveFrom.BOTTOM, pips);
-		quad2 = new BoardQuadrant(13, 18, PlayerPerspectiveFrom.TOP, pips);
-		quad1 = new BoardQuadrant(19, 24, PlayerPerspectiveFrom.TOP, pips);
-
-		rightBoard.setBottom(quad4);
-		leftBoard.setBottom(quad3);
-		leftBoard.setTop(quad2);
-		rightBoard.setTop(quad1);
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			quad4 = new BoardQuadrant(1, 6, PlayerPerspectiveFrom.BOTTOM, Quadrant.BOTTOM_RIGHT, pips);
+			quad3 = new BoardQuadrant(7, 12, PlayerPerspectiveFrom.BOTTOM, Quadrant.BOTTOM_LEFT, pips);
+			quad2 = new BoardQuadrant(13, 18, PlayerPerspectiveFrom.TOP, Quadrant.TOP_LEFT, pips);
+			quad1 = new BoardQuadrant(19, 24, PlayerPerspectiveFrom.TOP, Quadrant.TOP_RIGHT, pips);
+			quads.add(quad4);
+			quads.add(quad3);
+			quads.add(quad2);
+			quads.add(quad1);
+			whiteQuad = quad4;
+			blackQuad = quad1;
+	
+			rightBoard.setBottom(quad4);
+			leftBoard.setBottom(quad3);
+			leftBoard.setTop(quad2);
+			rightBoard.setTop(quad1);
+		} else {
+			System.out.println("[Error] Main quadrant not BOTTOM_RIGHT, no initialization for this new quadrant, visit drawPips() in BoardComponents to change.");
+		}
 	}
-
+	
+	// Check if quadrant of pCurrent's home has all the checkers.
+	// It checks all quadrants for any pCurrent's checkers,
+	// if there is, then all of player's checkers are not in home board.
+	protected boolean isAllCheckersInHomeBoard(Player pCurrent) {
+		BoardQuadrant pQuad = getHomeQuadOfPlayer(pCurrent);
+		boolean hasAllCheckers = true;
+		
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			Color pColor = pCurrent.getColor();
+			for (BoardQuadrant quad : quads) {
+				if (quad.hasCheckerColor(pColor) && !quad.equals(pQuad)) {
+					if (GameConstants.DEBUG_MODE)
+						System.out.println("[Error] " + pCurrent.getName() + " does not have all checkers in quad: " + quad.toString());
+					hasAllCheckers = false;
+					break;
+				}
+			}
+		}
+		return hasAllCheckers;
+	}
+	
+	// if it is able to bear off, but there are better pips to bear off, then we bear off those first.
+	// better pips to bear off = pips of the diceResult.
+	protected boolean hasBetterPipsToBearOff(Player pCurrent, int fromPip, int diceResult) {
+		return getHomeQuadOfPlayer(pCurrent).hasBetterPipsToBearOff(fromPip, diceResult);
+	}
+	
+	// get home quad of the player, based on player's color.
+	private BoardQuadrant getHomeQuadOfPlayer(Player player) {
+		BoardQuadrant pQuad = null;
+		if (player.getColor().equals(Color.WHITE)) {
+			pQuad = whiteQuad;
+		} else if (player.getColor().equals(Color.BLACK)) {
+			pQuad = blackQuad;
+		}
+		return pQuad;
+	}
+	
 	/**
 	 * Swap top and bottom pip labels. 
 	 * quad1's = quad4's

@@ -37,8 +37,8 @@ public class HomePanel extends BorderPane {
 	 * Initializes the individual homes and add them to HomePanel.
 	 */
 	public void initHomes() {
-		top = new Home(Color.WHITE);
-		bottom = new Home(Color.BLACK);
+		top = new Home(Settings.getTopPerspectiveColor());
+		bottom = new Home(Settings.getBottomPerspectiveColor());
 		top.setRotate(180);
 		
 		double margin = GameConstants.getHomeMargin();
@@ -75,5 +75,14 @@ public class HomePanel extends BorderPane {
 	 */
 	public boolean isFilled() {
 		return top.isFilled() || bottom.isFilled();
+	}
+	
+	public void highlight(Color color) {
+		getHome(color).highlight();
+	}
+	
+	public void unhighlight() {
+		top.unhighlight();
+		bottom.unhighlight();
 	}
 }

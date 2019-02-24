@@ -126,12 +126,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// isRolled only if it started.
 		if (gameplay.isRolled()) {
 			if (!gameplay.isMoved()) {
-				game.getBoard().unhighlightPipsAndCheckers();
+				game.unhighlightAll();
 				if (gameplay.isValidMove(fro, to)) {
 					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
 					gameplay.move();
 				} else {
-					game.getBoard().highlightFromPipsChecker(gameplay.getValidMoves());
+					game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
 					infoPnl.print("You can only move highlighted checkers to highlighted pips.", MessageType.ERROR);
 					return;
 				}
@@ -230,7 +230,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		boolean isOutOfBounds = false;
 		if (isPip(arg)) {
 			int pipNum = Integer.parseInt(arg);
-			if (!game.getBoard().isInRange(pipNum)) isOutOfBounds = true;
+			if (!game.getBoard().isPipNumberInRange(pipNum)) isOutOfBounds = true;
 		}
 		return isOutOfBounds;
 	}

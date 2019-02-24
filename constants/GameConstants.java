@@ -92,11 +92,14 @@ public class GameConstants {
 		return d;
 	}
 	
+	public static final String GAME_COLOR = "saddlebrown";
+	public static final String BOARD_COLOR = "forestgreen";
+	
 	/**
 	 * Returns the colour of the board in terms of CSS.
 	 * @return colour of the board.
 	 */
-	public static String getBoardColour() {
+	public static String getBoardColor() {
 		String colour = "-fx-background-color: forestgreen;";
 		return colour;
 	}
@@ -106,7 +109,7 @@ public class GameConstants {
 	 * Returns the colour of the game in terms of CSS.
 	 * @return colour of the game.
 	 */
-	public static String getGameColour() {
+	public static String getGameColor() {
 		String colour = "-fx-background-color: saddlebrown;";
 		return colour;
 	}

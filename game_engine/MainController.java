@@ -33,7 +33,7 @@ import javafx.util.Pair;
  * @author @LxEmily, 17200573
  *
  */
-public class MainController extends GridPane {
+public class MainController extends GridPane implements ColorPerspectiveParser {
 	private Player bottomPlayer;
 	private Player topPlayer;
 	private GameComponentsController game;
@@ -64,8 +64,8 @@ public class MainController extends GridPane {
 	 * Initialize players and UI components.
 	 */
 	public void resetApplication() {
-		bottomPlayer = new Player("Cup", 0, Settings.getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Tea", 0, Settings.getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
+		bottomPlayer = new Player("Cup", 0, getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Tea", 0, getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();

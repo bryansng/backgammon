@@ -27,7 +27,7 @@ public class Bars extends VBox {
 		double pointHeight = GameConstants.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight*2);
-		setStyle(GameConstants.getGameColour());
+		setStyle(GameConstants.getGameColor());
 		
 		setAlignment(Pos.CENTER);
 		initIndividualBars();
@@ -37,8 +37,8 @@ public class Bars extends VBox {
 	 * Initializes the individual bars and add them to bars VBox.
 	 */
 	public void initIndividualBars() {
-		top = new Bar(Color.BLACK);
-		bottom = new Bar(Color.WHITE);
+		top = new Bar(Settings.getTopPerspectiveColor());
+		bottom = new Bar(Settings.getBottomPerspectiveColor());
 		bottom.setRotate(180.0);
 		
 		getChildren().addAll(top, bottom);
@@ -62,5 +62,20 @@ public class Bars extends VBox {
 		}
 		
 		return bar;
+	}
+	
+	// there are checkers in player's bar if its not empty.
+	public boolean isCheckersInBar(Player pCurrent) {
+		return !getBar(pCurrent.getColor()).isEmpty();
+	}
+	
+	public void highlight(Color color) {
+		Bar bar = getBar(color);
+		if (!bar.isEmpty()) bar.top().setHighlightImage();
+	}
+	
+	public void unhighlight() {
+		if (!top.isEmpty()) top.top().setNormalImage();
+		if (!bottom.isEmpty()) bottom.top().setNormalImage();
 	}
 }

@@ -16,7 +16,7 @@ import javafx.scene.paint.Color;
  *
  */
 public class GameComponentsController extends VBox {
-	private PlayerPanel topUserPnl, bottomUserPnl;
+	private PlayerPanel topPlayerPnl, btmPlayerPnl;
 	private Bars bars;
 	private Board board;
 	private HomePanel leftHome, rightHome, mainHome;
@@ -35,7 +35,7 @@ public class GameComponentsController extends VBox {
 	 * i.e. initializing the game layout.
 	 */
 	public void initGameComponents(Player bottomPlayer, Player topPlayer) {
-		board = new Board();
+		board = new Board(this);
 		bars = new Bars();
 		leftHome = new HomePanel();
 		rightHome = new HomePanel();
@@ -56,12 +56,22 @@ public class GameComponentsController extends VBox {
 		middlePart.getChildren().add(0, leftHome);
 		middlePart.getChildren().add(rightHome);
 		
-		topUserPnl = new PlayerPanel(middlePart.getMinWidth(), topPlayer);
-		bottomUserPnl = new PlayerPanel(middlePart.getMinWidth(), bottomPlayer);
+		topPlayerPnl = new PlayerPanel(middlePart.getMinWidth(), topPlayer);
+		btmPlayerPnl = new PlayerPanel(middlePart.getMinWidth(), bottomPlayer);
 		
-		getChildren().addAll(topUserPnl, middlePart, bottomUserPnl);
-		setStyle(GameConstants.getGameColour());
-		setMaxHeight(topUserPnl.getMinHeight() + middlePart.getHeight() + bottomUserPnl.getMinHeight());
+		getChildren().addAll(topPlayerPnl, middlePart, btmPlayerPnl);
+		setStyle(GameConstants.getGameColor());
+		setMaxHeight(topPlayerPnl.getMinHeight() + middlePart.getHeight() + btmPlayerPnl.getMinHeight());
+	}
+	
+	/**
+	 * Un-highlight everything.
+	 * Pips, top checkers, bar, homes.
+	 */
+	public void unhighlightAll() {
+		board.unhighlightPipsAndCheckers();
+		mainHome.unhighlight();
+		bars.unhighlight();
 	}
 	
 	/**
@@ -111,7 +121,7 @@ public class GameComponentsController extends VBox {
 		Pip[] pips = board.getPips();
 		Bar bar = bars.getBar(fromBar);
 		if (!bar.isEmpty()) {
-			if (bar.topCheckerColourEquals(pips[to])) {
+			if (bar.topCheckerColorEquals(pips[to])) {
 				pips[to].push(bar.pop());
 				moveResult = MoveResult.MOVED_FROM_BAR;
 			} else {
@@ -130,20 +140,22 @@ public class GameComponentsController extends VBox {
 	 * Moves a checker from a pip to its home.
 	 * i.e. pops a checker from bar and push it to a pip.
 	 * 
-	 * @param fro, zero-based index, the pip number to pop from.
+	 * @param fromPip, zero-based index, the pip number to pop from.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public MoveResult moveToHome(int fro) {
-		MoveResult moveResult = MoveResult.NOT_MOVED;
+	public MoveResult moveToHome(int fromPip) {
+		MoveResult moveResult = board.isPipToHomeMove(fromPip);
 		
-		Pip[] pips = board.getPips();
-		if (!pips[fro].isEmpty()) {
-			Home home = mainHome.getHome(pips[fro].top().getColor());
-			home.push(pips[fro].pop());
-			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
-
-			pips[fro].drawCheckers();
-			home.drawCheckers();
+		switch (moveResult) {
+			case MOVED_TO_HOME_FROM_PIP:
+				Pip[] pips = board.getPips();
+				Home home = mainHome.getHome(pips[fromPip].top().getColor());
+				home.push(pips[fromPip].pop());
+				
+				pips[fromPip].drawCheckers();
+				home.drawCheckers();
+				break;
+			default:
 		}
 		return moveResult;
 	}
@@ -174,9 +186,15 @@ public class GameComponentsController extends VBox {
 		return board;
 	}
 	public PlayerPanel getTopPlayerPanel() {
-		return topUserPnl;
+		return topPlayerPnl;
 	}
 	public PlayerPanel getBottomPlayerPanel() {
-		return bottomUserPnl;
+		return btmPlayerPnl;
+	}
+	public HomePanel getMainHome() {
+		return mainHome;
+	}
+	public Bars getBars() {
+		return bars;
 	}
 }

@@ -13,11 +13,11 @@ import javafx.scene.paint.Color;
  *
  */
 public class Bar extends CheckersStorer {
-	private Color checkerColoursToStore;
+	private Color checkerColorsToStore;
 	
 	public Bar(Color color) {
 		super();
-		checkerColoursToStore = color;
+		checkerColorsToStore = color;
 		
 		double pointWidth = GameConstants.getPipSize().getWidth();
 		double pointHeight = GameConstants.getPipSize().getHeight();
@@ -31,7 +31,7 @@ public class Bar extends CheckersStorer {
 	 * Returns the color that this bar in particular represents.
 	 * @return color that this bar represents.
 	 */
-	public Color getColour() {
-		return checkerColoursToStore;
+	public Color getColor() {
+		return checkerColorsToStore;
 	}
 }

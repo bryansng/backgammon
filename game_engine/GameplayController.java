@@ -5,7 +5,9 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.MessageType;
+import move.BarToPip;
 import move.Move;
+import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
 
@@ -81,13 +83,14 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		printMoves();
 		
 		// highlight top checkers.
-		game.getBoard().highlightFromPipsChecker(moves);
+		game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		rolledFlag = true;
 	}
 	
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
 		String spaces = "  ";
+		String extraSpace = spaces + spaces + spaces;
 		char prefix = 'A';
 		String msg = "Remaining moves:";
 		for (RollMoves aRollMoves : moves) {
@@ -95,7 +98,13 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			for (Move aMove : aRollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
-					msg += spaces+spaces+spaces + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
+					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
+				} else if (aMove instanceof PipToHome) {
+					PipToHome move = (PipToHome) aMove;
+					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n";
+				} else if (aMove instanceof BarToPip) {
+					BarToPip move = (BarToPip) aMove;
+					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + "\n";
 				}
 				prefix++;
 			}
@@ -161,6 +170,8 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		
 		if ((theValidMove = isValidPipToPip(fro, to)) != null) {
 			isValidMove = true;
+		} else if ((theValidMove = isValidPipToHome(fro, to)) != null) {
+			isValidMove = true;
 		}
 		
 		if (isValidMove) {
@@ -173,9 +184,44 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		return isValidMove;
 	}
 	
-	@SuppressWarnings("unused")
-	private Move isValidPipToHome() {
-		return null;
+	private Move isValidPipToHome(String fro, String to) {
+		Move theValidMove = null;
+		
+		if (isPip(fro) && isBarOrHome(to)) {
+			int fromPip = Integer.parseInt(fro);
+			String toHome = to.toLowerCase();
+			infoPnl.print("Selected fromPip: " + (fromPip+1), MessageType.DEBUG);
+			infoPnl.print("Selected toHome: " + toHome, MessageType.DEBUG);
+			
+			for (RollMoves rollMoves : moves) {
+				// check if fromPip is part of possible moves.
+				PipToHome move = null;
+				boolean hasFromPip = false;
+				for (Move aMove : rollMoves.getMoves()) {
+					if (aMove instanceof PipToHome) {
+						move = (PipToHome) aMove;
+						if (move.getFromPip() == fromPip) {
+							hasFromPip = true;
+							break;
+						}
+					}
+				}
+				
+				if (hasFromPip) {
+					theValidMove = (Move) move;
+					
+					// check if fromPip is empty, i.e. no checkers,
+					// if so, remove it from possible moves.
+					Pip[] pips = game.getBoard().getPips();
+					if (pips[fromPip].isEmpty()) {
+						// remove the move from the set of moves in its RollMoves.
+						rollMoves.getMoves().remove(move);
+						theValidMove = null;
+					}
+				}
+			}
+		}
+		return theValidMove;
 	}
 	
 	@SuppressWarnings("unused")
@@ -311,6 +357,11 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 						isValidFro = true;
 						break;
 					}
+				} else if (aMove instanceof PipToHome) {
+					if (((PipToHome) aMove).getFromPip() == fromPip) {
+						isValidFro = true;
+						break;
+					}
 				}
 			}
 		}
@@ -348,7 +399,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	public void highlightPips(int fromPip) {
 		// gameplay mode.
 		if (isRolled()) {
-			game.getBoard().highlightToPips(getValidMoves(), fromPip);
+			game.getBoard().highlightToPipsAndToHome(getValidMoves(), fromPip);
 		// free for all mode, i.e. before /start.
 		} else {
 			game.getBoard().highlightAllPipsExcept(fromPip);
@@ -362,11 +413,11 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	public void unhighlightPips() {
 		// gameplay mode.
 		if (isStarted()) {
-			if (isMoved()) game.getBoard().unhighlightPipsAndCheckers();
-			else game.getBoard().highlightFromPipsChecker(getValidMoves());
+			if (isMoved()) game.unhighlightAll();
+			else game.getBoard().highlightFromPipsAndFromBarChecker(getValidMoves());
 		// free for all mode, i.e. before /start.
 		} else {
-			game.getBoard().unhighlightPipsAndCheckers();
+			game.unhighlightAll();
 		}
 	}
 	

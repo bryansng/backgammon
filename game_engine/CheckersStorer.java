@@ -76,7 +76,7 @@ public class CheckersStorer extends Stack<Checker> {
 	 * @param object, the other checker storer to be compared with.
 	 * @return the boolean value.
 	 */
-	public boolean topCheckerColourEquals(CheckersStorer otherObject) {
+	public boolean topCheckerColorEquals(CheckersStorer otherObject) {
 		if (otherObject.isEmpty()) {
 			return true;
 		}
@@ -88,7 +88,7 @@ public class CheckersStorer extends Stack<Checker> {
 	 * @param color given color to check.
 	 * @return the boolean value.
 	 */
-	public boolean topCheckerColourEquals(Color color) {
+	public boolean topCheckerColorEquals(Color color) {
 		return (top().getColor()).equals(color);
 	}
 }

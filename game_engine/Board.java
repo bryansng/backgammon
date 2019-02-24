@@ -7,7 +7,9 @@ import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import exceptions.PlayerNoPerspectiveException;
 import javafx.scene.paint.Color;
+import move.BarToPip;
 import move.Move;
+import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
 
@@ -20,33 +22,11 @@ import move.RollMoves;
  *
  */
 public class Board extends BoardComponents {
-	public Board() {
-		super();
-	}
+	private GameComponentsController game;
 	
-	/**
-	 * Moves a checker between pips.
-	 * i.e. pops a checker from one point and push it to the other.
-	 * 
-	 * @param fromPip, zero-based index, the point number to pop from.
-	 * @param toPip, zero-based index, the point number to push to.
-	 * @return returns a integer value indicating if the checker was moved.
-	 */
-	public MoveResult moveCheckers(int fromPip, int toPip) {
-		MoveResult moveResult = isMove(fromPip, toPip, null);
-		
-		switch (moveResult) {
-			case MOVED_TO_PIP:
-				pips[toPip].push(pips[fromPip].pop());
-				pips[toPip].drawCheckers();
-				pips[fromPip].drawCheckers();
-				break;
-			case MOVED_TO_BAR:
-				break;
-			default:
-		}
-		
-		return moveResult;
+	public Board(GameComponentsController game) {
+		super();
+		this.game = game;
 	}
 	
 	/**
@@ -63,32 +43,42 @@ public class Board extends BoardComponents {
 	}
 	
 	/**
-	 * Highlight the pips.
+	 * Highlight the pips and homes.
 	 * @param exceptPipNum, except this point number.
 	 */
 	public void highlightAllPipsExcept(int exceptPipNum) {
-		unhighlightPipsAndCheckers();
+		game.unhighlightAll();
 		
 		for (int i = 0; i < pips.length; i++) {
 			if (i != exceptPipNum) {
 				pips[i].setHighlightImage();
 			}
 		}
+		game.getMainHome().highlight(Settings.getTopPerspectiveColor());
+		game.getMainHome().highlight(Settings.getBottomPerspectiveColor());
 	}
 	
 	/**
 	 * Highlight the top checkers of fromPips in possible moves.
 	 * @param moves the possible moves.
 	 */
-	public void highlightFromPipsChecker(LinkedList<RollMoves> moves) {
-		unhighlightPipsAndCheckers();
+	public void highlightFromPipsAndFromBarChecker(LinkedList<RollMoves> moves) {
+		game.unhighlightAll();
 		
-		PipToPip move = null;
 		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
-					move = (PipToPip) aMove;
+					PipToPip move = (PipToPip) aMove;
 					pips[move.getFromPip()].top().setHighlightImage();
+				} else if (aMove instanceof PipToHome) {
+					PipToHome move = (PipToHome) aMove;
+					pips[move.getFromPip()].top().setHighlightImage();
+				} else if (aMove instanceof BarToPip) {
+					@SuppressWarnings("unused")
+					BarToPip move = (BarToPip) aMove;
+					// TODO need color to know which bar to highlight.
+					// cannot use toPip's color, since toPip can be empty.
+					//game.getBars().highlight();
 				}
 			}
 		}
@@ -100,8 +90,8 @@ public class Board extends BoardComponents {
 	 * @param moves the possible moves.
 	 * @param fromPip
 	 */
-	public void highlightToPips(LinkedList<RollMoves> moves, int fromPip) {
-		unhighlightPipsAndCheckers();
+	public void highlightToPipsAndToHome(LinkedList<RollMoves> moves, int fromPip) {
+		game.unhighlightAll();
 		
 		boolean isFromPipInMoves = false;
 		for (RollMoves rollMoves : moves) {
@@ -111,6 +101,12 @@ public class Board extends BoardComponents {
 					if (move.getFromPip() == fromPip) {
 						isFromPipInMoves = true;
 						pips[move.getToPip()].setHighlightImage();
+					}
+				} else if (aMove instanceof PipToHome) {
+					PipToHome move = (PipToHome) aMove;
+					if (move.getFromPip() == fromPip) {
+						isFromPipInMoves = true;
+						game.getMainHome().getHome(pips[move.getFromPip()].top().getColor()).highlight();
 					}
 				}
 			}
@@ -184,6 +180,31 @@ public class Board extends BoardComponents {
 	}
 	
 	/**
+	 * Moves a checker between pips.
+	 * i.e. pops a checker from one point and push it to the other.
+	 * 
+	 * @param fromPip, zero-based index, the point number to pop from.
+	 * @param toPip, zero-based index, the point number to push to.
+	 * @return returns a integer value indicating if the checker was moved.
+	 */
+	public MoveResult moveCheckers(int fromPip, int toPip) {
+		MoveResult moveResult = isPipToPipMove(fromPip, toPip, null);
+		
+		switch (moveResult) {
+			case MOVED_TO_PIP:
+				pips[toPip].push(pips[fromPip].pop());
+				pips[toPip].drawCheckers();
+				pips[fromPip].drawCheckers();
+				break;
+			case MOVED_TO_BAR:
+				break;
+			default:
+		}
+		
+		return moveResult;
+	}
+	
+	/**
 	 * Calculate the possible moves based on die roll.
 	 * @param rollResult roll die result.
 	 * @param pCurrent current player.
@@ -244,7 +265,6 @@ public class Board extends BoardComponents {
 	
 	/**
 	 * Adds a new move to rollMoves depending if it is a valid move.
-	 * Currently only considers PipToPip.
 	 * @param moves the possible moves
 	 * @param rollMoves the roll dice result related to the move at consideration to add.
 	 * @param pCurrent current player.
@@ -256,11 +276,24 @@ public class Board extends BoardComponents {
 	private boolean addedAsMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		
-		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
-		// TODO getPossibleToHome etc.
+		// BarToPip
 		
+		// pipToPip
+		if (addedAsPipToPipMove(moves, rollMoves, pCurrent, fromPip, diceResult, isSumMove))
+			addedAsMove = true;
+		
+		// pipToHome
+		if (addedAsPipToHomeMove(rollMoves, pCurrent, fromPip, diceResult))
+			addedAsMove = true;
+		
+		return addedAsMove;
+	}
+	
+	private boolean addedAsPipToPipMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+		boolean addedAsMove = false;
 		MoveResult moveResult;
-		if (isInRange(toPip) && ((moveResult = isMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
+		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
+		if (isPipNumberInRange(toPip) && ((moveResult = isPipToPipMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			if (isSumMove) {
 				Move intermediateMove;
 				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
@@ -275,8 +308,49 @@ public class Board extends BoardComponents {
 		return addedAsMove;
 	}
 	
+	private boolean addedAsPipToHomeMove(RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult) {
+		boolean addedAsMove = false;
+		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
+		if (canToHome(pCurrent, fromPip, diceResult, toPip)) {
+			rollMoves.getMoves().add(new PipToHome(fromPip, rollMoves));
+			addedAsMove = true;
+		}
+		return addedAsMove;
+	}
+	
+	// if all checkers at home board.
+	// if dice result enough to go to home (enough if its getPossibleToPip is out of bounds).
+	// if checkers getting fewer,
+	// those at pip 1, 2, 3 can be bear-offed with dice result of 4,5,6.
+	private boolean canToHome(Player pCurrent, int fromPip, int diceResult, int toPip) {
+		boolean canToHome = false;
+		
+		if (isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent) && isPipNumberAtBounds(toPip) && (isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP)) {
+			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult))
+				canToHome = true;
+		}
+		
+		return canToHome;
+	}
+	
+	public MoveResult isPipToHomeMove(int fromPip) {
+		MoveResult moveResult = MoveResult.NOT_MOVED;
+		if (!pips[fromPip].isEmpty()) {
+			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
+		} else {
+			moveResult = MoveResult.PIP_EMPTY;
+		}
+		return moveResult;
+	}
+	
+	// used to check if the toPip can reach home, home is a toPip of value -1 and 24.
+	private boolean isPipNumberAtBounds(int pipNum) {
+		return (!isPipNumberInRange(pipNum)) && (pipNum == -1 || pipNum == GameConstants.NUMBER_OF_PIPS);
+	}
+	
 	/**
 	 * Calculates the possible toPips with the given fromPip, diceResult and pCurrent.
+	 * NOTE: This controls direction of toPip, making it one-directional.
 	 * @param pCurrent current player.
 	 * @param fromPip
 	 * @param diceResult roll dice result.
@@ -285,8 +359,8 @@ public class Board extends BoardComponents {
 	private int getPossibleToPip(Player pCurrent, int fromPip, int diceResult) {
 		int possibleToPip = -1;
 		
-		// BOTTOM - home at bottom, point index from small to big, 1-24. 
-		// TOP - home at top, point index from big to small, 24-1.
+		// BOTTOM - home at bottom, so direction is growing towards 1, toPip gets smaller.
+		// TOP - home at top, so direction is growing towards 24, toPip gets bigger.
 		switch (pCurrent.getPOV()) {
 			case BOTTOM:
 				possibleToPip = fromPip - diceResult;
@@ -301,12 +375,12 @@ public class Board extends BoardComponents {
 	}
 	
 	/**
-	 * Checks if the toPip is within range 0-23.
-	 * @param toPip
+	 * Checks if the pip number is within range 0-23.
+	 * @param pipNum pip number.
 	 * @return the boolean value indicating if so.
 	 */
-	public boolean isInRange(int toPip) {
-		return toPip >= 0 && toPip < GameConstants.NUMBER_OF_PIPS;
+	public boolean isPipNumberInRange(int pipNum) {
+		return pipNum >= 0 && pipNum < GameConstants.NUMBER_OF_PIPS;
 	}
 	
 	/**
@@ -316,12 +390,12 @@ public class Board extends BoardComponents {
 	 * @param pCurrent current player.
 	 * @return the move result if we were to make that move.
 	 */
-	private MoveResult isMove(int fromPip, int toPip, Player pCurrent) {
+	private MoveResult isPipToPipMove(int fromPip, int toPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		
 		if (!pips[fromPip].isEmpty()) {
 			if (isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
-				if (pips[fromPip].topCheckerColourEquals(pips[toPip])) {
+				if (pips[fromPip].topCheckerColorEquals(pips[toPip])) {
 					moveResult = MoveResult.MOVED_TO_PIP;
 				} else {
 					if (pips[toPip].size() == 1) {
@@ -395,11 +469,10 @@ public class Board extends BoardComponents {
 	 * @return the boolean value.
 	 */
 	private boolean isPipColorEqualsPlayerColor(int pipNum, Player player) {
-		boolean isFromPipColourEqualsPlayerColor = true;
-		
+		boolean isFromPipColorEqualsPlayerColor = true;
 		if (player != null && !pips[pipNum].isEmpty()) {
-			isFromPipColourEqualsPlayerColor = pips[pipNum].topCheckerColourEquals(player.getColor());
+			isFromPipColorEqualsPlayerColor = pips[pipNum].topCheckerColorEquals(player.getColor());
 		}
-		return isFromPipColourEqualsPlayerColor;
+		return isFromPipColorEqualsPlayerColor;
 	}
 }
