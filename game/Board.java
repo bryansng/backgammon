@@ -331,15 +331,16 @@ public class Board extends BoardComponents {
 		boolean isCheckersInHomeBoard = isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent);
 		boolean isValidMove = isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP;
 		
-		if (isCheckersInHomeBoard && isPipNumberAtBounds(toPip) && isValidMove) {
-			canToHome = true;
-			/*
-			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult)) {
-				// if dont have better pips, and diceResult is greater than the pip number,
-				// i.e. rolled [2,6], only checkers at pip 3,2,1,
-				// then pip 3 should be able to bear-off with 6.
+		if (isCheckersInHomeBoard && isValidMove) {
+			// if dont have better pips, and diceResult is greater than the pip number,
+			// i.e. rolled [2,6], only checkers at pip 3,2,1,
+			// then pip 3 should be able to bear-off with 6.
+			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult) && !isPipNumberInRange(toPip)) {
+				canToHome = true;
 			}
-			*/
+			if (isPipNumberAtBounds(toPip)) {
+				canToHome = true;
+			}
 		}
 		
 		return canToHome;

@@ -56,17 +56,29 @@ public class BoardQuadrant extends VBox {
 		// loop range, pips further away from home (inclusive) - fromPip (exclusive).
 		if (isWhiteHome) {
 			for (int pipNum = endRange; pipNum > fromPip; pipNum--) {
+				if (!pips[pipNum].isEmpty()) {
+					hasBetter = true;
+					break;
+				}
+				/*
 				if (!pips[pipNum].isEmpty() && pipNum == (diceResult-1)) {
 					hasBetter = true;
 					break;
 				}
+				*/
 			}
 		} else if (isBlackHome) {
 			for (int pipNum = startRange; pipNum < fromPip; pipNum++) {
+				if (!pips[pipNum].isEmpty()) {
+					hasBetter = true;
+					break;
+				}
+				/*
 				if (!pips[pipNum].isEmpty() && (GameConstants.NUMBER_OF_PIPS-pipNum) == (diceResult-1)) {
 					hasBetter = true;
 					break;
 				}
+				*/
 			}
 		}
 		

@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.LinkedList;
 import constants.DieInstance;
+import constants.GameConstants;
 import constants.MessageType;
 import game.Pip;
 import interfaces.ColorParser;
@@ -99,7 +100,8 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		char prefix = 'A';
 		String msg = "Remaining moves:";
 		for (RollMoves aRollMoves : moves) {
-			msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
+			if (GameConstants.DEBUG_MODE) msg += "\n" + spaces + "Normal: " + aRollMoves.isNormalMove() + ", Sum: " + aRollMoves.isSumMove() + ", Roll of " + aRollMoves.getRollResult() + "\n";
+			else msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
 			for (Move aMove : aRollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
@@ -195,35 +197,22 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		if (isPip(fro) && isBarOrHome(to)) {
 			int fromPip = Integer.parseInt(fro);
 			String toHome = to.toLowerCase();
-			infoPnl.print("Selected fromPip: " + (fromPip+1), MessageType.DEBUG);
+			infoPnl.print("Selected fromPip: " + correct(fromPip), MessageType.DEBUG);
 			infoPnl.print("Selected toHome: " + toHome, MessageType.DEBUG);
-			
+
 			for (RollMoves rollMoves : moves) {
 				// check if fromPip is part of possible moves.
 				PipToHome move = null;
-				boolean hasFromPip = false;
 				for (Move aMove : rollMoves.getMoves()) {
 					if (aMove instanceof PipToHome) {
 						move = (PipToHome) aMove;
 						if (move.getFromPip() == fromPip) {
-							hasFromPip = true;
+							theValidMove = (Move) move;
 							break;
 						}
 					}
 				}
-				
-				if (hasFromPip) {
-					theValidMove = (Move) move;
-					
-					// check if fromPip is empty, i.e. no checkers,
-					// if so, remove it from possible moves.
-					Pip[] pips = game.getBoard().getPips();
-					if (pips[fromPip].isEmpty()) {
-						// remove the move from the set of moves in its RollMoves.
-						rollMoves.getMoves().remove(move);
-						theValidMove = null;
-					}
-				}
+				if (theValidMove != null) break;
 			}
 		}
 		return theValidMove;
@@ -240,36 +229,23 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		if (isPip(fro) && isPip(to)) {
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
-			infoPnl.print("Selected fromPip: " + (fromPip+1), MessageType.DEBUG);
-			infoPnl.print("Selected toPip: " + (toPip+1), MessageType.DEBUG);
+			infoPnl.print("Selected fromPip: " + correct(fromPip), MessageType.DEBUG);
+			infoPnl.print("Selected toPip: " + correct(toPip), MessageType.DEBUG);
 			
 			for (RollMoves rollMoves : moves) {
 				// check if fromPip is part of possible moves.
 				PipToPip move = null;
-				boolean hasFromPip = false;
 				for (Move aMove : rollMoves.getMoves()) {
 					if (aMove instanceof PipToPip) {
 						move = (PipToPip) aMove;
 						if (move.getFromPip() == fromPip) {
-							hasFromPip = true;
+							// check if toPip is part of fromPip's possible toPips.
+							if (move.getToPip() == toPip) theValidMove = (Move) move;
 							break;
 						}
 					}
 				}
-				
-				if (hasFromPip) {
-					// check if toPip is part of fromPip's possible toPips.
-					if (move.getToPip() == toPip) theValidMove = (Move) move;
-					
-					// check if fromPip is empty, i.e. no checkers,
-					// if so, remove it from possible moves.
-					Pip[] pips = game.getBoard().getPips();
-					if (pips[fromPip].isEmpty()) {
-						// remove the move from the set of moves in its RollMoves.
-						rollMoves.getMoves().remove(move);
-						theValidMove = null;
-					}
-				}
+				if (theValidMove != null) break;
 			}
 		}
 		return theValidMove;
@@ -284,27 +260,33 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @param theMove 'theMove'.
 	 */
 	private void removeMovesOfEmptyCheckersStorer(Move theMove) {
+		Pip[] pips = game.getBoard().getPips();
+		
+		int fromPip = -1;
+		if (theMove instanceof PipToPip) fromPip = ((PipToPip) theMove).getFromPip();
+		else if (theMove instanceof PipToHome) fromPip = ((PipToHome) theMove).getFromPip();
+		
+		if (pips[fromPip].size() == 1 || pips[fromPip].isEmpty()) {
+			removeMovesOfFromPip(fromPip);
+		}
+	}
+	
+	private void removeMovesOfFromPip(int fromPip) {
 		// we use this way of iterating and use iter.remove() to remove,
 		// if not while removing will raised ConcurrentModificationException.
-		if (theMove instanceof PipToPip) {
-			Pip[] pips = game.getBoard().getPips();
-			int fromPip = ((PipToPip) theMove).getFromPip();
-			if (pips[fromPip].size() == 1) {
-				for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
-					RollMoves aRollMoves = iterRollMoves.next();
-					for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
-						Move aMove = iterMove.next();
-						if (aMove instanceof PipToPip) {
-							if (((PipToPip) aMove).getFromPip() == fromPip) {
-								iterMove.remove();
-							}
-						}
-					}
-					
-					// removes the entire rollMoves if it has no moves left.
-					if (aRollMoves.getMoves().isEmpty()) iterRollMoves.remove();
+		for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
+			RollMoves aRollMoves = iterRollMoves.next();
+			for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
+				Move aMove = iterMove.next();
+				if (aMove instanceof PipToPip) {
+					if (((PipToPip) aMove).getFromPip() == fromPip) iterMove.remove();
+				} else if (aMove instanceof PipToHome) {
+					if (((PipToHome) aMove).getFromPip() == fromPip) iterMove.remove();
 				}
 			}
+			
+			// removes the entire rollMoves if it has no moves left.
+			if (aRollMoves.getMoves().isEmpty()) iterRollMoves.remove();
 		}
 	}
 	
@@ -313,9 +295,9 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * i.e. remove everything related to the dice roll result completely from moves.
 	 * @param rollMoves rollMoves to remove.
 	 */
-	private void removeRollMoves(RollMoves rollMoves) {
-		removeOtherRollMoves(rollMoves);
-		moves.remove(rollMoves);
+	private void removeRollMoves(RollMoves theRollMoves) {
+		removeOtherRollMoves(theRollMoves);
+		moves.remove(theRollMoves);
 	}
 	
 	/**
@@ -325,21 +307,23 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * - if either one result moved, sum result is forfeited.
 	 * @param rollMoves rollMoves that was removed.
 	 */
-	private void removeOtherRollMoves(RollMoves rollMoves) {
+	private void removeOtherRollMoves(RollMoves theRollMoves) {
 		// we use this way of iterating and use iter.remove() to remove,
 		// if not while removing will raised ConcurrentModificationException.
 		int count = 1;
 		for (Iterator<RollMoves> iter = moves.iterator(); iter.hasNext();) {
 			RollMoves aRollMoves = iter.next();
-
+			
 			// if sum moved, remove other two.
-			if (rollMoves.isSumMove() && aRollMoves.isNormalMove()) {
+			if (theRollMoves.isSumMove() && aRollMoves.isNormalMove()) {
+				infoPnl.print("rollMoves isSumMove, removing the normalMove.", MessageType.DEBUG);
 				iter.remove();
 				if (count == 2) break;
 				count++;
 			}
 			// if not sum moved, remove sum.
-			if (rollMoves.isNormalMove() && aRollMoves.isSumMove()) {
+			if (theRollMoves.isNormalMove() && aRollMoves.isSumMove()) {
+				infoPnl.print("rollMoves isNormalMove, removing the sumMove.", MessageType.DEBUG);
 				iter.remove();
 				break;
 			}
