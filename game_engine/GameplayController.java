@@ -5,11 +5,16 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.MessageType;
+import game.Pip;
+import interfaces.ColorParser;
+import interfaces.IndexOffset;
+import interfaces.InputValidator;
 import move.BarToPip;
 import move.Move;
 import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
+import ui.InfoPanel;
 
 /**
  * This class handles the gameplay of Backgammon.

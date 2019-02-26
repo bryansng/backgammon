@@ -1,9 +1,11 @@
-package game_engine;
+package game;
 
 import java.util.LinkedList;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
+import game_engine.Player;
+import game_engine.Settings;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -84,34 +86,7 @@ public class BoardComponents extends HBox {
 				pips[i] = new Pip(Color.WHITE, rotation, i);
 			}
 			
-			if (GameConstants.FORCE_ACTUAL_GAME) {
-				switch (i) {
-					case 0:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 5:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 7:
-						pips[i].initCheckers(3, Color.WHITE);
-						break;
-					case 11:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-					case 12:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 16:
-						pips[i].initCheckers(3, Color.BLACK);
-						break;
-					case 18:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-					case 23:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_ONE_CHECKER) {
+			if (GameConstants.FORCE_ONE_CHECKER) {
 				switch (i) {
 					case 12:
 						pips[i].initCheckers(1, Color.BLACK);
@@ -141,6 +116,75 @@ public class BoardComponents extends HBox {
 						break;
 					case 18:
 						pips[i].initCheckers(5, Color.BLACK);
+						break;
+				}
+			} else if (GameConstants.FORCE_LESS_CHECKERS_IN_HOME_BOARD) {
+				switch (i) {
+					case 0:
+					case 1:
+					case 2:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+					case 23:
+					case 22:
+					case 21:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+				}
+			} else if (GameConstants.FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD) {
+				switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 5:
+					pips[i].initCheckers(4, Color.WHITE);
+					break;
+				case 6:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				case 23:
+				case 22:
+				case 21:
+				case 20:
+				case 19:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 18:
+					pips[i].initCheckers(4, Color.BLACK);
+					break;
+				case 17:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				}
+			} else {
+				switch (i) {
+					case 0:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 5:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 7:
+						pips[i].initCheckers(3, Color.WHITE);
+						break;
+					case 11:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+					case 12:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 16:
+						pips[i].initCheckers(3, Color.BLACK);
+						break;
+					case 18:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+					case 23:
+						pips[i].initCheckers(2, Color.WHITE);
 						break;
 				}
 			}
@@ -190,9 +234,9 @@ public class BoardComponents extends HBox {
 		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
 			Color pColor = pCurrent.getColor();
 			for (BoardQuadrant quad : quads) {
-				if (quad.hasCheckerColor(pColor) && !quad.equals(pQuad)) {
-					if (GameConstants.DEBUG_MODE)
-						System.out.println("[Error] " + pCurrent.getName() + " does not have all checkers in quad: " + quad.toString());
+				if (!quad.equals(pQuad) && quad.hasCheckerColor(pColor)) {
+					//if (GameConstants.DEBUG_MODE)
+						//System.out.println("[Error] " + pCurrent.getName() + " does not have all checkers in quad: " + quad.toString());
 					hasAllCheckers = false;
 					break;
 				}

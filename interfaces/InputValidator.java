@@ -1,4 +1,4 @@
-package game_engine;
+package interfaces;
 
 /**
  * This interface is used to validate player inputs.

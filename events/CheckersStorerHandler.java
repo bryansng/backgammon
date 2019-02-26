@@ -1,6 +1,6 @@
 package events;
 
-import game_engine.CheckersStorer;
+import game.CheckersStorer;
 import javafx.event.EventHandler;
 
 /**

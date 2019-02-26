@@ -1,7 +1,6 @@
 package game_engine;
 
 import java.io.InputStream;
-
 import javafx.application.Application;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
@@ -41,7 +40,7 @@ public class Main extends Application {
 	 * @param stage, the stage of the application.
 	 */
 	public void setStageIcon(Stage stage) {
-		InputStream input = getClass().getResourceAsStream("img/icon/icon.png");
+		InputStream input = Main.class.getResourceAsStream("/game/img/icon/icon.png");
 		stage.getIcons().add(new Image(input));
 	}
 }

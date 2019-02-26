@@ -1,7 +1,8 @@
-package game_engine;
+package game;
 
 import java.io.InputStream;
 
+import interfaces.ColorParser;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;

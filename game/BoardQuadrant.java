@@ -1,8 +1,9 @@
-package game_engine;
+package game;
 
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
+import game_engine.Settings;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;

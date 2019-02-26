@@ -1,4 +1,4 @@
-package game_engine;
+package game;
 
 import java.util.LinkedList;
 import constants.DieInstance;
@@ -6,6 +6,9 @@ import constants.GameConstants;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import exceptions.PlayerNoPerspectiveException;
+import game_engine.GameComponentsController;
+import game_engine.Player;
+import game_engine.Settings;
 import javafx.scene.paint.Color;
 import move.BarToPip;
 import move.Move;
@@ -325,9 +328,18 @@ public class Board extends BoardComponents {
 	private boolean canToHome(Player pCurrent, int fromPip, int diceResult, int toPip) {
 		boolean canToHome = false;
 		
-		if (isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent) && isPipNumberAtBounds(toPip) && (isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP)) {
-			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult))
-				canToHome = true;
+		boolean isCheckersInHomeBoard = isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent);
+		boolean isValidMove = isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP;
+		
+		if (isCheckersInHomeBoard && isPipNumberAtBounds(toPip) && isValidMove) {
+			canToHome = true;
+			/*
+			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult)) {
+				// if dont have better pips, and diceResult is greater than the pip number,
+				// i.e. rolled [2,6], only checkers at pip 3,2,1,
+				// then pip 3 should be able to bear-off with 6.
+			}
+			*/
 		}
 		
 		return canToHome;

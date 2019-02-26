@@ -1,6 +1,7 @@
-package game_engine;
+package interfaces;
 
 import constants.PlayerPerspectiveFrom;
+import game_engine.Settings;
 import javafx.scene.paint.Color;
 
 public interface ColorPerspectiveParser {

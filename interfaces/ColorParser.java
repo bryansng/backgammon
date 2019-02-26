@@ -1,4 +1,4 @@
-package game_engine;
+package interfaces;
 
 import javafx.scene.paint.Color;
 

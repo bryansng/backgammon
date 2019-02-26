@@ -10,8 +10,11 @@
 !readme.md
 
 # And not these folders...
-!/game_engine/
+!/constants/
 !/events/
 !/exceptions/
-!/constants/
+!/game/
+!/game_engine/
+!/interfaces/
 !/move/
+!/ui/

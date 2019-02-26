@@ -1,6 +1,8 @@
-package game_engine;
+package game;
 
 import constants.GameConstants;
+import game_engine.Player;
+import game_engine.Settings;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;

@@ -6,6 +6,12 @@ import constants.GameConstants;
 import constants.MessageType;
 import events.CheckersStorerHandler;
 import events.CheckersStorerSelectedEvent;
+import game.Bar;
+import game.CheckersStorer;
+import game.Home;
+import game.Pip;
+import interfaces.ColorParser;
+import interfaces.InputValidator;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -14,6 +20,9 @@ import javafx.scene.input.MouseEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
+import ui.CommandPanel;
+import ui.InfoPanel;
+import ui.RollDieButton;
 
 /**
  * This class handles all the events that is triggered by the user.

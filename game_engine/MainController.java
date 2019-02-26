@@ -3,6 +3,7 @@ package game_engine;
 import java.util.Optional;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
+import interfaces.ColorPerspectiveParser;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -20,6 +21,9 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
+import ui.CommandPanel;
+import ui.InfoPanel;
+import ui.RollDieButton;
 
 /**
  * This class represents the entire component of the application,
@@ -136,8 +140,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		pane.setVgap(10);
 		
 		// Player color labels.
-		ImageView black = new ImageView(getClass().getResource("img/checkers/black_checkers.png").toString());
-		ImageView white = new ImageView(getClass().getResource("img/checkers/white_checkers.png").toString());
+		ImageView black = new ImageView(this.getClass().getResource("/game/img/checkers/black_checkers.png").toString());
+		ImageView white = new ImageView(this.getClass().getResource("/game/img/checkers/white_checkers.png").toString());
 		Label bLabel = new Label("", black);
 		Label wLabel = new Label("", white);
 		

@@ -1,4 +1,4 @@
-package game_engine;
+package game;
 
 import constants.GameConstants;
 import javafx.geometry.Pos;

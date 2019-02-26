@@ -15,12 +15,13 @@ import javafx.scene.image.Image;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = true;
+	public static final boolean DEBUG_MODE = false;
 	
 	// force ways to init pips and checkers.
-	public static final boolean FORCE_ACTUAL_GAME = false;
 	public static final boolean FORCE_ONE_CHECKER = false;
-	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = true;
+	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
+	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
+	public static final boolean FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD = false;
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;
@@ -43,7 +44,7 @@ public class GameConstants {
 	 * @return the file input stream.
 	 */
 	private static InputStream getFile(String path) {
-		return GameConstants.class.getResourceAsStream("/game_engine/" + path);
+		return GameConstants.class.getResourceAsStream("/game/" + path);
 	}
 	
 	/**

@@ -8,12 +8,16 @@ import constants.GameConstants;
 import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
+import interfaces.ColorParser;
+import interfaces.IndexOffset;
+import interfaces.InputValidator;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.WindowEvent;
 import javafx.util.Duration;
+import ui.InfoPanel;
 
 /**
  * This class handles all the commands that is entered by the user.

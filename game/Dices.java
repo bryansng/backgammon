@@ -1,7 +1,8 @@
-package game_engine;
+package game;
 
 import constants.DieInstance;
 import constants.GameConstants;
+import interfaces.ColorParser;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;

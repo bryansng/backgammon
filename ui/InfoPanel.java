@@ -1,4 +1,4 @@
-package game_engine;
+package ui;
 
 import constants.GameConstants;
 import constants.MessageType;

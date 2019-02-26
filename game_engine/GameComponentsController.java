@@ -2,6 +2,13 @@ package game_engine;
 
 import constants.GameConstants;
 import constants.MoveResult;
+import game.Bar;
+import game.Bars;
+import game.Board;
+import game.Home;
+import game.HomePanel;
+import game.Pip;
+import game.PlayerPanel;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
