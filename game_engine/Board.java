@@ -1,5 +1,6 @@
 package game_engine;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.GameConstants;
@@ -80,10 +81,18 @@ public class Board extends BoardComponents {
 	 * Highlight the top checkers of fromPips in possible moves.
 	 * @param moves the possible moves.
 	 */
-	public void highlightFromPipsChecker(LinkedList<RollMoves> moves) {
+	public void highlightFromPipsChecker(HashMap<String, Move> test) {
 		unhighlightPipsAndCheckers();
 		
-		PipToPip move = null;
+		for (Move aMove : test.values()) {
+			if (aMove instanceof PipToPip) {
+				PipToPip move = (PipToPip) aMove;
+					pips[move.getFromPip()].top().setHighlightImage();
+				}
+			}
+		}
+		
+		/*PipToPip move = null;
 		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
@@ -91,8 +100,8 @@ public class Board extends BoardComponents {
 					pips[move.getFromPip()].top().setHighlightImage();
 				}
 			}
-		}
-	}
+		}*/
+	
 	
 	/**
 	 * Highlight the toPips of the fromPip in possible moves.
@@ -100,11 +109,23 @@ public class Board extends BoardComponents {
 	 * @param moves the possible moves.
 	 * @param fromPip
 	 */
-	public void highlightToPips(LinkedList<RollMoves> moves, int fromPip) {
+	public void highlightToPips(HashMap<String, Move> test, int fromPip) {
 		unhighlightPipsAndCheckers();
 		
+
 		boolean isFromPipInMoves = false;
-		for (RollMoves rollMoves : moves) {
+		for (Move aMove : test.values()) {
+			if (aMove instanceof PipToPip) {
+				PipToPip move = (PipToPip) aMove;
+				if (move.getFromPip() == fromPip) {
+					isFromPipInMoves = true;
+					pips[move.getToPip()].setHighlightImage();
+				}
+			}
+		}
+		
+		
+		/*for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
@@ -114,7 +135,7 @@ public class Board extends BoardComponents {
 					}
 				}
 			}
-		}
+		}*/
 		
 		// Highlight the selected pip's top checker.
 		// Provided the fromPip is part of the moves.
@@ -148,7 +169,7 @@ public class Board extends BoardComponents {
 		}
 		leftBoard.setCenter(leftDice);
 		rightBoard.setCenter(rightDice);
-		
+
 		return res;
 	}
 	
@@ -190,7 +211,9 @@ public class Board extends BoardComponents {
 	 * @param pOpponent opponent player.
 	 * @return the possible moves.
 	 */
-	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
+	
+	HashMap<String, Move> test = new HashMap<>();
+	public HashMap<String, Move> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
 		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
 			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
 		}
@@ -202,6 +225,7 @@ public class Board extends BoardComponents {
 		
 		LinkedList<RollMoves> moves = new LinkedList<>();
 		
+		
 		// take sum by pairs of rollResult.
 		int pairSum = 0;
 		
@@ -212,7 +236,6 @@ public class Board extends BoardComponents {
 			hasMove = false;
 			pairSum += rollResult[i];
 			rollMoves = new RollMoves(rollResult[i], false);
-			
 			// loop through pips.
 			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 				// addAsMove returns a boolean indicating if move is valid and added as move.
@@ -239,7 +262,13 @@ public class Board extends BoardComponents {
 			if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
 		}
 		
-		return moves;
+		return test;
+	}
+	
+	private String mapToLetter(int index) {	
+		while (test.containsKey(Character.toString((char) index + 65))) {index++;}
+		
+		return Character.toString((char) index + 65);
 	}
 	
 	/**
@@ -264,10 +293,12 @@ public class Board extends BoardComponents {
 			if (isSumMove) {
 				Move intermediateMove;
 				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
+					test.put(mapToLetter(fromPip), new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
 					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
 					addedAsMove = true;
 				}
 			} else {
+				test.put(mapToLetter(fromPip), new PipToPip(fromPip, toPip, rollMoves));
 				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
 				addedAsMove = true;
 			}

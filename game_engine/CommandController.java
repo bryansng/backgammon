@@ -31,8 +31,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private InfoPanel infoPnl;
 	private Player bottomPlayer, topPlayer;
 	private MainController root;
-	
-	public CommandController(Stage stage, MainController root, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+
+	public CommandController(Stage stage, MainController root, GameComponentsController game,
+			GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.stage = stage;
@@ -41,19 +42,22 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		this.gameplay = gameplay;
 		this.infoPnl = infoPnl;
 	}
-	
+
 	/**
 	 * Parse the text variable and runs it as a command.
+	 * 
 	 * @param text the string containing the command and its arguments.
-	 * @param isPlayerInput, true (if 'text' is a user input), false (if some code uses this command) 
+	 * @param      isPlayerInput, true (if 'text' is a user input), false (if some
+	 *             code uses this command)
 	 */
 	public void runCommand(String text) {
 		runCommand(text, false);
 	}
+
 	public void runCommand(String text, boolean isPlayerInput) {
 		String[] args = text.split(" ");
 		String command = args[0];
-		
+
 		if (command.equals("/move")) {
 			runMoveCommand(args, isPlayerInput);
 		} else if (command.equals("/roll")) {
@@ -82,14 +86,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
 	}
-	
+
 	/**
-	 * Command: /move fromPip toPip			//both numbers
-	 * Command: /move fromBar toPip			//left is a color, right a number
-	 * Command: /move fromPip/bar toHome	//left is a color or number, right is a color.
-	 * where fromPip and toPip will be one-index number based.
-	 * where fromBar is the bar color.
-	 * where toHome is the home color.
+	 * Command: /move fromPip toPip //both numbers Command: /move fromBar toPip
+	 * //left is a color, right a number Command: /move fromPip/bar toHome //left is
+	 * a color or number, right is a color. where fromPip and toPip will be
+	 * one-index number based. where fromBar is the bar color. where toHome is the
+	 * home color.
 	 */
 	public void runMoveCommand(String[] args, boolean isPlayerInput) {
 		// error checking.
@@ -97,7 +100,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Incorrect syntax: expected /move fro to.", MessageType.ERROR);
 			return;
 		}
-		
+
 		// conversion from one-based index to zero-based.
 		String fro, to;
 		if (isPlayerInput) {
@@ -107,7 +110,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			fro = args[1];
 			to = args[2];
 		}
-		
+
 		// handle out of bounds input.
 		if (isIndexOutOfBounds(fro) || isIndexOutOfBounds(to)) {
 			infoPnl.print("Invalid range, must be between 1-" + GameConstants.NUMBER_OF_PIPS + ".", MessageType.ERROR);
@@ -121,13 +124,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			fro = getTopPlayerOffset(fro);
 			to = getTopPlayerOffset(to);
 		}
-		
+ 
 		// validate moves.
 		// isRolled only if it started.
 		if (gameplay.isRolled()) {
 			if (!gameplay.isMoved()) {
 				game.getBoard().unhighlightPipsAndCheckers();
-				if (gameplay.isValidMove(fro, to)) {
+				if (gameplay.isValidMove(args[0])) {
 					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
 					gameplay.move();
 				} else {
@@ -140,7 +143,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				return;
 			}
 		}
-		
+
 		MoveResult moveResult;
 		// move from pip/bar to home.
 		if (to.equals("white") || to.equals("black")) {
@@ -151,77 +154,81 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				int fromPip = Integer.parseInt(fro);
 				moveResult = game.moveToHome(fromPip);
 			}
-			
+
 			switch (moveResult) {
-				case MOVED_TO_HOME_FROM_PIP:
-					infoPnl.print("Moved checker from " + correct(Integer.parseInt(fro)) + " to home.");
-					break;
-				case MOVED_TO_HOME_FROM_BAR:
-					infoPnl.print("Moved checker from bar to home.");
-					break;
-				case PIP_EMPTY:
-					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
-					break;
-				default:
-					infoPnl.print("Invalid move.", MessageType.ERROR);
+			case MOVED_TO_HOME_FROM_PIP:
+				infoPnl.print("Moved checker from " + correct(Integer.parseInt(fro)) + " to home.");
+				break;
+			case MOVED_TO_HOME_FROM_BAR:
+				infoPnl.print("Moved checker from bar to home.");
+				break;
+			case PIP_EMPTY:
+				infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
+				break;
+			default:
+				infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
-		// move from bar to pip.
+			// move from bar to pip.
 		} else if (fro.equals("white") || fro.equals("black")) {
 			Color fromBar = parseColor(fro);
 			int toPip = Integer.parseInt(to);
-			
+
 			moveResult = game.moveFromBar(fromBar, toPip);
 			switch (moveResult) {
-				case MOVED_FROM_BAR:
-					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
-					break;
-				case MOVE_TO_BAR:
-					game.moveToBar(toPip);
-					game.moveFromBar(fromBar, toPip);
-					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
-					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
-					break;
-				case PIP_EMPTY:
-					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
-					break;
-				default:
-					infoPnl.print("Invalid move.", MessageType.ERROR);
+			case MOVED_FROM_BAR:
+				infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
+				break;
+			case MOVE_TO_BAR:
+				game.moveToBar(toPip);
+				game.moveFromBar(fromBar, toPip);
+				infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
+				infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
+				break;
+			case PIP_EMPTY:
+				infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
+				break;
+			default:
+				infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
-		// move from pip to pip.
+			// move from pip to pip.
 		} else {
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
-			
+
 			moveResult = game.getBoard().moveCheckers(fromPip, toPip);
 			switch (moveResult) {
-				case MOVED_TO_PIP:
-					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
-					break;
-				case MOVE_TO_BAR:
-					game.moveToBar(toPip);
-					game.getBoard().moveCheckers(fromPip, toPip);
-					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
-					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
-					break;
-				case PIP_EMPTY:
-					infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
-					break;
-				default:
-					infoPnl.print("Invalid move.", MessageType.ERROR);
+			case MOVED_TO_PIP:
+				infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
+				break;
+			case MOVE_TO_BAR:
+				game.moveToBar(toPip);
+				game.getBoard().moveCheckers(fromPip, toPip);
+				infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
+				infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
+				break;
+			case PIP_EMPTY:
+				infoPnl.print("Starting pip has no checkers.", MessageType.ERROR);
+				break;
+			default:
+				infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
 		}
 
 		gameplay.unhighlightPips();
-		if (gameplay.isMoved()) infoPnl.print("Move over.");
+		if (gameplay.isMoved()) {
+			infoPnl.print("Move over.");
+			runNextCommand();
+		}
 	}
-	
+
 	public String correct(int pipNum) {
 		return gameplay.correct(pipNum);
 	}
-	
+
 	/**
-	 * Checks if the arguments of /move command is within bounds, i.e. 0-24.
-	 * It ignores bar or homes, it only checks for pip indexes.
+	 * Checks if the arguments of /move command is within bounds, i.e. 0-24. It
+	 * ignores bar or homes, it only checks for pip indexes.
+	 * 
 	 * @param arg Argument of /move command.
 	 * @return boolean value indicating if the argument is out of bounds.
 	 */
@@ -230,19 +237,18 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		boolean isOutOfBounds = false;
 		if (isPip(arg)) {
 			int pipNum = Integer.parseInt(arg);
-			if (!game.getBoard().isInRange(pipNum)) isOutOfBounds = true;
+			if (!game.getBoard().isInRange(pipNum))
+				isOutOfBounds = true;
 		}
 		return isOutOfBounds;
 	}
 
 	/**
-	 * Gameplay mode:
-	 * Command: /roll
+	 * Gameplay mode: Command: /roll
 	 * 
-	 * Free for all mode:
-	 * Command: /roll playerNumber
-	 * 1 is the player with the perspective from the bottom, dices will be on the left.
-	 * 2 is the player with the perspective from the top, dices will be on the right.
+	 * Free for all mode: Command: /roll playerNumber 1 is the player with the
+	 * perspective from the bottom, dices will be on the left. 2 is the player with
+	 * the perspective from the top, dices will be on the right.
 	 */
 	public void runRollCommand(String[] args) {
 		if (gameplay.isStarted()) {
@@ -259,7 +265,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			} else {
 				pov = parsePlayerPerspective(args[1]);
 			}
-			
+
 			// rollDices returns null if playerNum is invalid.
 			int[] res = game.getBoard().rollDices(pov);
 			if (res != null) {
@@ -269,11 +275,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			}
 		}
 	}
-	
+
 	/**
-	 * Returns player perspective based on player number.
-	 * 1 is the player with the perspective from the bottom, dices will be on the left.
-	 * 2 is the player with the perspective from the top, dices will be on the right.
+	 * Returns player perspective based on player number. 1 is the player with the
+	 * perspective from the bottom, dices will be on the left. 2 is the player with
+	 * the perspective from the top, dices will be on the right.
+	 * 
 	 * @param playerNum player number.
 	 * @return player's perspective.
 	 */
@@ -290,8 +297,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 
 	/**
-	 * Command: /start
-	 * Enters into gameplay mode, i.e. start game.
+	 * Command: /start Enters into gameplay mode, i.e. start game.
 	 */
 	public void runStartCommand() {
 		if (!gameplay.isStarted()) {
@@ -301,10 +307,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Game already started.", MessageType.ERROR);
 		}
 	}
-	
+
 	/**
-	 * Command: /next
-	 * Move on to the next player's turn.
+	 * Command: /next Move on to the next player's turn.
 	 */
 	public void runNextCommand() {
 		// isMoved only if it started and rolled, so this is suffice.
@@ -316,37 +321,36 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
 		}
 	}
-	
+
 	/**
-	 * Command: /help
-	 * Displays help commands on info panel.
+	 * Command: /help Displays help commands on info panel.
 	 */
 	public void runHelpCommand() {
 		String s = "\n";
 		String line = null;
-		
+
 		try {
-			BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream("help.txt")));
-			while((line = reader.readLine()) != null)
+			BufferedReader reader = new BufferedReader(
+					new InputStreamReader(getClass().getResourceAsStream("help.txt")));
+			while ((line = reader.readLine()) != null)
 				s += line + "\n";
-			s +="\n";
+			s += "\n";
 			infoPnl.print(s, MessageType.ANNOUNCEMENT);
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	/**
-	 * Command: /name colorPlayerRepresents newName
-	 * Changes player name.
+	 * Command: /name colorPlayerRepresents newName Changes player name.
 	 */
 	public void runNameCommand(String[] args) {
 		if (args.length != 3) {
 			infoPnl.print("Incorrect syntax: expected /name color newName.", MessageType.ERROR);
 			return;
 		}
-		
+
 		String color = args[1].toLowerCase();
 		String playerName = args[2];
 		if (color.equals("white")) {
@@ -359,13 +363,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Incorrect syntax: expected white or black color in /name color newName.", MessageType.ERROR);
 		}
 	}
-	
+
 	/**
-	 * Command: /clear
-	 * Appends newlines to infoPnl to "clear" it out
+	 * Command: /clear Appends newlines to infoPnl to "clear" it out
 	 * 
-	 * Should print (height of infoPnl / font size) number of lines
-	 * But that prints more lines than required, probably shouldn't get infoPnl height?
+	 * Should print (height of infoPnl / font size) number of lines But that prints
+	 * more lines than required, probably shouldn't get infoPnl height?
 	 * 
 	 * TODO Scroll bar does not scroll to bottom automatically
 	 */
@@ -373,103 +376,100 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		infoPnl.print("Clearing panel...");
 		infoPnl.printNewline((int) (infoPnl.getHeight() / 21));
 	}
-	
+
 	/**
-	 * Command: /save
-	 * Saves game log (text on info panel) to text file.
+	 * Command: /save Saves game log (text on info panel) to text file.
 	 */
 	public void runSaveCommand() {
 		infoPnl.saveToFile();
 	}
 
-	
 	/**
-	 * Command: /reset
-	 * Resets everything including player info.
+	 * Command: /reset Resets everything including player info.
 	 */
 	public void runResetCommand() {
 		root.resetApplication();
-	}	
-	
+	}
+
 	/**
-	 * Command: /restart
-	 * Starts a new instance of the game.
+	 * Command: /restart Starts a new instance of the game.
 	 */
 	public void runRestartCommand() {
 		root.restartGame();
 	}
+
 	/**
-	 * Command: /quit
-	 * Saves game log and prompts player to quit before quitting application.
+	 * Command: /quit Saves game log and prompts player to quit before quitting
+	 * application.
 	 */
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
-	
+
 	/**
-	 * Command: /test
-	 * Tests /move command, by moving checkers from 1-24, to hit, to bear off and bear on.
+	 * Command: /test Tests /move command, by moving checkers from 1-24, to hit, to
+	 * bear off and bear on.
 	 */
 	private int checkerPos = 24;
 	private int step = 1;
 	private Timeline hitTl, bearOnTL, bearOffTL, traversalTl;
+
 	public void runTestCommand() {
 		// test hit.
 		hitTl = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 			switch (step) {
-				case 1:
-					infoPnl.print("Testing hit.");
-					runCommand("/move 1 2", true);
-					break;
-				case 2:
-					runCommand("/move 6 2", true);
-					break;
-				default:
-					infoPnl.print("Hit testing done.");
-					infoPnl.printNewline(2);
-					step = 1;
-					bearOnTL.play();
-					return;
+			case 1:
+				infoPnl.print("Testing hit.");
+				runCommand("/move 1 2", true);
+				break;
+			case 2:
+				runCommand("/move 6 2", true);
+				break;
+			default:
+				infoPnl.print("Hit testing done.");
+				infoPnl.printNewline(2);
+				step = 1;
+				bearOnTL.play();
+				return;
 			}
 			step++;
 		}));
-		
+
 		// test bear-on.
 		bearOnTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 			switch (step) {
-				case 1:
-					infoPnl.print("Testing bear-on.");
-					runCommand("/move black 2", true);
-					break;
-				default:
-					infoPnl.print("Bear-on testing done.");
-					infoPnl.printNewline(2);
-					step = 1;
-					bearOffTL.play();
-					return;
+			case 1:
+				infoPnl.print("Testing bear-on.");
+				runCommand("/move black 2", true);
+				break;
+			default:
+				infoPnl.print("Bear-on testing done.");
+				infoPnl.printNewline(2);
+				step = 1;
+				bearOffTL.play();
+				return;
 			}
 			step++;
 		}));
-		
-		
+
 		// test bear-off.
 		bearOffTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 			switch (step) {
-				case 1:
-					infoPnl.print("Testing bear-off.");
-					runCommand("/move 6 white", true);
-					break;
-				default:
-					infoPnl.print("Bear-off testing done.");
-					infoPnl.printNewline(2);
-					infoPnl.print("Testing checkers traversal.");
-					step = 1;
-					traversalTl.play();
-					return;
+			case 1:
+				infoPnl.print("Testing bear-off.");
+				runCommand("/move 6 white", true);
+				break;
+			default:
+				infoPnl.print("Bear-off testing done.");
+				infoPnl.printNewline(2);
+				infoPnl.print("Testing checkers traversal.");
+				step = 1;
+				traversalTl.play();
+				return;
 			}
 			step++;
 		}));
-		
+
 		// start from 24, go all the way until 1, white board.
 		traversalTl = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
 			if (checkerPos < 2) {
@@ -477,7 +477,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				infoPnl.printNewline(2);
 				return;
 			}
-			runCommand("/move " + checkerPos + " " + (checkerPos-1), true);
+			runCommand("/move " + checkerPos + " " + (checkerPos - 1), true);
 			checkerPos--;
 		}));
 		hitTl.setCycleCount(3);
