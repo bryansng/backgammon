@@ -20,7 +20,7 @@ import move.RollMoves;
  *
  */
 public class GameplayController implements ColorParser, InputValidator, IndexOffset {
-	private LinkedList<RollMoves> moves; HashMap<String, Move> test;
+	private LinkedList<RollMoves> moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 
@@ -78,9 +78,9 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 				MessageType.DEBUG);
 
 		// calculate possible moves.
-		//moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
-		test = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
-		if (test.isEmpty()) {
+		moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
+		
+		if (moves.isEmpty()) {
 			infoPnl.print("No available moves. Your turn will now end"); // No available moves, end player's turn
 			next();
 		}
@@ -88,27 +88,14 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		printMoves();
 
 		// highlight top checkers.
-		game.getBoard().highlightFromPipsChecker(test);
+		game.getBoard().highlightFromPipsChecker(moves);
 		rolledFlag = true;
-	}
-	public boolean isValidMove(String selection) {
-		return test.containsKey(selection.toUpperCase());
 	}
 
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
-		
-		if (!test.isEmpty()) {
-			for (String key : test.keySet()) {
-				for (Move aMove : test.values()) {
-					if (aMove instanceof PipToPip) {
-						PipToPip move = (PipToPip) aMove;
-						infoPnl.print(key + ": " + move.getFromPip() + " - " + move.getToPip());
-					}
-				}
-			}
-		}
-	/*	if (!moves.isEmpty()) {
+
+		if (!moves.isEmpty()) {
 			String spaces = "  ";
 			char prefix = 'A';
 			String msg = "Remaining moves:";
@@ -124,7 +111,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 				}
 			}
 			infoPnl.print(msg);
-		}*/
+		}
 	}
 
 	/**
@@ -434,7 +421,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		return topPlayerFlag;
 	}
 
-	public HashMap<String, Move> getValidMoves() {
-		return test;
+	public LinkedList<RollMoves> getValidMoves() {
+		return moves;
 	}
 }

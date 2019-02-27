@@ -130,7 +130,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (gameplay.isRolled()) {
 			if (!gameplay.isMoved()) {
 				game.getBoard().unhighlightPipsAndCheckers();
-				if (gameplay.isValidMove(args[0])) {
+				if (gameplay.isValidMove(fro, to)) {
 					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
 					gameplay.move();
 				} else {

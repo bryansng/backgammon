@@ -81,18 +81,10 @@ public class Board extends BoardComponents {
 	 * Highlight the top checkers of fromPips in possible moves.
 	 * @param moves the possible moves.
 	 */
-	public void highlightFromPipsChecker(HashMap<String, Move> test) {
+	public void highlightFromPipsChecker(LinkedList<RollMoves> moves) {
 		unhighlightPipsAndCheckers();
 		
-		for (Move aMove : test.values()) {
-			if (aMove instanceof PipToPip) {
-				PipToPip move = (PipToPip) aMove;
-					pips[move.getFromPip()].top().setHighlightImage();
-				}
-			}
-		}
-		
-		/*PipToPip move = null;
+		PipToPip move = null;
 		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
@@ -100,8 +92,8 @@ public class Board extends BoardComponents {
 					pips[move.getFromPip()].top().setHighlightImage();
 				}
 			}
-		}*/
-	
+		}
+	}
 	
 	/**
 	 * Highlight the toPips of the fromPip in possible moves.
@@ -109,23 +101,11 @@ public class Board extends BoardComponents {
 	 * @param moves the possible moves.
 	 * @param fromPip
 	 */
-	public void highlightToPips(HashMap<String, Move> test, int fromPip) {
+	public void highlightToPips(LinkedList<RollMoves> moves, int fromPip) {
 		unhighlightPipsAndCheckers();
 		
-
 		boolean isFromPipInMoves = false;
-		for (Move aMove : test.values()) {
-			if (aMove instanceof PipToPip) {
-				PipToPip move = (PipToPip) aMove;
-				if (move.getFromPip() == fromPip) {
-					isFromPipInMoves = true;
-					pips[move.getToPip()].setHighlightImage();
-				}
-			}
-		}
-		
-		
-		/*for (RollMoves rollMoves : moves) {
+		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
@@ -135,13 +115,12 @@ public class Board extends BoardComponents {
 					}
 				}
 			}
-		}*/
+		}
 		
 		// Highlight the selected pip's top checker.
 		// Provided the fromPip is part of the moves.
 		if (isFromPipInMoves) pips[fromPip].top().setHighlightImage();
 	}
-	
 	/**
 	 * Execute the roll dice methods of dices object.
 	 * BOTTOM is the player with the perspective from the bottom, dices will be on the left.
@@ -212,8 +191,7 @@ public class Board extends BoardComponents {
 	 * @return the possible moves.
 	 */
 	
-	HashMap<String, Move> test = new HashMap<>();
-	public HashMap<String, Move> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
+	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
 		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
 			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
 		}
@@ -262,13 +240,7 @@ public class Board extends BoardComponents {
 			if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
 		}
 		
-		return test;
-	}
-	
-	private String mapToLetter(int index) {	
-		while (test.containsKey(Character.toString((char) index + 65))) {index++;}
-		
-		return Character.toString((char) index + 65);
+		return moves;
 	}
 	
 	/**
@@ -293,12 +265,10 @@ public class Board extends BoardComponents {
 			if (isSumMove) {
 				Move intermediateMove;
 				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
-					test.put(mapToLetter(fromPip), new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
 					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
 					addedAsMove = true;
 				}
 			} else {
-				test.put(mapToLetter(fromPip), new PipToPip(fromPip, toPip, rollMoves));
 				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
 				addedAsMove = true;
 			}
