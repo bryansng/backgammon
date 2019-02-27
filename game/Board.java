@@ -1,6 +1,5 @@
 package game;
 
-import java.util.LinkedList;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MoveResult;
@@ -12,6 +11,7 @@ import game_engine.Settings;
 import javafx.scene.paint.Color;
 import move.BarToPip;
 import move.Move;
+import move.Moves;
 import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
@@ -65,7 +65,7 @@ public class Board extends BoardComponents {
 	 * Highlight the top checkers of fromPips in possible moves.
 	 * @param moves the possible moves.
 	 */
-	public void highlightFromPipsAndFromBarChecker(LinkedList<RollMoves> moves) {
+	public void highlightFromPipsAndFromBarChecker(Moves moves) {
 		game.unhighlightAll();
 		
 		for (RollMoves rollMoves : moves) {
@@ -93,7 +93,7 @@ public class Board extends BoardComponents {
 	 * @param moves the possible moves.
 	 * @param fromPip
 	 */
-	public void highlightToPipsAndToHome(LinkedList<RollMoves> moves, int fromPip) {
+	public void highlightToPipsAndToHome(Moves moves, int fromPip) {
 		game.unhighlightAll();
 		
 		boolean isFromPipInMoves = false;
@@ -207,24 +207,58 @@ public class Board extends BoardComponents {
 		return moveResult;
 	}
 	
+	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
+		Moves moves = new Moves();
+		// recalculate using remaining dice results.
+		for (RollMoves aRollMoves : prevMoves) {
+			boolean hasMove = false;
+			int rollResult = aRollMoves.getRollResult();
+			boolean isSumMove = aRollMoves.isSumMove();
+			
+			RollMoves rollMoves = new RollMoves(rollResult, isSumMove);
+			
+			// loop through pips.
+			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+				// addAsMove returns a boolean indicating if move is valid and added as move.
+				 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
+					 hasMove = true;
+				 }
+			}
+			if (hasMove) {
+				moves.add(rollMoves);
+			}
+		}
+		return moves;
+	}
+	
 	/**
 	 * Calculate the possible moves based on die roll.
 	 * @param rollResult roll die result.
 	 * @param pCurrent current player.
-	 * @param pOpponent opponent player.
+	 * @param isRecalculate recalculation doesn't add sumMove.
 	 * @return the possible moves.
 	 */
-	public LinkedList<RollMoves> getMoves(int[] rollResult, Player pCurrent, Player pOpponent) {
+	public Moves getMoves(int[] rollResult, Player pCurrent) {
 		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
 			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
 		}
 		
+		// calculate number of dices, for looping.
+		// if 1, then only be 1.
+		// if more than 1, we put 2 because moves calculated by pairs.
+		int numDices = -1;
+		if (rollResult.length == 1) {
+			numDices = 1;
+		} else if (rollResult.length > 1) {
+			numDices = 2;
+		}
+		
 		DieInstance instance = DieInstance.DEFAULT;
-		if (rollResult[0] == rollResult[1]) {
+		if (numDices > 1 && rollResult[0] == rollResult[1]) {
 			instance = DieInstance.DOUBLE;
 		}
 		
-		LinkedList<RollMoves> moves = new LinkedList<>();
+		Moves moves = new Moves();
 		
 		// take sum by pairs of rollResult.
 		int pairSum = 0;
@@ -232,7 +266,7 @@ public class Board extends BoardComponents {
 		// consider each die result.
 		boolean hasMove;
 		RollMoves rollMoves = null;
-		for (int i = 0; i < 2; i++) {
+		for (int i = 0; i < numDices; i++) {
 			hasMove = false;
 			pairSum += rollResult[i];
 			rollMoves = new RollMoves(rollResult[i], false);
@@ -249,18 +283,21 @@ public class Board extends BoardComponents {
 				if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
 			}
 		}
-
-		// consider sum of die result.
-		hasMove = false;
-		rollMoves = new RollMoves(pairSum, true);
-		for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-			if (addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true)) {
-				hasMove = true;
+		
+		// consider sum of die result,
+		// only when there is more than 1 dice result.
+		if (numDices > 1) {
+			hasMove = false;
+			rollMoves = new RollMoves(pairSum, true);
+			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+				if (addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true)) {
+					hasMove = true;
+				}
 			}
-		}
-		if (hasMove) {
-			moves.add(rollMoves);
-			if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
+			if (hasMove) {
+				moves.add(rollMoves);
+				if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
+			}
 		}
 		
 		return moves;
@@ -276,7 +313,7 @@ public class Board extends BoardComponents {
 	 * @param isSumMove boolean indicating if its a sum move, i.e. 5+10=15.
 	 * @return boolean value indicating if the move is added.
 	 */
-	private boolean addedAsMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+	private boolean addedAsMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		
 		// BarToPip
@@ -286,13 +323,13 @@ public class Board extends BoardComponents {
 			addedAsMove = true;
 		
 		// pipToHome
-		if (addedAsPipToHomeMove(rollMoves, pCurrent, fromPip, diceResult))
+		if (addedAsPipToHomeMove(rollMoves, pCurrent, fromPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
 		return addedAsMove;
 	}
 	
-	private boolean addedAsPipToPipMove(LinkedList<RollMoves> moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+	private boolean addedAsPipToPipMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		MoveResult moveResult;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
@@ -311,31 +348,36 @@ public class Board extends BoardComponents {
 		return addedAsMove;
 	}
 	
-	private boolean addedAsPipToHomeMove(RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult) {
+	private boolean addedAsPipToHomeMove(RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
-		if (canToHome(pCurrent, fromPip, diceResult, toPip)) {
+		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
 			rollMoves.getMoves().add(new PipToHome(fromPip, rollMoves));
 			addedAsMove = true;
 		}
 		return addedAsMove;
 	}
 	
-	// if all checkers at home board.
-	// if dice result enough to go to home (enough if its getPossibleToPip is out of bounds).
-	// if checkers getting fewer,
-	// those at pip 1, 2, 3 can be bear-offed with dice result of 4,5,6.
-	private boolean canToHome(Player pCurrent, int fromPip, int diceResult, int toPip) {
+	private boolean canToHome(Player pCurrent, int fromPip, int diceResult, int toPip, boolean isSumMove) {
 		boolean canToHome = false;
 		
 		boolean isCheckersInHomeBoard = isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent);
 		boolean isValidMove = isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP;
+		boolean hasBetterPipsToBearOff = hasBetterPipsToBearOff(pCurrent, fromPip, diceResult);
 		
+		// if all checkers at home board, and fromPip not empty.
 		if (isCheckersInHomeBoard && isValidMove) {
 			// if dont have better pips, and diceResult is greater than the pip number,
 			// i.e. rolled [2,6], only checkers at pip 3,2,1,
 			// then pip 3 should be able to bear-off with 6.
-			if (!hasBetterPipsToBearOff(pCurrent, fromPip, diceResult) && !isPipNumberInRange(toPip)) {
+			//
+			// NOTE: a sumMove greater than 6 (toPip will be out of range) is not permitted.
+			// i.e. rolled [2,6], sum is [8], checkers at pip 3,2,1,
+			// then pip 3 should bear-off with 6, not 8.
+			// 
+			// NOTE: a sumMove below than 6 is allowed, only if its toPip is atBounds.
+			// The next if condition takes care of this.
+			if (!hasBetterPipsToBearOff && !isPipNumberInRange(toPip) && !isSumMove) {
 				canToHome = true;
 			}
 			if (isPipNumberAtBounds(toPip)) {
@@ -431,7 +473,7 @@ public class Board extends BoardComponents {
 	 * @param toPip
 	 * @return the intermediate move.
 	 */
-	private Move isSumMove(LinkedList<RollMoves> moves, int fromPip, int toPip) {
+	private Move isSumMove(Moves moves, int fromPip, int toPip) {
 		Move intermediateMove = null;
 		for (RollMoves rollMove : moves) {
 			for (Move aMove : rollMove.getMoves()) {

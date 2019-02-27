@@ -19,12 +19,13 @@ import java.util.LinkedList;
  */
 public class RollMoves {
 	private int rollResult;
-	private boolean isSumMove;
+	private boolean isSumMove, isUsed;
 	private LinkedList<Move> moves;
 	
 	public RollMoves(int rollResult, boolean isSumMove) {
 		this.rollResult = rollResult;
 		this.isSumMove = isSumMove;
+		this.isUsed = false;
 		moves = new LinkedList<>();
 	}
 	
@@ -34,6 +35,14 @@ public class RollMoves {
 	
 	public boolean isSumMove() {
 		return isSumMove;
+	}
+	
+	public boolean isUsed() {
+		return isUsed;
+	}
+	
+	public void setUsed() {
+		isUsed = true;
 	}
 	
 	public LinkedList<Move> getMoves() {

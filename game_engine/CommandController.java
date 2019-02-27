@@ -133,7 +133,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				game.unhighlightAll();
 				if (gameplay.isValidMove(fro, to)) {
 					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
-					gameplay.move();
 				} else {
 					game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
 					infoPnl.print("You can only move highlighted checkers to highlighted pips.", MessageType.ERROR);
@@ -214,8 +213,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
 		}
-
+		
 		gameplay.unhighlightPips();
+		if (gameplay.isRolled() && !gameplay.isMoved()) {
+			gameplay.move();
+		}
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
 	}
 	

@@ -62,9 +62,6 @@ public class BoardQuadrant extends VBox {
 				}
 				/*
 				if (!pips[pipNum].isEmpty() && pipNum == (diceResult-1)) {
-					hasBetter = true;
-					break;
-				}
 				*/
 			}
 		} else if (isBlackHome) {
@@ -75,9 +72,6 @@ public class BoardQuadrant extends VBox {
 				}
 				/*
 				if (!pips[pipNum].isEmpty() && (GameConstants.NUMBER_OF_PIPS-pipNum) == (diceResult-1)) {
-					hasBetter = true;
-					break;
-				}
 				*/
 			}
 		}

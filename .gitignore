@@ -4,6 +4,7 @@
 *.ai
 *.ini
 *.svg
+*.class
 
 # But not these files...
 !.gitignore

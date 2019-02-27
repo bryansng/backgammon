@@ -118,6 +118,27 @@ public class BoardComponents extends HBox {
 						pips[i].initCheckers(5, Color.BLACK);
 						break;
 				}
+			} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5) {
+				switch (i) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+					case 4:
+						pips[i].initCheckers(5, Color.WHITE);
+						break;
+					case 23:
+					case 22:
+					case 21:
+					case 20:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 19:
+						pips[i].initCheckers(5, Color.BLACK);
+						break;
+				}
 			} else if (GameConstants.FORCE_LESS_CHECKERS_IN_HOME_BOARD) {
 				switch (i) {
 					case 0:
@@ -129,6 +150,17 @@ public class BoardComponents extends HBox {
 					case 22:
 					case 21:
 						pips[i].initCheckers(2, Color.BLACK);
+						break;
+				}
+			} else if (GameConstants.FORCE_LESSER_CHECKERS_IN_HOME_BOARD) {
+				switch (i) {
+					case 0:
+					case 1:
+						pips[i].initCheckers(1, Color.WHITE);
+						break;
+					case 22:
+					case 23:
+						pips[i].initCheckers(1, Color.BLACK);
 						break;
 				}
 			} else if (GameConstants.FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD) {
@@ -227,7 +259,7 @@ public class BoardComponents extends HBox {
 	// Check if quadrant of pCurrent's home has all the checkers.
 	// It checks all quadrants for any pCurrent's checkers,
 	// if there is, then all of player's checkers are not in home board.
-	protected boolean isAllCheckersInHomeBoard(Player pCurrent) {
+	public boolean isAllCheckersInHomeBoard(Player pCurrent) {
 		BoardQuadrant pQuad = getHomeQuadOfPlayer(pCurrent);
 		boolean hasAllCheckers = true;
 		
@@ -235,8 +267,6 @@ public class BoardComponents extends HBox {
 			Color pColor = pCurrent.getColor();
 			for (BoardQuadrant quad : quads) {
 				if (!quad.equals(pQuad) && quad.hasCheckerColor(pColor)) {
-					//if (GameConstants.DEBUG_MODE)
-						//System.out.println("[Error] " + pCurrent.getName() + " does not have all checkers in quad: " + quad.toString());
 					hasAllCheckers = false;
 					break;
 				}
