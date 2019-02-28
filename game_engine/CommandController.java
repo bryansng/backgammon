@@ -22,6 +22,7 @@ import javafx.util.Duration;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class CommandController implements ColorParser, InputValidator, IndexOffset {
@@ -88,11 +89,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 
 	/**
-	 * Command: /move fromPip toPip //both numbers Command: /move fromBar toPip
-	 * //left is a color, right a number Command: /move fromPip/bar toHome //left is
-	 * a color or number, right is a color. where fromPip and toPip will be
-	 * one-index number based. where fromBar is the bar color. where toHome is the
-	 * home color.
+	 * Command: /move fromPip toPip			//both numbers
+	 * Command: /move fromBar toPip			//left is a color, right a number
+	 * Command: /move fromPip/bar toHome	//left is a color or number, right is a color.
+	 * where fromPip and toPip will be one-index number based.
+	 * where fromBar is the bar color.
+	 * where toHome is the home color.
 	 */
 	public void runMoveCommand(String[] args, boolean isPlayerInput) {
 		// error checking.

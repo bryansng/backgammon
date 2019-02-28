@@ -12,10 +12,11 @@ import javafx.scene.image.Image;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = true;
 	public static final boolean TEST_ACTUAL_GAME = true;
 	
 	// first roll after /start will not appear as doubles, but internally is.

@@ -22,6 +22,7 @@ import javafx.stage.WindowEvent;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class EventController implements ColorParser, InputValidator {

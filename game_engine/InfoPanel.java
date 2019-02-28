@@ -16,6 +16,7 @@ import javafx.scene.control.TextArea;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  * 
  */
 public class InfoPanel extends TextArea {
