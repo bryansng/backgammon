@@ -21,7 +21,8 @@ import move.RollMoves;
  */
 public class GameplayController implements ColorParser, InputValidator, IndexOffset {
 	private LinkedList<RollMoves> moves;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
+	private HashMap<String, Move> map;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 
 	private GameComponentsController game;
@@ -34,11 +35,15 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		this.infoPnl = infoPnl;
 
 		moves = null;
+		//map = null;
 		startedFlag = false;
 		rolledFlag = false;
 		movedFlag = false;
 		firstRollFlag = true;
 		topPlayerFlag = false;
+		movesMapped = false;
+		
+		map = new HashMap<>();
 	}
 
 	/**
@@ -79,6 +84,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 
 		// calculate possible moves.
 		moves = game.getBoard().getMoves(rollResult, pCurrent, pOpponent);
+		mapCharToMoves();
 		
 		if (moves.isEmpty()) {
 			infoPnl.print("No available moves. Your turn will now end"); // No available moves, end player's turn
@@ -91,10 +97,50 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		game.getBoard().highlightFromPipsChecker(moves);
 		rolledFlag = true;
 	}
+	
+	/**
+	 * Iterates through all the possible moves and associates it with a key
+	 * The key is a letter from the alphabet
+	 */
+	private void mapCharToMoves() {
+		map.clear();
+		for (RollMoves aRollMoves : moves) {
+			for (Move aMove : aRollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					map.put(createKey(), move);
+				}
+			}
+		}
+		
+		movesMapped = true;
+	}
+	
+	/**
+	 * 
+	 * @return character to be mapped with a move object
+	 */
+	private String createKey() {
+		char key = 'A';
+		int ascii = 0;
+		
+		while (map.containsKey(Character.toString(key + ascii))) ascii++;
+		
+		return Character.toString(key + ascii);
+	}
+	
+	/**
+	 * 
+	 * @param key to search in the hashmap to see if it's exists
+	 * @return boolean value of whether the key exists
+	 */
+	public boolean isKey(String key) {
+		return map.containsKey(key);
+	}
 
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
-
+		
 		if (!moves.isEmpty()) {
 			String spaces = "  ";
 			char prefix = 'A';
@@ -155,6 +201,8 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		if (moves.isEmpty())
 			movedFlag = true;
 
+		// A is the first available move, B is the second etc..
+		mapCharToMoves();
 		// prints moves left.
 		printMoves();
 
@@ -203,6 +251,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		Move theValidMove = null;
 
 		if (isPip(fro) && isPip(to)) {
+			System.out.println("Here1");
 			int fromPip = Integer.parseInt(fro);
 			int toPip = Integer.parseInt(to);
 			infoPnl.print("Selected fromPip: " + (fromPip + 1), MessageType.DEBUG);
@@ -214,8 +263,12 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 				boolean hasFromPip = false;
 				for (Move aMove : rollMoves.getMoves()) {
 					if (aMove instanceof PipToPip) {
+						System.out.println("Here2");
 						move = (PipToPip) aMove;
+						System.out.println("move.getFromPip(): " + move.getFromPip());
+						System.out.println("fromPip: " + fromPip);
 						if (move.getFromPip() == fromPip) {
+							System.out.println("Here3");
 							hasFromPip = true;
 							break;
 						}
@@ -231,6 +284,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 					// if so, remove it from possible moves.
 					Pip[] pips = game.getBoard().getPips();
 					if (pips[fromPip].isEmpty()) {
+						System.out.println("Here4");
 						// remove the move from the set of moves in its RollMoves.
 						rollMoves.getMoves().remove(move);
 						theValidMove = null;
@@ -423,5 +477,27 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 
 	public LinkedList<RollMoves> getValidMoves() {
 		return moves;
+	}
+	
+	/**
+	 * 
+	 * @param key to search in the hashmap to return the respective move object
+	 * @return String representation of the move object
+	 */
+	public String getMapping(String key) {
+		
+		PipToPip move = (PipToPip) map.get(key);
+		
+		String output = "/move ";
+		String fro = Integer.toString(move.getFromPip());
+		String to = Integer.toString(move.getToPip());
+		
+		output += fro + " " + to;
+		
+		return output;
+	}
+	
+	public boolean isMapped() {
+		return this.movesMapped;
 	}
 }

@@ -174,6 +174,8 @@ public class EventController implements ColorParser, InputValidator {
 				cmd.runCommand("/next");
 			} else if (text.trim().isEmpty()) {
 				// ignores if string empty or whitespace only.
+			} else if (gameplay.isMapped() && gameplay.isKey(args[0].toUpperCase())) { // 
+				cmd.runCommand(gameplay.getMapping(args[0].toUpperCase()));
 			} else {
 				// player chat, need to implement players to differentiate which player is which.
 				// in the meantime, just add text to info panel.

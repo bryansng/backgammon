@@ -124,7 +124,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			fro = getTopPlayerOffset(fro);
 			to = getTopPlayerOffset(to);
 		}
- 
+
 		// validate moves.
 		// isRolled only if it started.
 		if (gameplay.isRolled()) {
