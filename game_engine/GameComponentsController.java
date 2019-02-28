@@ -82,11 +82,15 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the any of the homes are filled.
-	 * @return the boolean value.
+	 * Returns a player home that is filled.
+	 * @return filled home.
 	 */
-	public boolean isHomeFilled() {
-		return mainHome.isFilled();
+	public Home getFilledHome() {
+		return mainHome.getFilledHome();
+	}
+	
+	public Home getHome(Color color) {
+		return mainHome.getHome(color);		
 	}
 	
 	/**

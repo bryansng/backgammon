@@ -9,6 +9,7 @@ import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
+import javafx.scene.paint.Color;
 import move.BarToPip;
 import move.Move;
 import move.PipToHome;
@@ -159,7 +160,13 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		printMoves();
 
 		// TODO check if player's move caused a game over.
-		if (isGameOver()) {}
+		if (isGameOver()) {
+			if (game.getFilledHome() ==  game.getHome(Color.BLACK))
+				infoPnl.print("Congratulations, " + topPlayer.getName() + "won.");
+			else if (game.getFilledHome() ==  game.getHome(Color.WHITE))
+				infoPnl.print("Congratulations, " + bottomPlayer.getName() + "won.");
+			else ;
+		}
 	}
 	
 	/**
@@ -432,7 +439,10 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @return boolean value indicating if game is over.
 	 */
 	private boolean isGameOver() {
-		return game.isHomeFilled();
+		if (game.getFilledHome() == null)
+			return false;
+		else
+			return true;
 	}
 	
 	public String correct(int pipNum) {
