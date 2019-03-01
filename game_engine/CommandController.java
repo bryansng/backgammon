@@ -316,13 +316,16 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Move on to the next player's turn.
 	 */
 	public void runNextCommand() {
-		// isMoved only if it started and rolled, so this is suffice.
-		if (gameplay.isMoved()) {
-			infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
-			Player pCurrent = gameplay.next();
-			infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+		if (gameplay.isStarted()) {
+			if (gameplay.isMoved()) {
+				infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
+				Player pCurrent = gameplay.next();
+				infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+			} else {
+				infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
+			}
 		} else {
-			infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
+			infoPnl.print("Game not started. Enter \"/start\" to start the game.", MessageType.ERROR);
 		}
 	}
 	
@@ -402,6 +405,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runRestartCommand() {
 		root.restartGame();
 	}
+	
 	/**
 	 * Command: /quit
 	 * Saves game log and prompts player to quit before quitting application.
@@ -409,7 +413,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
-	
+
+	/**
+	 * Command: /cheat
+	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
+	 */
 	public void runCheatCommand() {
 		game.removeAllCheckers();
 		initCheatCheckers();

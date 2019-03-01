@@ -5,6 +5,7 @@ import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
 import game.Bar;
+import game.Home;
 import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
@@ -40,7 +41,10 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		this.topPlayer = topPlayer;
 		this.game = game;
 		this.infoPnl = infoPnl;
-		
+		resetGameplay();
+	}
+	
+	private void resetGameplay() {
 		moves = null;
 		startedFlag = false;
 		rolledFlag = false;
@@ -132,13 +136,14 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			infoPnl.print("Recalculating moves.", MessageType.DEBUG);
 		} else if (moves.isEmpty()) movedFlag = true;
 
-		// TODO TEST THIS FEATURE
 		if (isGameOver()) {
-			if (game.getFilledHome().equals(game.getHome(Color.BLACK)))
+			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
+			Home filledHome = game.getMainHome().getFilledHome();
+			if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor())))
 				infoPnl.print("Congratulations, " + topPlayer.getName() + " won.");
-			else if (game.getFilledHome().equals(game.getHome(Color.WHITE)))
+			if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
 				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
-			else ;
+			resetGameplay();
 		}
 	}
 	
@@ -326,10 +331,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @return boolean value indicating if game is over.
 	 */
 	private boolean isGameOver() {
-		if (game.getFilledHome() == null)
-			return false;
-		else
-			return true;
+		return game.getMainHome().getFilledHome() != null;
 	}
 	
 	public String correct(int pipNum) {

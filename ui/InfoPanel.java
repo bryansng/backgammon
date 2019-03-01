@@ -28,12 +28,13 @@ public class InfoPanel extends ScrollPane {
 	public InfoPanel() {
 		super();
 		textContainer = new TextFlow();
-		style();
+		styleScrollPane();
+		styleTextContainer();
 		initLayout();
 		welcome();
 	}
 	
-	private void style() {
+	private void styleScrollPane() {
 		double height = GameConstants.getHalfBoardSize().getHeight();
 		double width = GameConstants.getMiddlePartWidth() / 3.0;
 		setMinHeight(height);
@@ -44,10 +45,15 @@ public class InfoPanel extends ScrollPane {
 		setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);		// no horizontal scroll bar.
 		vvalueProperty().bind(textContainer.heightProperty());	// auto scroll down with texts.
 		setFocusTraversable(false);
-		
+	}
+	
+	private void styleTextContainer() {
+		double height = GameConstants.getHalfBoardSize().getHeight();
 		textPadding = 3;
 		textContainer.setPadding(new Insets(textPadding));
 		textContainer.setLineSpacing(textPadding / 2.0);
+		textContainer.setStyle("-fx-background-color: white;");
+		textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
 	}
 	
 	private void initLayout() {

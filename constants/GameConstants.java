@@ -19,8 +19,12 @@ public class GameConstants {
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
+	
+	// for debug isGameOver.
+	// for checkers at home.
+	public static final boolean FORCE_13_CHECKERS_AT_HOME = false;
 
-	// force ways to init pips and checkers, for debug BarToPip moves.
+	// for debug BarToPip moves.
 	// for checkers at bars.
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;
 	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;
@@ -31,7 +35,7 @@ public class GameConstants {
 	// test if can bear off after hit.
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
 	
-	// force ways to init pips and checkers, for debug PipToHome moves.
+	// for debug PipToHome moves.
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;

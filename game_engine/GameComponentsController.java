@@ -69,6 +69,11 @@ public class GameComponentsController extends VBox {
 		getChildren().addAll(topPlayerPnl, middlePart, btmPlayerPnl);
 		setStyle(GameConstants.getGameColor());
 		setMaxHeight(topPlayerPnl.getMinHeight() + middlePart.getHeight() + btmPlayerPnl.getMinHeight());
+		
+		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
+			mainHome.getHome(topPlayer.getColor()).initCheckers(13, topPlayer.getColor());
+			mainHome.getHome(bottomPlayer.getColor()).initCheckers(13, bottomPlayer.getColor());
+		}
 	}
 	
 	/**
@@ -97,18 +102,6 @@ public class GameComponentsController extends VBox {
 		board.unhighlightPipsAndCheckers();
 		mainHome.unhighlight();
 		bars.unhighlight();
-	}
-	
-	/**
-	 * Returns a player home that is filled.
-	 * @return filled home.
-	 */
-	public Home getFilledHome() {
-		return mainHome.getFilledHome();
-	}
-	
-	public Home getHome(Color color) {
-		return mainHome.getHome(color);		
 	}
 	
 	/**
