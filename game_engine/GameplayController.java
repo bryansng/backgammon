@@ -159,11 +159,11 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		// prints moves left.
 		printMoves();
 
-		// TODO check if player's move caused a game over.
+		// TODO TEST THIS FEATURE
 		if (isGameOver()) {
-			if (game.getFilledHome() ==  game.getHome(Color.BLACK))
+			if (game.getFilledHome().equals(game.getHome(Color.BLACK)))
 				infoPnl.print("Congratulations, " + topPlayer.getName() + "won.");
-			else if (game.getFilledHome() ==  game.getHome(Color.WHITE))
+			else if (game.getFilledHome().equals(game.getHome(Color.WHITE)))
 				infoPnl.print("Congratulations, " + bottomPlayer.getName() + "won.");
 			else ;
 		}

@@ -37,6 +37,27 @@ public class CheckersStorer extends Stack<Checker> {
 	}
 	
 	/**
+	 * Initialize num number of checkers with the checkerColor and pushes them to the stack.
+	 * Then draw the checkers (i.e. add them to the point object that will be drawn on the stage).
+	 * @param num number of checkers.
+	 * @param checkerColor color of the checkers.
+	 */
+	public void initCheckers(int num, Color checkerColor) {
+		for (int i = 0; i < num; i++) {
+			push(new Checker(checkerColor));
+		}
+		drawCheckers();
+	}
+	
+	/**
+	 * Removes all checkers in the storer (pop off stack)
+	 */
+	public void removeAllCheckers() {
+		clear();
+		drawCheckers();
+	}
+	
+	/**
 	 * Handles how the checkers are positioned in the point object.
 	 * (i.e. how it will be drawn eventually on the stage).
 	 */

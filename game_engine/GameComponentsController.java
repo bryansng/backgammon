@@ -72,6 +72,24 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
+	 * Removes all checkers from board (pips, homes, bars)
+	 */
+	public void removeAllCheckers() {		
+		// Remove from pips.
+		Pip[] pips = board.getPips();		
+		for (int i = 0; i < pips.length; i++) 
+			pips[i].removeAllCheckers();
+		
+		// Remove from homes.
+		mainHome.getHome(Settings.getTopPerspectiveColor()).removeAllCheckers();
+		mainHome.getHome(Settings.getBottomPerspectiveColor()).removeAllCheckers();
+		
+		// Remove from bars.
+		bars.getBar(Settings.getTopPerspectiveColor()).removeAllCheckers();
+		bars.getBar(Settings.getBottomPerspectiveColor()).removeAllCheckers();
+	}	
+	
+	/**
 	 * Un-highlight everything.
 	 * Pips, top checkers, bar, homes.
 	 */

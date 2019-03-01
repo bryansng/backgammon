@@ -65,19 +65,6 @@ public class Pip extends CheckersStorer implements ColorParser {
 	}
 	
 	/**
-	 * Initialize num number of checkers with the checkerColor and pushes them to the stack.
-	 * Then draw the checkers (i.e. add them to the point object that will be drawn on the stage).
-	 * @param num number of checkers.
-	 * @param checkerColor color of the checkers.
-	 */
-	public void initCheckers(int num, Color checkerColor) {
-		for (int i = 0; i < num; i++) {
-			push(new Checker(checkerColor));
-		}
-		drawCheckers();
-	}
-	
-	/**
 	 * Returns the pointNum instance variable (the number the point represents).
 	 * @return the pointNum instance variable.
 	 */
