@@ -30,7 +30,6 @@ public class Bars extends VBox implements ColorPerspectiveParser {
 		double pointHeight = GameConstants.getPipSize().getHeight();
 		
 		setMinSize(pointWidth, pointHeight*2);
-		setStyle(GameConstants.getGameColor());
 		
 		setAlignment(Pos.CENTER);
 		initIndividualBars();

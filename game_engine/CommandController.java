@@ -415,6 +415,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
 	
+	/**
+	 * Command: /cheat
+	 * Moves all checkers on board to cheating position for testing purposes.
+	 * May continue gameplay afterwards (moves are recalculated).
+	 */
 	public void runCheatCommand() {
 		game.removeAllCheckers();
 		initCheatCheckers();

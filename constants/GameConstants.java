@@ -4,6 +4,8 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.InputStream;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
 
 /**
  * This class serves as a point where other class files share hard-coded data or relative data.
@@ -108,27 +110,28 @@ public class GameConstants {
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
 	}
-	
-	public static final String GAME_COLOR = "saddlebrown";
-	public static final String BOARD_COLOR = "forestgreen";
-	
+
 	/**
-	 * Returns the colour of the board in terms of CSS.
-	 * @return colour of the board.
+	 * Returns the image of the board.
+	 * @return image of the board.
 	 */
-	public static String getBoardColor() {
-		String colour = "-fx-background-color: forestgreen;";
-		return colour;
+	public static Background getBoardImage() {
+		InputStream input = getFile("img/board/green.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		
+		return bg;
 	}
 	
 	
 	/**
-	 * Returns the colour of the game in terms of CSS.
-	 * @return colour of the game.
+	 * Returns the image of the game.
+	 * @return image of the game.
 	 */
-	public static String getGameColor() {
-		String colour = "-fx-background-color: saddlebrown;";
-		return colour;
+	public static Background getGameImage() {
+		InputStream input = getFile("img/board/brown.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		
+		return bg;
 	}
 	
 	/**

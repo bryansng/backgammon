@@ -130,7 +130,7 @@ public class BoardQuadrant extends VBox {
 		double spacing = (GameConstants.getHalfBoardSize().getWidth()-6*(GameConstants.getPipSize().getWidth())) / 5;
 		set.setSpacing(spacing);
 		
-		set.setStyle(GameConstants.getGameColor());
+		set.setBackground(GameConstants.getGameImage());
 		
 		// If bottom of board, points are numbered from smallest to highest from right to left.
 		// Else, from smallest to highest from left to right.
