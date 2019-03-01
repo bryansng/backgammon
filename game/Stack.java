@@ -67,6 +67,12 @@ public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 		size--;
 		return temp;
 	}
+	
+	@Override
+	public void clear() {
+		while (!isEmpty())
+			pop();
+	}
 
 	@Override
 	public Iterator<E> iterator() {

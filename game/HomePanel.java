@@ -71,11 +71,19 @@ public class HomePanel extends BorderPane {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if either homes are filled with checkers.
-	 * @return the boolean value.
-	 */
-	public boolean isFilled() {
-		return top.isFilled() || bottom.isFilled();
+	 * Returns either home filled with checkers.
+	 * If no homes are filled, returns null.
+	 * @return filled home.
+	 */	
+	public Home getFilledHome() {
+		Home home = null;
+		
+		if (top.isFilled())
+			home = top;
+		else if (bottom.isFilled())
+			home = bottom;
+		
+		return home;
 	}
 	
 	public void highlight(Color color) {

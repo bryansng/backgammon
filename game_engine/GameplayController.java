@@ -132,8 +132,14 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			infoPnl.print("Recalculating moves.", MessageType.DEBUG);
 		} else if (moves.isEmpty()) movedFlag = true;
 
-		// TODO check if player's move caused a game over.
-		if (isGameOver()) {}
+		// TODO TEST THIS FEATURE
+		if (isGameOver()) {
+			if (game.getFilledHome().equals(game.getHome(Color.BLACK)))
+				infoPnl.print("Congratulations, " + topPlayer.getName() + " won.");
+			else if (game.getFilledHome().equals(game.getHome(Color.WHITE)))
+				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
+			else ;
+		}
 	}
 	
 	private void recalculateMoves() {
@@ -320,7 +326,10 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @return boolean value indicating if game is over.
 	 */
 	private boolean isGameOver() {
-		return game.isHomeFilled();
+		if (game.getFilledHome() == null)
+			return false;
+		else
+			return true;
 	}
 	
 	public String correct(int pipNum) {

@@ -8,6 +8,7 @@ import constants.GameConstants;
 import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
+import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
@@ -82,6 +83,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			runQuitCommand();
 		} else if (command.equals("/test")) {
 			runTestCommand();
+		} else if (command.equals("/cheat")) {
+			runCheatCommand();
 		} else {
 			infoPnl.print("Unknown Command.", MessageType.ERROR);
 		}
@@ -410,6 +413,45 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 */
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+	}
+	
+	public void runCheatCommand() {
+		game.removeAllCheckers();
+		initCheatCheckers();
+		infoPnl.print("Cheat command ran.");
+	}
+	
+	/**
+	 * Initialize checkers for cheat (testing purposes)
+	 */
+	private void initCheatCheckers() {
+		// Add checkers to pips.
+		// Note that numbers start from bottom internally
+		Pip[] pips = game.getBoard().getPips();		
+		for (int i = 0; i < pips.length; i++) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					pips[i].initCheckers(2, Settings.getBottomPerspectiveColor());
+					break;	
+				case 23:
+				case 21:
+				case 20:
+					pips[i].initCheckers(3, Settings.getTopPerspectiveColor());
+					break;
+			}
+		}
+
+		// Add checkers to homes.
+		game.getMainHome().getHome(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
+		game.getMainHome().getHome(Settings.getBottomPerspectiveColor()).initCheckers(2, Settings.getBottomPerspectiveColor());
+
+		// Add checkers to bars.
+		game.getBars().getBar(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
+		game.getBars().getBar(Settings.getBottomPerspectiveColor()).initCheckers(3, Settings.getBottomPerspectiveColor());
 	}
 	
 	/**

@@ -68,8 +68,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * Initialize players and UI components.
 	 */
 	public void resetApplication() {
-		bottomPlayer = new Player("Cup", 0, getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Tea", 0, getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
+		bottomPlayer = new Player("Cup", 0, getColor(PlayerPerspectiveFrom.BOTTOM), null, PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player("Tea", 0, getColor(PlayerPerspectiveFrom.TOP), null, PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
@@ -86,6 +86,10 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
+		
+		bottomPlayer.setHome(game.getHome(getColor(PlayerPerspectiveFrom.BOTTOM)));
+		topPlayer.setHome(game.getHome(getColor(PlayerPerspectiveFrom.TOP)));
+		
 		initLayout();
 	}
 	

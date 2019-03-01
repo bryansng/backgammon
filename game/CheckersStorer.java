@@ -50,6 +50,14 @@ public class CheckersStorer extends Stack<Checker> {
 	}
 	
 	/**
+	 * Removes all checkers in the storer (pop off stack).
+	 */
+	public void removeAllCheckers() {
+		clear();
+		drawCheckers();
+	}
+	
+	/**
 	 * Handles how the checkers are positioned in the point object.
 	 * (i.e. how it will be drawn eventually on the stage).
 	 */

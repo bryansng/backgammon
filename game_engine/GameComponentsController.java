@@ -72,6 +72,24 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
+	 * Removes all checkers from board (pips, homes, bars)
+	 */
+	public void removeAllCheckers() {		
+		// Remove from pips.
+		Pip[] pips = board.getPips();		
+		for (int i = 0; i < pips.length; i++) 
+			pips[i].removeAllCheckers();
+		
+		// Remove from homes.
+		mainHome.getHome(Settings.getTopPerspectiveColor()).removeAllCheckers();
+		mainHome.getHome(Settings.getBottomPerspectiveColor()).removeAllCheckers();
+		
+		// Remove from bars.
+		bars.getBar(Settings.getTopPerspectiveColor()).removeAllCheckers();
+		bars.getBar(Settings.getBottomPerspectiveColor()).removeAllCheckers();
+	}	
+	
+	/**
 	 * Un-highlight everything.
 	 * Pips, top checkers, bar, homes.
 	 */
@@ -82,11 +100,15 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Returns a boolean value indicating if the any of the homes are filled.
-	 * @return the boolean value.
+	 * Returns a player home that is filled.
+	 * @return filled home.
 	 */
-	public boolean isHomeFilled() {
-		return mainHome.isFilled();
+	public Home getFilledHome() {
+		return mainHome.getFilledHome();
+	}
+	
+	public Home getHome(Color color) {
+		return mainHome.getHome(color);		
 	}
 	
 	/**

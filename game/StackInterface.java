@@ -14,4 +14,5 @@ public interface StackInterface<E> {
 	E top();
 	void push(E e);
 	E pop();
+	void clear();
 }
