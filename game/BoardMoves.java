@@ -31,7 +31,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		super();
 		this.game = game;
 	}
-
+	
 	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
 		Moves moves = new Moves();
 		// recalculate using remaining dice results.

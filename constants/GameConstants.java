@@ -30,7 +30,7 @@ public class GameConstants {
 	
 	// test if can bear off after hit.
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
-
+	
 	// force ways to init pips and checkers, for debug PipToHome moves.
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
@@ -44,7 +44,10 @@ public class GameConstants {
 	
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
-	public static final int NUMBER_OF_PIPS = 24; 
+	public static final int NUMBER_OF_PIPS = 24;
+	
+	public static final int FONT_SIZE = 14;
+	public static final String FONT_FAMILY = "Consolas";
 	
 	/**
 	 * Screen sizes - Used to set scene width and height.
@@ -140,7 +143,8 @@ public class GameConstants {
 	}
 	
 	public static double getMiddlePartWidth() {
-		double width = getHomeMargin() * 4 + getBarMargin() * 2 + getHalfBoardSize().getWidth() * 2; 
+		//double width = getHomeMargin() * 4 + getBarMargin() * 2 + getHalfBoardSize().getWidth() * 2 + getPipSize().getWidth() * 3; 
+		double width = getHomeMargin() * 4 + getHalfBoardSize().getWidth() * 2 + getPipSize().getWidth() * 3; 
 		return width;
 	}
 	

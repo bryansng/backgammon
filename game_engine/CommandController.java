@@ -371,16 +371,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	
 	/**
 	 * Command: /clear
-	 * Appends newlines to infoPnl to "clear" it out
-	 * 
-	 * Should print (height of infoPnl / font size) number of lines
-	 * But that prints more lines than required, probably shouldn't get infoPnl height?
-	 * 
-	 * TODO Scroll bar does not scroll to bottom automatically
+	 * Appends newlines to infoPnl to "clear" it out.
 	 */
 	public void runClearCommand() {
 		infoPnl.print("Clearing panel...");
-		infoPnl.printNewline((int) (infoPnl.getHeight() / 21));
+		infoPnl.clear();
 	}
 	
 	/**
@@ -474,7 +469,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 				default:
 					infoPnl.print("Hit testing done.");
-					infoPnl.printNewline(2);
+					infoPnl.printNewlines(2);
 					step = 1;
 					bearOnTL.play();
 					return;
@@ -491,7 +486,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 				default:
 					infoPnl.print("Bear-on testing done.");
-					infoPnl.printNewline(2);
+					infoPnl.printNewlines(2);
 					step = 1;
 					bearOffTL.play();
 					return;
@@ -509,7 +504,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 				default:
 					infoPnl.print("Bear-off testing done.");
-					infoPnl.printNewline(2);
+					infoPnl.printNewlines(2);
 					infoPnl.print("Testing checkers traversal.");
 					step = 1;
 					traversalTl.play();
@@ -522,7 +517,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		traversalTl = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
 			if (checkerPos < 2) {
 				infoPnl.print("Checkers traversal done.");
-				infoPnl.printNewline(2);
+				infoPnl.printNewlines(2);
 				return;
 			}
 			runCommand("/move " + checkerPos + " " + (checkerPos-1), true);
@@ -533,7 +528,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		bearOffTL.setCycleCount(2);
 		traversalTl.setCycleCount(GameConstants.NUMBER_OF_PIPS);
 
-		infoPnl.printNewline(2);
+		infoPnl.printNewlines(2);
 		hitTl.play();
 	}
 }
