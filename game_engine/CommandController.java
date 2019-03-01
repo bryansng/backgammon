@@ -418,6 +418,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runCheatCommand() {
 		game.removeAllCheckers();
 		initCheatCheckers();
+		if (gameplay.isStarted()) gameplay.recalculateMoves();
 		infoPnl.print("Cheat command ran.");
 	}
 	
