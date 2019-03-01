@@ -87,26 +87,8 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
 		
 		// calculate possible moves.
-		moves = game.getBoard().getMoves(rollResult, pCurrent);
+		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
-	}
-	
-	// placed after calculation and recalculation of moves,
-	// used to check if there are moves able to be made,
-	// if not, end turn for current player, via next().
-	private void handleEndOfMovesCalculation(Moves moves) {
-		if (moves.hasDiceResultsLeft()) {
-			recalculateMoves();
-		} else if (moves.isEmpty()) {
-			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
-			next();
-		} else {
-			// prints moves left.
-			printMoves();
-			
-			// highlight top checkers.
-			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
-		}
 	}
 
 	/**
@@ -158,6 +140,24 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		// recalculate moves.
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);
+	}
+	
+	// placed after calculation and recalculation of moves,
+	// used to check if there are moves able to be made,
+	// if not, end turn for current player, via next().
+	private void handleEndOfMovesCalculation(Moves moves) {
+		if (moves.hasDiceResultsLeft()) {
+			recalculateMoves();
+		} else if (moves.isEmpty()) {
+			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
+			next();
+		} else {
+			// prints moves left.
+			printMoves();
+			
+			// highlight top checkers.
+			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
+		}
 	}
 	
 	/**
