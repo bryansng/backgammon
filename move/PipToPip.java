@@ -12,20 +12,31 @@ public class PipToPip extends SumMove implements Move {
 	private RollMoves rollMoves;
 	private int fromPip;
 	private int toPip;
+	private boolean isHit;
 	
-	public PipToPip(int fromPip, int toPip, RollMoves rollMoves) {
-		this(fromPip, toPip, rollMoves, null);
+	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit) {
+		this(fromPip, toPip, rollMoves, isHit, null);
 	}
 	
-	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, Move intermediateMove) {
+	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit, Move intermediateMove) {
 		super(intermediateMove);
 		this.rollMoves = rollMoves;
 		this.fromPip = fromPip;
 		this.toPip = toPip;
+		this.isHit = isHit;
+	}
+
+	// Copy Constructor.
+	public PipToPip(PipToPip move) {
+		this(move.getFromPip(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMove());
 	}
 	
 	public RollMoves getRollMoves() {
 		return rollMoves;
+	}
+	
+	public void setRollMoves(RollMoves rollMoves) {
+		this.rollMoves = rollMoves;
 	}
 	
 	public int getFromPip() {
@@ -34,6 +45,10 @@ public class PipToPip extends SumMove implements Move {
 	
 	public int getToPip() {
 		return toPip;
+	}
+	
+	public boolean isHit() {
+		return isHit;
 	}
 	
 	// not used atm.

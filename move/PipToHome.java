@@ -21,9 +21,18 @@ public class PipToHome extends SumMove implements Move {
 		this.rollMoves = rollMoves;
 		this.fromPip = fromPip;
 	}
+
+	// Copy Constructor.
+	public PipToHome(PipToHome move) {
+		this(move.getFromPip(), move.getRollMoves(), move.getIntermediateMove());
+	}
 	
 	public RollMoves getRollMoves() {
 		return rollMoves;
+	}
+	
+	public void setRollMoves(RollMoves rollMoves) {
+		this.rollMoves = rollMoves;
 	}
 	
 	public int getFromPip() {

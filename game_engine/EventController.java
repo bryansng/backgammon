@@ -122,9 +122,15 @@ public class EventController implements ColorParser, InputValidator {
 				// prevent entering into both pip and bar selection mode.
 				if (!isPipSelectionMode) {
 					storerSelected = object;
-					game.getBoard().highlightAllPipsExcept(-1);
-					isBarSelectionMode = true;
-					infoPnl.print("Bar clicked.", MessageType.DEBUG);
+					String fromBar = parseColor(((Bar) storerSelected).getColor());
+					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
+					if (!gameplay.isStarted() || gameplay.getValidMoves().isValidFro(fromBar)) {
+						gameplay.highlightPips(fromBar);
+						isBarSelectionMode = true;
+						infoPnl.print("Bar clicked.", MessageType.DEBUG);
+					} else {
+						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
+					}
 				}
 			// home selected, basis for toHome selection.
 			} else if (object instanceof Home) {

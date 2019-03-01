@@ -119,26 +119,23 @@ public class GameComponentsController extends VBox {
 	 * i.e. pops a checker from bar and push it to a pip.
 	 * 
 	 * @param fromBar, color of the bar to pop from.
-	 * @param to, zero-based index, the pip number to push to.
+	 * @param toPip, zero-based index, the pip number to push to.
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
-	public MoveResult moveFromBar(Color fromBar, int to) {
-		MoveResult moveResult = MoveResult.NOT_MOVED;
+	public MoveResult moveFromBar(Color fromBar, int toPip) {
+		MoveResult moveResult = board.isBarToPipMove(fromBar, toPip);
 		
-		Pip[] pips = board.getPips();
-		Bar bar = bars.getBar(fromBar);
-		if (!bar.isEmpty()) {
-			if (bar.topCheckerColorEquals(pips[to])) {
-				pips[to].push(bar.pop());
-				moveResult = MoveResult.MOVED_FROM_BAR;
-			} else {
-				if (pips[to].size() == 1) {
-					moveResult = MoveResult.MOVE_TO_BAR;
-				}
-			}
-			
-			pips[to].drawCheckers();
-			bar.drawCheckers();
+		switch (moveResult) {
+			case MOVED_FROM_BAR:
+				Pip[] pips = board.getPips();
+				Bar bar = getBars().getBar(fromBar);
+				pips[toPip].push(bar.pop());
+				pips[toPip].drawCheckers();
+				bar.drawCheckers();
+				break;
+			case MOVE_TO_BAR:
+				break;
+			default:
 		}
 		return moveResult;
 	}

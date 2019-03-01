@@ -3,6 +3,7 @@ package game;
 import constants.GameConstants;
 import game_engine.Player;
 import game_engine.Settings;
+import interfaces.ColorPerspectiveParser;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.layout.VBox;
@@ -19,7 +20,7 @@ import javafx.scene.paint.Color;
  * @author @LxEmily, 17200573
  *
  */
-public class Bars extends VBox {
+public class Bars extends VBox implements ColorPerspectiveParser {
 	private Bar top;
 	private Bar bottom;
 	
@@ -39,8 +40,8 @@ public class Bars extends VBox {
 	 * Initializes the individual bars and add them to bars VBox.
 	 */
 	public void initIndividualBars() {
-		top = new Bar(Settings.getTopPerspectiveColor());
-		bottom = new Bar(Settings.getBottomPerspectiveColor());
+		top = new Bar(Settings.getBottomPerspectiveColor());
+		bottom = new Bar(Settings.getTopPerspectiveColor());
 		bottom.setRotate(180.0);
 		
 		getChildren().addAll(top, bottom);
@@ -56,10 +57,12 @@ public class Bars extends VBox {
 	 */
 	public Bar getBar(Color color) {
 		Bar bar = null;
-		
-		if (color == Color.BLACK) {
+
+		// top player's home is at top, its bear-on location is bottom.
+		// bottom player's home is at bottom, its bear-on location is top.
+		if (color == Settings.getBottomPerspectiveColor()) {
 			bar = top;
-		} else if (color == Color.WHITE) {
+		} else if (color == Settings.getTopPerspectiveColor()) {
 			bar = bottom;
 		}
 		

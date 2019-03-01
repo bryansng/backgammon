@@ -14,4 +14,5 @@ package move;
  */
 public interface Move {
 	RollMoves getRollMoves();
+	void setRollMoves(RollMoves rollMoves);
 }

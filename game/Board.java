@@ -8,6 +8,7 @@ import exceptions.PlayerNoPerspectiveException;
 import game_engine.GameComponentsController;
 import game_engine.Player;
 import game_engine.Settings;
+import interfaces.ColorParser;
 import javafx.scene.paint.Color;
 import move.BarToPip;
 import move.Move;
@@ -24,7 +25,7 @@ import move.RollMoves;
  * @author @LxEmily, 17200573
  *
  */
-public class Board extends BoardComponents {
+public class Board extends BoardComponents implements ColorParser {
 	private GameComponentsController game;
 	
 	public Board(GameComponentsController game) {
@@ -62,7 +63,7 @@ public class Board extends BoardComponents {
 	}
 	
 	/**
-	 * Highlight the top checkers of fromPips in possible moves.
+	 * Highlight the top checkers of fromPips and fromBars in possible moves.
 	 * @param moves the possible moves.
 	 */
 	public void highlightFromPipsAndFromBarChecker(Moves moves) {
@@ -77,11 +78,8 @@ public class Board extends BoardComponents {
 					PipToHome move = (PipToHome) aMove;
 					pips[move.getFromPip()].top().setHighlightImage();
 				} else if (aMove instanceof BarToPip) {
-					@SuppressWarnings("unused")
 					BarToPip move = (BarToPip) aMove;
-					// TODO need color to know which bar to highlight.
-					// cannot use toPip's color, since toPip can be empty.
-					//game.getBars().highlight();
+					game.getBars().highlight(move.getFromBar());
 				}
 			}
 		}
@@ -118,6 +116,26 @@ public class Board extends BoardComponents {
 		// Highlight the selected pip's top checker.
 		// Provided the fromPip is part of the moves.
 		if (isFromPipInMoves) pips[fromPip].top().setHighlightImage();
+	}
+	public void highlightToPipsAndToHome(Moves moves, String fromBar) {
+		game.unhighlightAll();
+		
+		boolean isFromBarInMoves = false;
+		for (RollMoves rollMoves : moves) {
+			for (Move aMove : rollMoves.getMoves()) {
+				if (aMove instanceof BarToPip) {
+					BarToPip move = (BarToPip) aMove;
+					if (move.getFromBar() == parseColor(fromBar)) {
+						isFromBarInMoves = true;
+						pips[move.getToPip()].setHighlightImage();
+					}
+				}
+			}
+		}
+		
+		// Highlight the selected pip's top checker.
+		// Provided the fromPip is part of the moves.
+		if (isFromBarInMoves) game.getBars().highlight(parseColor(fromBar));
 	}
 	
 	/**
@@ -214,15 +232,23 @@ public class Board extends BoardComponents {
 			boolean hasMove = false;
 			int rollResult = aRollMoves.getRollResult();
 			boolean isSumMove = aRollMoves.isSumMove();
+			boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 			
 			RollMoves rollMoves = new RollMoves(rollResult, isSumMove);
-			
-			// loop through pips.
-			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-				// addAsMove returns a boolean indicating if move is valid and added as move.
-				 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
-					 hasMove = true;
-				 }
+
+			// BarToPip
+			if (hasCheckersInBar) {
+				if (addedAsBarToPipMove(moves, rollMoves, pCurrent, rollResult, isSumMove))
+					hasMove = true;
+			// PipToPip or PipToHome
+			} else {
+				// loop through pips.
+				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+					// addAsMove returns a boolean indicating if move is valid and added as move.
+					 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
+						 hasMove = true;
+					 }
+				}
 			}
 			if (hasMove) {
 				moves.add(rollMoves);
@@ -243,62 +269,51 @@ public class Board extends BoardComponents {
 			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
 		}
 		
-		// calculate number of dices, for looping.
-		// if 1, then only be 1.
-		// if more than 1, we put 2 because moves calculated by pairs.
-		int numDices = -1;
-		if (rollResult.length == 1) {
-			numDices = 1;
-		} else if (rollResult.length > 1) {
-			numDices = 2;
-		}
-		
 		DieInstance instance = DieInstance.DEFAULT;
-		if (numDices > 1 && rollResult[0] == rollResult[1]) {
+		if (rollResult[0] == rollResult[1]) {
 			instance = DieInstance.DOUBLE;
 		}
 		
+		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		Moves moves = new Moves();
 		
 		// take sum by pairs of rollResult.
 		int pairSum = 0;
 		
 		// consider each die result.
-		boolean hasMove;
 		RollMoves rollMoves = null;
-		for (int i = 0; i < numDices; i++) {
-			hasMove = false;
+		for (int i = 0; i < 2; i++) {
 			pairSum += rollResult[i];
 			rollMoves = new RollMoves(rollResult[i], false);
 			
-			// loop through pips.
-			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-				// addAsMove returns a boolean indicating if move is valid and added as move.
-				 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult[i], false)) {
-					 hasMove = true;
-				 }
-			}
-			if (hasMove) {
-				moves.add(rollMoves);
-				if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
-			}
-		}
-		
-		// consider sum of die result,
-		// only when there is more than 1 dice result.
-		if (numDices > 1) {
-			hasMove = false;
-			rollMoves = new RollMoves(pairSum, true);
-			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-				if (addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true)) {
-					hasMove = true;
+			// BarToPip
+			if (hasCheckersInBar) {
+				addedAsBarToPipMove(moves, rollMoves, pCurrent, rollResult[i], false);
+			// PipToPip or PipToHome
+			} else {
+				// loop through pips.
+				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+					// addAsMove returns a boolean indicating if move is valid and added as move.
+					addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult[i], false);
 				}
 			}
-			if (hasMove) {
-				moves.add(rollMoves);
-				if (instance == DieInstance.DOUBLE) moves.add(rollMoves);
+			moves.add(rollMoves);
+			if (instance == DieInstance.DOUBLE) moves.add(new RollMoves(rollMoves));
+		}
+		
+		// consider sum of die result.
+		rollMoves = new RollMoves(pairSum, true);
+		// BarToPip
+		if (hasCheckersInBar) {
+			addedAsBarToPipMove(moves, rollMoves, pCurrent, pairSum, true);
+		// PipToPip or PipToHome
+		} else {
+			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+				addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true);
 			}
 		}
+		moves.add(rollMoves);
+		if (instance == DieInstance.DOUBLE) moves.add(new RollMoves(rollMoves));
 		
 		return moves;
 	}
@@ -316,17 +331,44 @@ public class Board extends BoardComponents {
 	private boolean addedAsMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		
-		// BarToPip
-		
 		// pipToPip
 		if (addedAsPipToPipMove(moves, rollMoves, pCurrent, fromPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
 		// pipToHome
-		if (addedAsPipToHomeMove(rollMoves, pCurrent, fromPip, diceResult, isSumMove))
+		if (addedAsPipToHomeMove(moves, rollMoves, pCurrent, fromPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
 		return addedAsMove;
+	}
+	
+	private boolean addedAsBarToPipMove(Moves moves, RollMoves rollMoves, Player pCurrent, int diceResult, boolean isSumMove) {
+		boolean addedAsMove = false;
+		
+		MoveResult moveResult;
+		int toPip = getPossibleToPip(pCurrent, getRespectiveFromPip(pCurrent), diceResult);
+		if (isPipNumberInRange(toPip) && ((moveResult = isBarToPipMove(pCurrent.getColor(), toPip)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
+			boolean isHit = isHit(moveResult);
+			if (isSumMove) {
+				Move intermediateMove;
+				if ((intermediateMove = isSumMove(moves, getRespectiveFromPip(pCurrent), toPip)) != null) {
+					rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit, intermediateMove));
+					addedAsMove = true;
+				}
+			} else {
+				rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit));
+				addedAsMove = true;
+			}
+		}
+		return addedAsMove;
+	}
+	
+	private int getRespectiveFromPip(Player pCurrent) {
+		return Settings.getPipBoundaryOf(pCurrent.getPOV());
+	}
+	
+	private boolean hasCheckersInBar(Player pCurrent) {
+		return !game.getBars().getBar(pCurrent.getColor()).isEmpty();
 	}
 	
 	private boolean addedAsPipToPipMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
@@ -334,23 +376,36 @@ public class Board extends BoardComponents {
 		MoveResult moveResult;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		if (isPipNumberInRange(toPip) && ((moveResult = isPipToPipMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
+			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
 				Move intermediateMove;
 				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
-					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, intermediateMove));
+					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, isHit, intermediateMove));
 					addedAsMove = true;
 				}
 			} else {
-				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves));
+				rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, isHit));
 				addedAsMove = true;
 			}
 		}
 		return addedAsMove;
 	}
 	
-	private boolean addedAsPipToHomeMove(RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+	private boolean isHit(MoveResult moveResult) {
+		boolean isHit = false;
+		switch (moveResult) {
+			case MOVE_TO_BAR:
+				isHit = true;
+				break;
+			default:
+		}
+		return isHit;
+	}
+	
+	private boolean addedAsPipToHomeMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
+		
 		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
 			rollMoves.getMoves().add(new PipToHome(fromPip, rollMoves));
 			addedAsMove = true;
@@ -388,6 +443,24 @@ public class Board extends BoardComponents {
 		return canToHome;
 	}
 	
+	public MoveResult isBarToPipMove(Color fromBar, int toPip) {
+		MoveResult moveResult = MoveResult.NOT_MOVED;
+		
+		Bar bar = game.getBars().getBar(fromBar);
+		if (!bar.isEmpty()) {
+			if (bar.topCheckerColorEquals(pips[toPip])) {
+				moveResult = MoveResult.MOVED_FROM_BAR;
+			} else {
+				if (pips[toPip].size() == 1) {
+					moveResult = MoveResult.MOVE_TO_BAR;
+				}
+			}
+		} else {
+			moveResult = MoveResult.PIP_EMPTY;
+		}
+		return moveResult;
+	}
+	
 	public MoveResult isPipToHomeMove(int fromPip) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		if (!pips[fromPip].isEmpty()) {
@@ -400,7 +473,7 @@ public class Board extends BoardComponents {
 	
 	// used to check if the toPip can reach home, home is a toPip of value -1 and 24.
 	private boolean isPipNumberAtBounds(int pipNum) {
-		return (!isPipNumberInRange(pipNum)) && (pipNum == -1 || pipNum == GameConstants.NUMBER_OF_PIPS);
+		return (!isPipNumberInRange(pipNum)) && (pipNum == Settings.getBottomPerspectivePipBoundary() || pipNum == Settings.getTopPerspectivePipBoundary());
 	}
 	
 	/**
@@ -412,21 +485,21 @@ public class Board extends BoardComponents {
 	 * @return toPip.
 	 */
 	private int getPossibleToPip(Player pCurrent, int fromPip, int diceResult) {
-		int possibleToPip = -1;
+		int toPip = -1;
 		
 		// BOTTOM - home at bottom, so direction is growing towards 1, toPip gets smaller.
 		// TOP - home at top, so direction is growing towards 24, toPip gets bigger.
 		switch (pCurrent.getPOV()) {
 			case BOTTOM:
-				possibleToPip = fromPip - diceResult;
+				toPip = fromPip - diceResult;
 				break;
 			case TOP:
-				possibleToPip = fromPip + diceResult;
+				toPip = fromPip + diceResult;
 				break;
 			default:
 				throw new PlayerNoPerspectiveException();
 		}
-		return possibleToPip;
+		return toPip;
 	}
 	
 	/**
@@ -467,7 +540,7 @@ public class Board extends BoardComponents {
 	
 	/**
 	 * It is sum move if it has an intermediate move in rollMoves.
-	 * This function searches, hasIntermediate determines if it is an intermediate move.
+	 * This function searches, hasIntermediate() determines if it is an intermediate move.
 	 * @param moves, the possible moves.
 	 * @param fromPip
 	 * @param toPip
@@ -489,25 +562,42 @@ public class Board extends BoardComponents {
 	/**
 	 * Determines and returns the intermediate move.
 	 * @param aMove the move that might be the intermediate move.
-	 * @param fromPip sumMove's fromPip.
+	 * @param fro sumMove's fro (BarToPip's -1 or 24, or PipToPip's fromPip).
 	 * @param toPip	sumMove's toPip.
 	 * @return the intermediate move.
 	 */
-	private Move hasIntermediate(Move aMove, int fromPip, int toPip) {
+	private Move hasIntermediate(Move aMove, int fro, int toPip) {
 		// it is an intermediate move if,
 		// the move's fromPip is sumMove's fromPip.
 		// the move's toPip lies between sumMove's fromPip and sumMove's toPip.
+		//
+		// for BarToPip, fromPip will be -1 or 24,
+		// the move's fromPip and toPip will lie between the fromPip and toPip.
 		Move intermediateMove = null;
 		if (aMove instanceof PipToPip) {
 			PipToPip move = (PipToPip) aMove;
-			if (fromPip == move.getFromPip()) {
-				if (toPip > fromPip) {
+			if (fro == move.getFromPip()) {
+				if (toPip > fro) {
 					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToPip() > fromPip && move.getToPip() < toPip) {
+					if (move.getToPip() > fro && move.getToPip() < toPip) {
 						intermediateMove = move;
 					}
 				} else {
-					if (move.getToPip() < fromPip && move.getToPip() > toPip) {
+					if (move.getToPip() < fro && move.getToPip() > toPip) {
+						intermediateMove = move;
+					}
+				}
+			}
+		} else if (aMove instanceof BarToPip) {
+			BarToPip move = (BarToPip) aMove;
+			if (fro == move.getFromBarPipNum()) {
+				if (toPip > fro) {
+					// if move's to pip is within the range of fromPip and toPip.
+					if (move.getToPip() > fro && move.getToPip() < toPip) {
+						intermediateMove = move;
+					}
+				} else {
+					if (move.getToPip() < fro && move.getToPip() > toPip) {
 						intermediateMove = move;
 					}
 				}

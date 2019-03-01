@@ -95,6 +95,49 @@ public class BoardComponents extends HBox {
 						pips[i].initCheckers(1, Color.WHITE);
 						break;
 				}
+			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING) {
+				switch (i) {
+					case 9:
+					case 10:
+					case 11:
+						pips[i].initCheckers(1, Color.BLACK);
+						break;
+					case 14:
+					case 13:
+					case 12:
+						pips[i].initCheckers(1, Color.WHITE);
+						break;
+				}
+			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD) {
+				switch (i) {
+					case 0:
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+					case 19:
+					case 20:
+					case 21:
+					case 22:
+					case 23:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+				}
+			} else if (GameConstants.FORCE_CANT_BEAR_OFF_WHEN_HIT) {
+				switch (i) {
+					case 0:
+						pips[i].initCheckers(1, Color.BLACK);
+						break;
+					case 1:
+					case 2:
+					case 3:
+					case 4:
+					case 5:
+						pips[i].initCheckers(1, Color.WHITE);
+						break;
+				}
 			} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD) {
 				switch (i) {
 					case 0:
@@ -190,6 +233,24 @@ public class BoardComponents extends HBox {
 					break;
 				case 17:
 					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				}
+			} else if (GameConstants.FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD) {
+				switch (i) {
+				case 0:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 3:
+				case 4:
+				case 5:
+					pips[i].initCheckers(5, Color.WHITE);
+					break;
+				case 20:
+				case 19:
+					pips[i].initCheckers(5, Color.BLACK);
+					break;
+				case 18:
+					pips[i].initCheckers(4, Color.BLACK);
 					break;
 				}
 			} else {

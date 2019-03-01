@@ -4,10 +4,12 @@ import java.util.Arrays;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
+import game.Bar;
 import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
+import javafx.scene.paint.Color;
 import move.BarToPip;
 import move.Move;
 import move.Moves;
@@ -79,17 +81,32 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
+		rolledFlag = true;
 		
 		infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
 		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
 		
 		// calculate possible moves.
 		moves = game.getBoard().getMoves(rollResult, pCurrent);
-		printMoves();
-		
-		// highlight top checkers.
-		game.getBoard().highlightFromPipsAndFromBarChecker(moves);
-		rolledFlag = true;
+		handleEndOfMovesCalculation(moves);
+	}
+	
+	// placed after calculation and recalculation of moves,
+	// used to check if there are moves able to be made,
+	// if not, end turn for current player, via next().
+	private void handleEndOfMovesCalculation(Moves moves) {
+		if (moves.hasDiceResultsLeft()) {
+			recalculateMoves();
+		} else if (moves.isEmpty()) {
+			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
+			next();
+		} else {
+			// prints moves left.
+			printMoves();
+			
+			// highlight top checkers.
+			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
+		}
 	}
 
 	/**
@@ -132,9 +149,6 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			recalculateMoves();
 			infoPnl.print("Recalculating moves.", MessageType.DEBUG);
 		} else if (moves.isEmpty()) movedFlag = true;
-		
-		// prints moves left.
-		printMoves();
 
 		// TODO check if player's move caused a game over.
 		if (isGameOver()) {}
@@ -143,9 +157,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	private void recalculateMoves() {
 		// recalculate moves.
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
-		
-		// highlight top checkers.
-		game.getBoard().highlightFromPipsAndFromBarChecker(moves);
+		handleEndOfMovesCalculation(moves);
 	}
 	
 	/**
@@ -161,10 +173,13 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		
 		if ((theValidMove = moves.isValidPipToPip(fro, to)) != null) {
 			isValidMove = true;
-			infoPnl.print("Is valid PipToPip", MessageType.DEBUG);
+			infoPnl.print("Is valid PipToPip.", MessageType.DEBUG);
 		} else if ((theValidMove = moves.isValidPipToHome(fro, to)) != null) {
 			isValidMove = true;
-			infoPnl.print("Is valid PipToHome", MessageType.DEBUG);
+			infoPnl.print("Is valid PipToHome.", MessageType.DEBUG);
+		} else if ((theValidMove = moves.isValidBarToPip(fro, to)) != null) {
+			isValidMove = true;
+			infoPnl.print("Is valid BarToPip.", MessageType.DEBUG);
 		}
 		
 		if (isValidMove) {
@@ -186,15 +201,24 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	 * @param theMove 'theMove'.
 	 */
 	private void removeMovesOfEmptyCheckersStorer(Move theMove) {
-		Pip[] pips = game.getBoard().getPips();
-		
-		int fromPip = -1;
-		if (theMove instanceof PipToPip) fromPip = ((PipToPip) theMove).getFromPip();
-		else if (theMove instanceof PipToHome) fromPip = ((PipToHome) theMove).getFromPip();
-		
-		if (pips[fromPip].size() == 1 || pips[fromPip].isEmpty()) {
-			moves.removeMovesOfFromPip(fromPip);
-			infoPnl.print("Removing moves of pip: " + correct(fromPip), MessageType.DEBUG);
+		if (theMove instanceof PipToPip || theMove instanceof PipToHome) {
+			Pip[] pips = game.getBoard().getPips();
+			int fromPip = -1;
+			if (theMove instanceof PipToPip) fromPip = ((PipToPip) theMove).getFromPip();
+			else if (theMove instanceof PipToHome) fromPip = ((PipToHome) theMove).getFromPip();
+			
+			if (pips[fromPip].size() == 1 || pips[fromPip].isEmpty()) {
+				moves.removeMovesOfFromPip(fromPip);
+				infoPnl.print("Removing moves of pip: " + correct(fromPip), MessageType.DEBUG);
+			}
+		} else if (theMove instanceof BarToPip) {
+			Color barColor = ((BarToPip) theMove).getFromBar();
+			Bar fromBar = game.getBars().getBar(barColor);
+
+			if (fromBar.size() == 1 || fromBar.isEmpty()) {
+				moves.removeMovesOfFromBar(barColor);
+				infoPnl.print("Removing moves of bar: " + parseColor(barColor), MessageType.DEBUG);
+			}
 		}
 	}
 	
@@ -235,6 +259,15 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			game.getBoard().highlightAllPipsExcept(fromPip);
 		}
 	}
+	public void highlightPips(String fromBar) {
+		// gameplay mode.
+		if (isRolled()) {
+			game.getBoard().highlightToPipsAndToHome(getValidMoves(), fromBar);
+		// free for all mode, i.e. before /start.
+		} else {
+			game.getBoard().highlightAllPipsExcept(-1);
+		}
+	}
 	
 	/**
 	 * Unhighlight pips based on mode. 
@@ -256,20 +289,24 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		String spaces = "  ";
 		String extraSpace = spaces + spaces + spaces;
 		char prefix = 'A';
-		String msg = "Remaining moves:";
+		String suffix = "";
+		String msg = "Remaining rollMoves: " + moves.size() + ", moves:";
 		for (RollMoves aRollMoves : moves) {
 			if (GameConstants.DEBUG_MODE) msg += "\n" + spaces + "Normal: " + aRollMoves.isNormalMove() + ", Sum: " + aRollMoves.isSumMove() + ", isUsed: " + aRollMoves.isUsed() + ", Roll of " + aRollMoves.getRollResult() + "\n";
 			else msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
 			for (Move aMove : aRollMoves.getMoves()) {
+				suffix = "";
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
-					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + "\n";
+					if (move.isHit()) suffix = "*";
+					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n";
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n";
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
-					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + "\n";
+					if (move.isHit()) suffix = "*";
+					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n";
 				}
 				prefix++;
 			}

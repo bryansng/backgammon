@@ -25,6 +25,12 @@ public class Bar extends CheckersStorer {
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);
+		
+		if (GameConstants.FORCE_CHECKERS_AT_BARS) {
+			initCheckers(2, color);
+		} else if (GameConstants.FORCE_LESS_CHECKERS_AT_BARS) {
+			initCheckers(1, color);
+		}
 	}
 	
 	/**

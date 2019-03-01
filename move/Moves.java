@@ -2,7 +2,10 @@ package move;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import interfaces.ColorParser;
 import interfaces.InputValidator;
+import javafx.scene.paint.Color;
 
 /**
  * 
@@ -12,7 +15,7 @@ import interfaces.InputValidator;
  *
  */
 @SuppressWarnings("serial")
-public class Moves extends LinkedList<RollMoves> implements InputValidator {
+public class Moves extends LinkedList<RollMoves> implements InputValidator, ColorParser {
 	public Moves() {
 		super();
 	}
@@ -48,8 +51,10 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator {
 						move = (PipToPip) aMove;
 						if (move.getFromPip() == fromPip) {
 							// check if toPip is part of fromPip's possible toPips.
-							if (move.getToPip() == toPip) theValidMove = (Move) move;
-							break;
+							if (move.getToPip() == toPip) {
+								theValidMove = (Move) move;
+								break;
+							}
 						}
 					}
 				}
@@ -89,9 +94,35 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator {
 		return theValidMove;
 	}
 	
-	@SuppressWarnings("unused")
-	private Move isValidBarToPip() {
-		return null;
+	public Move isValidBarToPip(String fro, String to) {
+		Move theValidMove = null;
+		
+		if (isBarOrHome(fro) && isPip(to)) {
+			Color fromBar = parseColor(fro);
+			int toPip = Integer.parseInt(to);
+			
+			for (RollMoves rollMoves : this) {
+				// check if fromBar is part of possible moves.
+				BarToPip move = null;
+				for (Move aMove : rollMoves.getMoves()) {
+					if (aMove instanceof BarToPip) {
+						move = (BarToPip) aMove;
+						if (move.getFromBar() == fromBar) {
+							// check if toPip is part of fromBar's possible toPips.
+							if (move.getToPip() == toPip) {
+								theValidMove = (Move) move;
+								break;
+							}
+						}
+					}
+				}
+				if (theValidMove != null) {
+					rollMoves.setUsed();
+					break;
+				}
+			}
+		}
+		return theValidMove;
 	}
 	
 	// Removes all the moves (PipToPip, PipToHome) that has the fromPip, 'fromPip'.
@@ -112,6 +143,26 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator {
 			
 			// removes the entire rollMoves if it has no moves left and is used.
 			if (aRollMoves.getMoves().isEmpty() && aRollMoves.isUsed()) iterRollMoves.remove();
+		}
+	}
+	// Removes all the moves (PipToPip, PipToHome) that has the fromPip, 'fromPip'.
+	// used by removeMovesOfEmptyCheckersStorer().
+	public void removeMovesOfFromBar(Color fromBar) {
+		// we use this way of iterating and use iter.remove() to remove,
+		// if not while removing will raised ConcurrentModificationException.
+		for (Iterator<RollMoves> iterRollMoves = this.iterator(); iterRollMoves.hasNext();) {
+			RollMoves aRollMoves = iterRollMoves.next();
+			for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
+				Move aMove = iterMove.next();
+				if (aMove instanceof BarToPip) {
+					if (((BarToPip) aMove).getFromBar() == fromBar) iterMove.remove();
+				}
+			}
+			
+			// removes the entire rollMoves if it has no moves left and is used.
+			if (aRollMoves.getMoves().isEmpty() && aRollMoves.isUsed()) {
+				iterRollMoves.remove();
+			}
 		}
 	}
 	
@@ -171,6 +222,20 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator {
 					}
 				} else if (aMove instanceof PipToHome) {
 					if (((PipToHome) aMove).getFromPip() == fromPip) {
+						isValidFro = true;
+						break;
+					}
+				}
+			}
+		}
+		return isValidFro;
+	}
+	public boolean isValidFro(String fromBar) {
+		boolean isValidFro = false;
+		for (RollMoves rollMoves : this) {
+			for (Move aMove : rollMoves.getMoves()) {
+				if (aMove instanceof BarToPip) {
+					if (((BarToPip) aMove).getFromBar() == parseColor(fromBar)) {
 						isValidFro = true;
 						break;
 					}

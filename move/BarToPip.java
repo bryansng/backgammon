@@ -1,5 +1,10 @@
 package move;
 
+import game_engine.Settings;
+import interfaces.ColorParser;
+import interfaces.ColorPerspectiveParser;
+import javafx.scene.paint.Color;
+
 /**
  * This class represents a Bar to Pip move.
  * 
@@ -8,31 +13,61 @@ package move;
  * @author @LxEmily, 17200573
  *
  */
-public class BarToPip extends SumMove implements Move {
+public class BarToPip extends SumMove implements Move, ColorParser, ColorPerspectiveParser {
 	private RollMoves rollMoves;
-	private int toPip;
+	private Color fromBar;
+	private int toPip, fromBarPipNum;
+	private boolean isHit;
 	
-	public BarToPip(int toPip, RollMoves rollMoves) {
-		this(toPip, rollMoves, null);
+	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit) {
+		this(fromBar, toPip, rollMoves, isHit, null);
 	}
 	
-	public BarToPip(int toPip, RollMoves rollMoves, Move intermediateMove) {
+	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit, Move intermediateMove) {
 		super(intermediateMove);
-		this.rollMoves = rollMoves;
+		this.fromBar = fromBar;
+		this.fromBarPipNum = colorToPipBoundaryNum(fromBar);
 		this.toPip = toPip;
+		this.rollMoves = rollMoves;
+	}
+
+	// Copy Constructor.
+	public BarToPip(BarToPip move) {
+		this(move.getFromBar(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMove());
 	}
 	
 	public RollMoves getRollMoves() {
 		return rollMoves;
 	}
 	
+	public void setRollMoves(RollMoves rollMoves) {
+		this.rollMoves = rollMoves;
+	}
+	
 	public int getToPip() {
 		return toPip;
 	}
 	
+	public Color getFromBar() {
+		return fromBar;
+	}
+	
+	// either -1 or 24.
+	public int getFromBarPipNum() {
+		return fromBarPipNum;
+	}
+	
+	public boolean isHit() {
+		return isHit;
+	}
+	
+	private int colorToPipBoundaryNum(Color fromBar) {
+		return Settings.getPipBoundaryOf(getPOV(fromBar));
+	}
+	
 	// not used atm.
 	public String toString() {
-		String s = "fromBar, toPip: " + (toPip+1);
+		String s = "fromBar: " + parseColor(fromBar) + ", toPip: " + (toPip+1);
 		if (this.hasIntermediateMove()) {
 			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMove();
 		}

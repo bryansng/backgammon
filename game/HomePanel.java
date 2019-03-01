@@ -61,9 +61,9 @@ public class HomePanel extends BorderPane {
 	public Home getHome(Color color) {
 		Home home = null;
 		
-		if (color == Color.BLACK) {
+		if (color == Settings.getTopPerspectiveColor()) {
 			home = top;
-		} else if (color == Color.WHITE) {
+		} else if (color == Settings.getBottomPerspectiveColor()) {
 			home = bottom;
 		}
 		

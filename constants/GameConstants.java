@@ -19,13 +19,25 @@ public class GameConstants {
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
+
+	// force ways to init pips and checkers, for debug BarToPip moves.
+	// for checkers at bars.
+	public static final boolean FORCE_CHECKERS_AT_BARS = false;
+	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;
+	// for checkers at pips.
+	public static final boolean FORCE_CHECKERS_EASY_HITTING = false;
+	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD = false;
 	
-	// force ways to init pips and checkers, for debug pipToHome moves.
+	// test if can bear off after hit.
+	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
+
+	// force ways to init pips and checkers, for debug PipToHome moves.
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_LESSER_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD = false;
+	public static final boolean FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD = false;
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;

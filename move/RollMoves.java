@@ -29,6 +29,28 @@ public class RollMoves {
 		moves = new LinkedList<>();
 	}
 	
+	// Copy Constructor.
+	// https://www.artima.com/intv/bloch13.html
+	public RollMoves(RollMoves otherRollMoves) {
+		this(otherRollMoves.getRollResult(), otherRollMoves.isSumMove());
+		
+		for (Move aMove : otherRollMoves.getMoves()) {
+			if (aMove instanceof PipToPip) {
+				PipToPip move = new PipToPip((PipToPip) aMove);
+				move.setRollMoves(this);
+				moves.add(move);
+			} else if (aMove instanceof PipToHome) {
+				PipToHome move = new PipToHome((PipToHome) aMove);
+				move.setRollMoves(this);
+				moves.add(new PipToHome(move));
+			} else if (aMove instanceof BarToPip) {
+				BarToPip move = new BarToPip((BarToPip) aMove);
+				move.setRollMoves(this);
+				moves.add(new BarToPip(move));
+			}
+		}
+	}
+	
 	public boolean isNormalMove() {
 		return !isSumMove;
 	}

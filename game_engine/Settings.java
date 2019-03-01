@@ -1,7 +1,10 @@
 package game_engine;
 
 import javafx.scene.paint.Color;
+import constants.GameConstants;
+import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
+import exceptions.PlayerNoPerspectiveException;
 
 /**
  * This class serves as a point where other class files share hard-coded data or relative data.
@@ -49,5 +52,28 @@ public class Settings {
 	
 	public static Color getBottomPerspectiveColor() {
 		return Color.WHITE;
+	}
+	
+	public static int getTopPerspectivePipBoundary() {
+		return -1;
+	}
+	
+	public static int getBottomPerspectivePipBoundary() {
+		return GameConstants.NUMBER_OF_PIPS;
+	}
+	
+	public static int getPipBoundaryOf(PlayerPerspectiveFrom pov) {
+		int bound = 0;
+		switch (pov) {
+			case BOTTOM:
+				bound = getBottomPerspectivePipBoundary();
+				break;
+			case TOP:
+				bound = getTopPerspectivePipBoundary();
+				break;
+			default:
+				throw new PlayerNoPerspectiveException();
+		}
+		return bound;
 	}
 }

@@ -6,7 +6,7 @@ import javafx.scene.paint.Color;
 
 public interface ColorPerspectiveParser {
 	// get the color given its pov.
-	// this method relies on getTopPerspectiveColor && getBottomPerspectiveColor.
+	// this method relies on getTopPerspectiveColor() && getBottomPerspectiveColor() in Settings.
 	default Color getColor(PlayerPerspectiveFrom pov) {
 		Color color = null;
 		switch (pov) {
