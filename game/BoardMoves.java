@@ -133,12 +133,12 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		boolean addedAsMove = false;
 		
 		MoveResult moveResult;
-		int toPip = getPossibleToPip(pCurrent, getBoundaryFromPip(pCurrent), diceResult);
+		int toPip = getPossibleToPip(pCurrent, getBearOnFromPip(pCurrent), diceResult);
 		if (isPipNumberInRange(toPip) && ((moveResult = isBarToPipMove(pCurrent.getColor(), toPip)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
 				Move intermediateMove;
-				if ((intermediateMove = isSumMove(moves, getBoundaryFromPip(pCurrent), toPip)) != null) {
+				if ((intermediateMove = isSumMove(moves, getBearOnFromPip(pCurrent), toPip)) != null) {
 					rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit, intermediateMove));
 					addedAsMove = true;
 				}
@@ -195,8 +195,13 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	}
 	
 	// fromPip boundary is either -1 or 24.
-	private int getBoundaryFromPip(Player pCurrent) {
-		return Settings.getPipBoundaryOf(pCurrent.getPOV());
+	private int getBearOnFromPip(Player pCurrent) {
+		return Settings.getPipBearOnBoundary(pCurrent.getPOV());
+	}
+	
+	// fromPip boundary is either -1 or 24.
+	private int getBearOffToPip(Player pCurrent) {
+		return Settings.getPipBearOffBoundary(pCurrent.getPOV());
 	}
 	
 	// check if move is a hit, based on moveResult.
@@ -214,10 +219,17 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	private boolean addedAsPipToHomeMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
-		
 		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
-			rollMoves.getMoves().add(new PipToHome(fromPip, rollMoves));
-			addedAsMove = true;
+			if (isSumMove) {
+				Move intermediateMove;
+				if ((intermediateMove = isSumMove(moves, fromPip, getBearOffToPip(pCurrent))) != null) {
+					rollMoves.getMoves().add(new PipToHome(fromPip, pCurrent.getColor(), rollMoves, intermediateMove));
+					addedAsMove = true;
+				}
+			} else {
+				rollMoves.getMoves().add(new PipToHome(fromPip, pCurrent.getColor(), rollMoves));
+				addedAsMove = true;
+			}
 		}
 		return addedAsMove;
 	}
@@ -282,7 +294,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	
 	// used to check if the toPip can reach home, home is a toPip of value -1 and 24.
 	private boolean isPipNumberAtBounds(int pipNum) {
-		return (!isPipNumberInRange(pipNum)) && (pipNum == Settings.getBottomPerspectivePipBoundary() || pipNum == Settings.getTopPerspectivePipBoundary());
+		return (!isPipNumberInRange(pipNum)) && (pipNum == Settings.getTopBearOffBoundary() || pipNum == Settings.getBottomBearOffBoundary());
 	}
 	
 	/**
@@ -372,27 +384,44 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * Determines and returns the intermediate move.
 	 * @param aMove the move that might be the intermediate move.
 	 * @param fro sumMove's fro (BarToPip's -1 or 24, or PipToPip's fromPip).
-	 * @param toPip	sumMove's toPip.
+	 * @param to sumMove's to (PipToHome's -1 or 24, or PipToPip's toPip).
 	 * @return the intermediate move.
 	 */
-	private Move hasIntermediate(Move aMove, int fro, int toPip) {
+	private Move hasIntermediate(Move aMove, int fro, int to) {
 		// it is an intermediate move if,
 		// the move's fromPip is sumMove's fromPip.
 		// the move's toPip lies between sumMove's fromPip and sumMove's toPip.
 		//
 		// for BarToPip, fromPip will be -1 or 24,
-		// the move's fromPip and toPip will lie between the fromPip and toPip.
+		// the move's fromPip and toPip will lie between the fro and to.
+		//
+		// for PipToHome, toPip will be -1 or 24,
+		// the move's fromPip and toPip will lie between the fro and to.
 		Move intermediateMove = null;
 		if (aMove instanceof PipToPip) {
 			PipToPip move = (PipToPip) aMove;
 			if (fro == move.getFromPip()) {
-				if (toPip > fro) {
+				if (to > fro) {
 					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToPip() > fro && move.getToPip() < toPip) {
+					if (move.getToPip() > fro && move.getToPip() < to) {
 						intermediateMove = move;
 					}
 				} else {
-					if (move.getToPip() < fro && move.getToPip() > toPip) {
+					if (move.getToPip() < fro && move.getToPip() > to) {
+						intermediateMove = move;
+					}
+				}
+			}
+		} else if (aMove instanceof PipToHome) {
+			PipToHome move = (PipToHome) aMove;
+			if (fro == move.getFromPip()) {
+				if (to > fro) {
+					// if move's to pip is within the range of fromPip and toPip.
+					if (move.getToHomePipNum() > fro && move.getToHomePipNum() < to) {
+						intermediateMove = move;
+					}
+				} else {
+					if (move.getToHomePipNum() < fro && move.getToHomePipNum() > to) {
 						intermediateMove = move;
 					}
 				}
@@ -400,13 +429,13 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		} else if (aMove instanceof BarToPip) {
 			BarToPip move = (BarToPip) aMove;
 			if (fro == move.getFromBarPipNum()) {
-				if (toPip > fro) {
+				if (to > fro) {
 					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToPip() > fro && move.getToPip() < toPip) {
+					if (move.getToPip() > fro && move.getToPip() < to) {
 						intermediateMove = move;
 					}
 				} else {
-					if (move.getToPip() < fro && move.getToPip() > toPip) {
+					if (move.getToPip() < fro && move.getToPip() > to) {
 						intermediateMove = move;
 					}
 				}

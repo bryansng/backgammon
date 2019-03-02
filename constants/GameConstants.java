@@ -36,7 +36,7 @@ public class GameConstants {
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
 	
 	// for debug PipToHome moves.
-	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
+	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = true;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_LESSER_CHECKERS_IN_HOME_BOARD = false;

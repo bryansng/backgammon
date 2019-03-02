@@ -1,5 +1,7 @@
 package move;
 
+import interfaces.ColorParser;
+
 /**
  * This abstract class represents that SumMove.
  * This abstract class should be extended by all classes that implement the Move interface.
@@ -16,7 +18,7 @@ package move;
  * @author @LxEmily, 17200573
  *
  */
-public abstract class SumMove {
+public abstract class SumMove implements ColorParser {
 	private Move intermediateMove;
 	
 	public SumMove(Move intermediateMove) {
@@ -29,5 +31,22 @@ public abstract class SumMove {
 	
 	public Move getIntermediateMove() {
 		return intermediateMove;
+	}
+	
+	public String printIntermediate() {
+		String s = "IntermediateMove - ";
+		
+		if (intermediateMove instanceof PipToPip) {
+			PipToPip move = (PipToPip) intermediateMove;
+			s += "fromPip: " + move.getFromPip() + ", toPip: " + move.getToPip();
+		} else if (intermediateMove instanceof PipToHome) {
+			PipToHome move = (PipToHome) intermediateMove;
+			s += "fromPip: " + move.getFromPip() + ", toHome";
+		} else if (intermediateMove instanceof BarToPip) {
+			BarToPip move = (BarToPip) intermediateMove;
+			s += "fromBar: " + parseColor(move.getFromBar()) + ", toPip: " + move.getToPip();
+		}
+		
+		return s;
 	}
 }

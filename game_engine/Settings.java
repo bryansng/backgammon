@@ -54,22 +54,45 @@ public class Settings {
 		return Color.WHITE;
 	}
 	
-	public static int getTopPerspectivePipBoundary() {
-		return -1;
-	}
-	
-	public static int getBottomPerspectivePipBoundary() {
+	public static int getTopBearOffBoundary() {
 		return GameConstants.NUMBER_OF_PIPS;
 	}
 	
-	public static int getPipBoundaryOf(PlayerPerspectiveFrom pov) {
+	public static int getBottomBearOffBoundary() {
+		return -1;
+	}
+	
+	public static int getTopBearOnBoundary() {
+		return getBottomBearOffBoundary();
+	}
+	
+	public static int getBottomBearOnBoundary() {
+		return getTopBearOffBoundary();
+	}
+	
+	public static int getPipBearOnBoundary(PlayerPerspectiveFrom pov) {
 		int bound = 0;
 		switch (pov) {
 			case BOTTOM:
-				bound = getBottomPerspectivePipBoundary();
+				bound = getBottomBearOnBoundary();
 				break;
 			case TOP:
-				bound = getTopPerspectivePipBoundary();
+				bound = getTopBearOnBoundary();
+				break;
+			default:
+				throw new PlayerNoPerspectiveException();
+		}
+		return bound;
+	}
+	
+	public static int getPipBearOffBoundary(PlayerPerspectiveFrom pov) {
+		int bound = 0;
+		switch (pov) {
+			case BOTTOM:
+				bound = getBottomBearOffBoundary();
+				break;
+			case TOP:
+				bound = getTopBearOffBoundary();
 				break;
 			default:
 				throw new PlayerNoPerspectiveException();

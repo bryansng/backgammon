@@ -62,7 +62,7 @@ public class BarToPip extends SumMove implements Move, ColorParser, ColorPerspec
 	}
 	
 	private int colorToPipBoundaryNum(Color fromBar) {
-		return Settings.getPipBoundaryOf(getPOV(fromBar));
+		return Settings.getPipBearOnBoundary(getPOV(fromBar));
 	}
 	
 	// not used atm.

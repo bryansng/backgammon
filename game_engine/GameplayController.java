@@ -301,6 +301,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		String extraSpace = spaces + spaces + spaces;
 		char prefix = 'A';
 		String suffix = "";
+		String intermediateMove = "";
 		String msg = "Remaining rollMoves: " + moves.size() + ", moves:";
 		for (RollMoves aRollMoves : moves) {
 			if (GameConstants.DEBUG_MODE) msg += "\n" + spaces + "Normal: " + aRollMoves.isNormalMove() + ", Sum: " + aRollMoves.isSumMove() + ", isUsed: " + aRollMoves.isUsed() + ", Roll of " + aRollMoves.getRollResult() + "\n";
@@ -310,14 +311,17 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n";
+					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
-					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n";
+					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n";
+					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				}
 				prefix++;
 			}
