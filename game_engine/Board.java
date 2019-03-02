@@ -1,6 +1,5 @@
 package game_engine;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import constants.DieInstance;
 import constants.GameConstants;

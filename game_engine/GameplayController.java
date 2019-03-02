@@ -125,9 +125,18 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		char key = 'A';
 		int ascii = 0;
 		
-		while (map.containsKey(Character.toString(key + ascii))) ascii++;
+		String output = "";
+
+		if (map.containsKey("Z")) {
+			while (map.containsKey(Character.toString(key) + Character.toString(key + ascii))) ascii++;
+			output = Character.toString(key) + Character.toString(key + ascii);
+			
+		} else {
+			while (map.containsKey(Character.toString(key + ascii))) ascii++;
+			output = Character.toString(key + ascii);
+		}
 		
-		return Character.toString(key + ascii);
+		return output;
 	}
 	
 	/**
