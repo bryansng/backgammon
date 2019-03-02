@@ -19,5 +19,7 @@ public class PipNumberLabel extends Label {
 		setAlignment(Pos.CENTER);
 		setTextFill(Color.WHITE);
 		setMinSize(GameConstants.getPipSize().getWidth(), GameConstants.getPipNumberLabelHeight());
+		setFont(GameConstants.getFont());
+		setStyle("-fx-font-size: 13px;");
 	}
 }

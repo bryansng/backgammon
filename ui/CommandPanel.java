@@ -16,5 +16,6 @@ public class CommandPanel extends TextField {
 		super();
 		setPromptText("Player inputs text here, then hit Enter\n");
 		setMinHeight(GameConstants.getUIHeight());
+		setFont(GameConstants.getFont());
 	}
 }

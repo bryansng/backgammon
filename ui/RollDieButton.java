@@ -19,6 +19,7 @@ public class RollDieButton extends Button {
 		super("Roll Die");
 		setMaxWidth(Double.MAX_VALUE);
 		setMinHeight(GameConstants.getUIHeight());
+		setFont(GameConstants.getFont());
 		initEventEffects();
 	}
 	

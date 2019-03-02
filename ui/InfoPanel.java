@@ -25,6 +25,7 @@ public class InfoPanel extends TextArea {
 		setEditable(false);
 		setWrapText(true);
 		setFocusTraversable(false);
+		setFont(GameConstants.getFont());
 		welcome();
 	}
 	

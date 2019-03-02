@@ -6,6 +6,7 @@ import java.io.InputStream;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
 import javafx.scene.layout.BackgroundImage;
+import javafx.scene.text.Font;
 
 /**
  * This class serves as a point where other class files share hard-coded data or relative data.
@@ -63,6 +64,14 @@ public class GameConstants {
 	 */
 	private static InputStream getFile(String path) {
 		return GameConstants.class.getResourceAsStream("/game/" + path);
+	}
+	
+	/**
+	 * Returns the game font
+	 */
+	public static Font getFont() {
+		InputStream font = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+		return Font.loadFont(font, 16);
 	}
 	
 	/**

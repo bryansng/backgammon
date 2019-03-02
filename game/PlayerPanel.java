@@ -7,7 +7,6 @@ import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 
 /**
  * This class represents the panel that displays player info at the top/bottom of the board.
@@ -28,7 +27,7 @@ public class PlayerPanel extends HBox implements ColorParser {
 		}
 		
 		public void initStyle() {
-			setFont(new Font("Consolas", 16));
+			setFont(GameConstants.getFont());
 			setTextFill(Color.WHITE);
 			setWrapText(true);
 		}
