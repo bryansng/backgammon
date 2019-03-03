@@ -2,6 +2,7 @@ package game;
 
 import java.io.InputStream;
 
+import constants.GameConstants;
 import interfaces.ColorParser;
 import javafx.geometry.Pos;
 import javafx.scene.image.Image;
@@ -20,8 +21,8 @@ import javafx.scene.paint.Color;
  *
  */
 public class Pip extends CheckersStorer implements ColorParser {
-	private Image img;
-	private Image imgHighlighted; 
+	private Background normalBG;
+	private Background highlightedBG; 
 	private int pipNum;
 	
 	/**
@@ -40,13 +41,13 @@ public class Pip extends CheckersStorer implements ColorParser {
 		String colorString = parseColor(color);
 		InputStream input1 = getClass().getResourceAsStream("img/board/" + colorString + "_point.png");
 		InputStream input2 = getClass().getResourceAsStream("img/board/" + colorString + "_point_highlighted.png");
-		img = new Image(input1);
-		imgHighlighted = new Image(input2);
+		normalBG = new Background(new BackgroundImage(new Image(input1), null, null, null, null));
+		highlightedBG = new Background(new BackgroundImage(new Image(input2), null, null, null, null));
 		
 		setRotate(rotation);
 		setAlignment(Pos.BOTTOM_CENTER);
 		// don't simply set point max and pref size, this will effect how the point is drawn.
-		setMinSize(img.getWidth(), img.getHeight());	// highlighted and non-highlighted should have the same width & height.
+		setMinSize(GameConstants.getPipSize().getWidth(), GameConstants.getPipSize().getHeight());	// highlighted and non-highlighted should have the same width & height.
 		setNormalImage();
 	}
 	
@@ -54,14 +55,14 @@ public class Pip extends CheckersStorer implements ColorParser {
 	 * Use the highlighted image.
 	 */
 	public void setHighlightImage() {
-		setBackground(new Background(new BackgroundImage(imgHighlighted, null, null, null, null)));
+		setBackground(highlightedBG);
 	}
 
 	/**
 	 * Use the normal image (i.e. image that is not highlighted).
 	 */
 	public void setNormalImage() {
-		setBackground(new Background(new BackgroundImage(img, null, null, null, null)));
+		setBackground(normalBG);
 	}
 	
 	/**
