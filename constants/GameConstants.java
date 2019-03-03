@@ -4,6 +4,9 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.io.InputStream;
 import javafx.scene.image.Image;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.BackgroundImage;
+import javafx.scene.text.Font;
 
 /**
  * This class serves as a point where other class files share hard-coded data or relative data.
@@ -51,9 +54,31 @@ public class GameConstants {
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
 	public static final int NUMBER_OF_PIPS = 24;
+
+	public static final int FONT_SIZE = 15;
+	public static final int FONT_SIZE_PLAYER_PANEL = 16;
+	public static final int FONT_SIZE_PIP_NUMBER_LABEL = 14;
+	//public static final String FONT_FAMILY = "Consolas";
 	
-	public static final int FONT_SIZE = 14;
-	public static final String FONT_FAMILY = "Consolas";
+	/**
+	 * Loads font from file and returns a font object with that font.
+	 * Used by InfoPanel.
+	 * @return the font.
+	 */
+	public static Font getFont() {
+		InputStream font = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+		return Font.loadFont(font, FONT_SIZE);
+	}
+	
+	/**
+	 * Loads font from file, and returns that input stream.
+	 * Used by PlayerPanel, PipNumberLabel,
+	 * provides flexibility as we can specify a specific font size.
+	 * @return
+	 */
+	public static InputStream getFontInputStream() {
+		return GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+	}
 	
 	/**
 	 * Screen sizes - Used to set scene width and height.
@@ -88,7 +113,6 @@ public class GameConstants {
 	 */
 	public static Dimension getPipSize() {
 		Image img = new Image(getFile("img/board/white_point.png"));
-		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
@@ -100,7 +124,6 @@ public class GameConstants {
 	 */
 	public static Dimension getCheckerSize() {
 		Image img = new Image(getFile("img/checkers/white_checkers.png"));
-		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
@@ -112,32 +135,30 @@ public class GameConstants {
 	 */
 	public static Dimension getDiceSize() {
 		Image img = new Image(getFile("img/dices/black/1.png"));
-		
 		Dimension d = new Dimension();
 		d.setSize(img.getWidth(), img.getHeight());
 		return d;
 	}
-	
-	public static final String GAME_COLOR = "saddlebrown";
-	public static final String BOARD_COLOR = "forestgreen";
-	
+
 	/**
-	 * Returns the colour of the board in terms of CSS.
-	 * @return colour of the board.
+	 * Returns the image of the board.
+	 * @return image of the board.
 	 */
-	public static String getBoardColor() {
-		String colour = "-fx-background-color: forestgreen;";
-		return colour;
+	public static Background getBoardImage() {
+		InputStream input = getFile("img/board/green.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		return bg;
 	}
 	
 	
 	/**
-	 * Returns the colour of the game in terms of CSS.
-	 * @return colour of the game.
+	 * Returns the image of the game.
+	 * @return image of the game.
 	 */
-	public static String getGameColor() {
-		String colour = "-fx-background-color: saddlebrown;";
-		return colour;
+	public static Background getGameImage() {
+		InputStream input = getFile("img/board/brown.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		return bg;
 	}
 	
 	/**

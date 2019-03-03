@@ -413,7 +413,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
-
+	
 	/**
 	 * Command: /cheat
 	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
@@ -421,6 +421,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runCheatCommand() {
 		game.removeAllCheckers();
 		initCheatCheckers();
+		if (gameplay.isStarted()) gameplay.recalculateMoves();
 		infoPnl.print("Cheat command ran.");
 	}
 	
@@ -447,11 +448,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 			}
 		}
-
+		
 		// Add checkers to homes.
 		game.getMainHome().getHome(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
 		game.getMainHome().getHome(Settings.getBottomPerspectiveColor()).initCheckers(2, Settings.getBottomPerspectiveColor());
-
+		
 		// Add checkers to bars.
 		game.getBars().getBar(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
 		game.getBars().getBar(Settings.getBottomPerspectiveColor()).initCheckers(3, Settings.getBottomPerspectiveColor());

@@ -193,7 +193,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * Style MainController (i.e. root).
 	 */
 	public void style() {
-		setStyle("-fx-font-size: " + GameConstants.FONT_SIZE + "px; -fx-font-family: '" + GameConstants.FONT_FAMILY + "';");
+		//setStyle("-fx-font-size: " + GameConstants.FONT_SIZE + "px; -fx-font-family: '" + GameConstants.FONT_FAMILY + "';");
 		setPadding(new Insets(10));
 		setVgap(GameConstants.getUIVGap());
 		setHgap(5);

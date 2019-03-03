@@ -45,10 +45,12 @@ public class Home extends CheckersStorer {
 	}
 	
 	public void highlight() {
-		setStyle(GameConstants.getBoardColor() + "-fx-border-color: yellow; -fx-border-width: 3; -fx-border-style: solid;");
+		setBackground(GameConstants.getBoardImage());
+		setStyle("-fx-border-color: yellow; -fx-border-width: 3; -fx-border-style: solid;");
 	}
 	
 	public void unhighlight() {
-		setStyle(GameConstants.getBoardColor() + "-fx-border-color: " + GameConstants.BOARD_COLOR + "; -fx-border-width: 3; -fx-border-style: solid;");
+		setBackground(GameConstants.getBoardImage());
+		setStyle("-fx-border-color: transparent; -fx-border-width: 3; -fx-border-style: solid;");
 	}
 }

@@ -67,7 +67,7 @@ public class GameComponentsController extends VBox {
 		btmPlayerPnl = new PlayerPanel(middlePart.getMinWidth(), bottomPlayer);
 		
 		getChildren().addAll(topPlayerPnl, middlePart, btmPlayerPnl);
-		setStyle(GameConstants.getGameColor());
+		setBackground(GameConstants.getGameImage());
 		setMaxHeight(topPlayerPnl.getMinHeight() + middlePart.getHeight() + btmPlayerPnl.getMinHeight());
 		
 		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {

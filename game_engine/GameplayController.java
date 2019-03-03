@@ -147,7 +147,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		}
 	}
 	
-	private void recalculateMoves() {
+	public void recalculateMoves() {
 		// recalculate moves.
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);

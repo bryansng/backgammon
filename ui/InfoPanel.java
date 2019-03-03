@@ -60,6 +60,15 @@ public class InfoPanel extends ScrollPane {
 	private void initLayout() {
 		setContent(textContainer);
 	}
+	
+	/**
+	 * Outputs welcome message and prompts player to start game
+	 */
+	public void welcome() {
+		print("Welcome to Backgammon!");
+		print("Enter \"/start\" below to start a new game.");
+		print("Or enter \"/help\" for a list of possible commands.");
+	}
 
 	// text padding at top and bottom.
 	// 2 line spacing in a single line, top and bottom.
@@ -75,15 +84,6 @@ public class InfoPanel extends ScrollPane {
 		int possibleLines = (int) (getMinHeight() - textPadding * 2) / GameConstants.FONT_SIZE;
 		int numberOfLines = (int) (possibleLines - (possibleLines * textContainer.getLineSpacing() * 2) / GameConstants.FONT_SIZE);
 		printNewlines(numberOfLines);
-	}
-	
-	/**
-	 * Outputs welcome message and prompts player to start game
-	 */
-	public void welcome() {
-		print("Welcome to Backgammon!");
-		print("Enter \"/start\" below to start a new game.");
-		print("Or enter \"/help\" for a list of possible commands.");
 	}
 	
 	/**
@@ -118,6 +118,7 @@ public class InfoPanel extends ScrollPane {
 				break;
 		}
 		text.setText(prefix + " " + type + " " + msg + "\n");
+		text.setFont(GameConstants.getFont());
 		
 		// same as
 		// (debugMode || (!debugMode && mtype != MessageType.DEBUG))
@@ -129,11 +130,6 @@ public class InfoPanel extends ScrollPane {
 	}
 	public void print(String msg) {
 		print(msg, MessageType.SYSTEM);
-	}
-	
-	// text flow version of textarea's appendText().
-	private void appendText(Text text) {
-		textContainer.getChildren().add(text);
 	}
 
 	/**
@@ -151,7 +147,7 @@ public class InfoPanel extends ScrollPane {
 	 */
 	public void saveToFile() {
 		StringBuilder sb = new StringBuilder();
-		for (Node node : this.getChildren()) {
+		for (Node node : textContainer.getChildren()) {
 			if (node instanceof Text) {
 				sb.append(((Text) node).getText());
 			}
@@ -159,7 +155,7 @@ public class InfoPanel extends ScrollPane {
 		
 		try {
 			BufferedWriter buffer = new BufferedWriter(new FileWriter(new File("backgammon.txt")));
-			buffer.append(sb.toString());
+			buffer.append(sb);
 			buffer.newLine();
 			buffer.flush();
 			buffer.close();
@@ -171,5 +167,10 @@ public class InfoPanel extends ScrollPane {
 	
 	public TextFlow getTextContainer() {
 		return textContainer;
+	}
+	
+	// text flow version of textarea's appendText().
+	private void appendText(Text text) {
+		textContainer.getChildren().add(text);
 	}
 }
