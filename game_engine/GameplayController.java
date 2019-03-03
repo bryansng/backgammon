@@ -133,8 +133,11 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		boolean moveMadeCausedPlayerAbleBearOff = !moves.isEmpty() && game.getBoard().isAllCheckersInHomeBoard(pCurrent);
 		if (moveMadeCausedPlayerAbleBearOff || moves.hasDiceResultsLeft()) {
 			recalculateMoves();
-			infoPnl.print("Recalculating moves.", MessageType.DEBUG);
-		} else if (moves.isEmpty()) movedFlag = true;
+		} else if (moves.isEmpty()) {
+			movedFlag = true;
+		} else {
+			printMoves();
+		}
 
 		if (isGameOver()) {
 			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
@@ -149,6 +152,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 	
 	public void recalculateMoves() {
 		// recalculate moves.
+		infoPnl.print("Recalculating moves.", MessageType.DEBUG);
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
@@ -163,9 +167,7 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
 			next();
 		} else {
-			// prints moves left.
 			printMoves();
-			
 			// highlight top checkers.
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		}

@@ -135,7 +135,17 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			theSum += rollResult[i];
 			
 			if (i > 0) {
-				RollMoves rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, 0, i));
+				RollMoves rollMoves;
+				
+				// links 3rd sumRollMoves to 3 normalRollMoves, mainly the 3 normalRollMoves on the right.
+				// i.e. [3,3,3,3] has [6,6,9], [9] is the 3rd,
+				// it links with the 3s on the right, starting from the 2nd index.
+				if (i == rollResult.length/2) {	// should be the 3rd element, i = 2.
+					// range is 1 to 3.
+					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, i-1, rollResult.length-1));
+				} else {
+					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, 0, i));
+				}
 				
 				// BarToPip
 				if (hasCheckersInBar) {
