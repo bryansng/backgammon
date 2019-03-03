@@ -1,5 +1,7 @@
 package move;
 
+import java.util.LinkedList;
+
 import game_engine.Settings;
 import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
@@ -22,8 +24,8 @@ public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspe
 		this(fromPip, toHome, rollMoves, null);
 	}
 	
-	public PipToHome(int fromPip, Color toHome, RollMoves rollMoves, Move intermediateMove) {
-		super(intermediateMove);
+	public PipToHome(int fromPip, Color toHome, RollMoves rollMoves, LinkedList<Move> intermediateMoves) {
+		super(intermediateMoves);
 		this.rollMoves = rollMoves;
 		this.fromPip = fromPip;
 		this.toHome = toHome;
@@ -32,7 +34,7 @@ public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspe
 
 	// Copy Constructor.
 	public PipToHome(PipToHome move) {
-		this(move.getFromPip(), move.getToHome(), move.getRollMoves(), move.getIntermediateMove());
+		this(move.getFromPip(), move.getToHome(), move.getRollMoves(), move.getIntermediateMoves());
 	}
 	
 	public RollMoves getRollMoves() {
@@ -63,8 +65,8 @@ public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspe
 	// not used atm.
 	public String toString() {
 		String s = "fromPip: " + (fromPip+1) + ", toHome ";
-		if (this.hasIntermediateMove()) {
-			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMove();
+		if (this.hasIntermediateMoves()) {
+			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMoves();
 		}
 		return s;
 	}

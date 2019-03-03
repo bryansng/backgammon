@@ -144,13 +144,30 @@ public class Dices extends HBox implements ColorParser {
 		return numDices;
 	}
 	
-	// Used to hard-create double rolls, added in Board's getMoves() method.
+	// Used to hard-create double rolls, added in Board's calculateMoves() method.
 	// Activated by DOUBLE_INSTANCE constant in GameConstants.
 	public int[] getDoubleRoll(DieInstance instance) {
 		int numDices = getNumDices(instance);
 		int[] res = new int[numDices];
 		res[0] = dices[0].roll();
 		res[1] = res[0];
+		dices[1].draw(res[1]);
+		drawDices(instance);
+		
+		if (isDouble(res)) {
+			res = addDoubleDie(res);
+		}
+		return res;
+	}
+	
+	// Used to hard-create double rolls of ones, added in Board's calculateMoves() method.
+	// Activated by DOUBLE_ONES constant in GameConstants.
+	public int[] getDoubleOnes(DieInstance instance) {
+		int numDices = getNumDices(instance);
+		int[] res = new int[numDices];
+		res[0] = 1;
+		res[1] = res[0];
+		dices[0].draw(res[0]);
 		dices[1].draw(res[1]);
 		drawDices(instance);
 		

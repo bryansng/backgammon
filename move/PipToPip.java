@@ -1,5 +1,7 @@
 package move;
 
+import java.util.LinkedList;
+
 /**
  * This class represents a Pip to Pip move.
  * 
@@ -18,8 +20,8 @@ public class PipToPip extends SumMove implements Move {
 		this(fromPip, toPip, rollMoves, isHit, null);
 	}
 	
-	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit, Move intermediateMove) {
-		super(intermediateMove);
+	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit, LinkedList<Move> intermediateMoves) {
+		super(intermediateMoves);
 		this.rollMoves = rollMoves;
 		this.fromPip = fromPip;
 		this.toPip = toPip;
@@ -28,7 +30,7 @@ public class PipToPip extends SumMove implements Move {
 
 	// Copy Constructor.
 	public PipToPip(PipToPip move) {
-		this(move.getFromPip(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMove());
+		this(move.getFromPip(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMoves());
 	}
 	
 	public RollMoves getRollMoves() {
@@ -54,8 +56,8 @@ public class PipToPip extends SumMove implements Move {
 	// not used atm.
 	public String toString() {
 		String s = "fromPip: " + (fromPip+1) + ", toPip: " + (toPip+1);
-		if (this.hasIntermediateMove()) {
-			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMove();
+		if (this.hasIntermediateMoves()) {
+			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMoves();
 		}
 		return s;
 	}

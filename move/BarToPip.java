@@ -1,5 +1,7 @@
 package move;
 
+import java.util.LinkedList;
+
 import game_engine.Settings;
 import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
@@ -23,8 +25,8 @@ public class BarToPip extends SumMove implements Move, ColorParser, ColorPerspec
 		this(fromBar, toPip, rollMoves, isHit, null);
 	}
 	
-	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit, Move intermediateMove) {
-		super(intermediateMove);
+	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit, LinkedList<Move> intermediateMoves) {
+		super(intermediateMoves);
 		this.fromBar = fromBar;
 		this.fromBarPipNum = colorToPipBoundaryNum(fromBar);
 		this.toPip = toPip;
@@ -33,7 +35,7 @@ public class BarToPip extends SumMove implements Move, ColorParser, ColorPerspec
 
 	// Copy Constructor.
 	public BarToPip(BarToPip move) {
-		this(move.getFromBar(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMove());
+		this(move.getFromBar(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMoves());
 	}
 	
 	public RollMoves getRollMoves() {
@@ -68,8 +70,8 @@ public class BarToPip extends SumMove implements Move, ColorParser, ColorPerspec
 	// not used atm.
 	public String toString() {
 		String s = "fromBar: " + parseColor(fromBar) + ", toPip: " + (toPip+1);
-		if (this.hasIntermediateMove()) {
-			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMove();
+		if (this.hasIntermediateMoves()) {
+			s += "\n ~ with intermediate move:\n ~ " + this.getIntermediateMoves();
 		}
 		return s;
 	}

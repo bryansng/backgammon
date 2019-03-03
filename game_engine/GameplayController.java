@@ -304,23 +304,31 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 		String intermediateMove = "";
 		String msg = "Remaining rollMoves: " + moves.size() + ", moves:";
 		for (RollMoves aRollMoves : moves) {
-			if (GameConstants.DEBUG_MODE) msg += "\n" + spaces + "Normal: " + aRollMoves.isNormalMove() + ", Sum: " + aRollMoves.isSumMove() + ", isUsed: " + aRollMoves.isUsed() + ", Roll of " + aRollMoves.getRollResult() + "\n";
+			if (GameConstants.DEBUG_MODE) {
+				msg += "\n" + spaces;
+				msg += "Normal: " + aRollMoves.isNormalRollMoves();
+				msg += ", Sum: " + aRollMoves.isSumRollMoves();
+				msg += ", isUsed: " + aRollMoves.isUsed();
+				msg += ", Roll of " + aRollMoves.getRollResult() + "\n";
+				msg += aRollMoves.printDependentRollMoves(spaces);
+			}
 			else msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
+			
 			for (Move aMove : aRollMoves.getMoves()) {
 				suffix = "";
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
-					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (move.hasIntermediateMove()) intermediateMove = extraSpace + move.printIntermediate() + "\n";
+					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				}
 				prefix++;

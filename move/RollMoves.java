@@ -19,12 +19,13 @@ import java.util.LinkedList;
  */
 public class RollMoves {
 	private int rollResult;
-	private boolean isSumMove, isUsed;
+	private LinkedList<RollMoves> dependedRollMoves;
+	private boolean isUsed;
 	private LinkedList<Move> moves;
 	
-	public RollMoves(int rollResult, boolean isSumMove) {
+	public RollMoves(int rollResult, LinkedList<RollMoves> dependedRollMoves) {
 		this.rollResult = rollResult;
-		this.isSumMove = isSumMove;
+		this.dependedRollMoves = dependedRollMoves;
 		this.isUsed = false;
 		moves = new LinkedList<>();
 	}
@@ -32,7 +33,7 @@ public class RollMoves {
 	// Copy Constructor.
 	// https://www.artima.com/intv/bloch13.html
 	public RollMoves(RollMoves otherRollMoves) {
-		this(otherRollMoves.getRollResult(), otherRollMoves.isSumMove());
+		this(otherRollMoves.getRollResult(), otherRollMoves.getDependedRollMoves());
 		
 		for (Move aMove : otherRollMoves.getMoves()) {
 			if (aMove instanceof PipToPip) {
@@ -51,12 +52,12 @@ public class RollMoves {
 		}
 	}
 	
-	public boolean isNormalMove() {
-		return !isSumMove;
+	public boolean isNormalRollMoves() {
+		return dependedRollMoves == null;
 	}
 	
-	public boolean isSumMove() {
-		return isSumMove;
+	public boolean isSumRollMoves() {
+		return !isNormalRollMoves();
 	}
 	
 	public boolean isUsed() {
@@ -71,15 +72,26 @@ public class RollMoves {
 		return moves;
 	}
 	
+	public LinkedList<RollMoves> getDependedRollMoves() {
+		return dependedRollMoves;
+	}
+	
+	public void setDependentRollMoves(LinkedList<RollMoves> dependedRollMoves) {
+		this.dependedRollMoves = dependedRollMoves;
+	}
+	
 	public int getRollResult() {
 		return rollResult;
 	}
 	
-	// not used atm.
-	public String toString() {
-		String s = "Roll of " + rollResult + "\n";
-		for (int i = 0; i < moves.size(); i++) {
-			s += " - " + moves.get(i) + "\n";
+	public String printDependentRollMoves(String spaces) {
+		String s = "";
+		if (isSumRollMoves()) {
+			String prefix = "DRM - ";
+			s += spaces + "DependentRollMoves:\n";
+			for (RollMoves aRollMoves : dependedRollMoves) {
+				s += spaces + prefix + aRollMoves + "\n";
+			}
 		}
 		return s;
 	}

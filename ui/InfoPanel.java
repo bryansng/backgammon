@@ -52,7 +52,8 @@ public class InfoPanel extends ScrollPane {
 		textPadding = 3;
 		textContainer.setPadding(new Insets(textPadding));
 		textContainer.setLineSpacing(textPadding / 2.0);
-		textContainer.setStyle("-fx-background-color: white;");
+		textContainer.setStyle("-fx-background-color: rgb(245, 255, 250, 1);");
+		//textContainer.setStyle("-fx-background-color: rgb(139, 69, 19, 0.5);");
 		textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
 	}
 	
@@ -111,8 +112,9 @@ public class InfoPanel extends ScrollPane {
 				break;
 			case WARNING:
 				type = "[Warning]";
-				text.setFill(Color.YELLOW);
+				text.setFill(Color.GOLD);
 			case CHAT:
+				text.setFill(Color.ORANGE);
 				break;
 		}
 		text.setText(prefix + " " + type + " " + msg + "\n");

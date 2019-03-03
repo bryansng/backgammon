@@ -1,5 +1,7 @@
 package game;
 
+import java.util.Iterator;
+import java.util.LinkedList;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MoveResult;
@@ -32,33 +34,41 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		this.game = game;
 	}
 	
+	/**
+	 * Different from calculateMoves.
+	 * 		- it calculates using remaining dice results, instead of adding more.
+	 * @param prevMoves
+	 * @param pCurrent
+	 * @return
+	 */
 	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
-		Moves moves = new Moves();
+		Moves moves = prevMoves;
 		// recalculate using remaining dice results.
-		for (RollMoves aRollMoves : prevMoves) {
+		for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
+			RollMoves aRollMoves = iterRollMoves.next();
+			
+			aRollMoves.getMoves().clear();
 			boolean hasMove = false;
 			int rollResult = aRollMoves.getRollResult();
-			boolean isSumMove = aRollMoves.isSumMove();
+			boolean isSumMove = aRollMoves.isSumRollMoves();
 			boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
-			
-			RollMoves rollMoves = new RollMoves(rollResult, isSumMove);
 
 			// BarToPip
 			if (hasCheckersInBar) {
-				if (addedAsBarToPipMove(moves, rollMoves, pCurrent, rollResult, isSumMove))
+				if (addedAsBarToPipMove(moves, aRollMoves, pCurrent, rollResult, isSumMove))
 					hasMove = true;
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
 				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 					// addAsMove returns a boolean indicating if move is valid and added as move.
-					 if (addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
+					 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
 						 hasMove = true;
 					 }
 				}
 			}
-			if (hasMove) {
-				moves.add(rollMoves);
+			if (!hasMove) {
+				iterRollMoves.remove();
 			}
 		}
 		return moves;
@@ -74,24 +84,25 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	public Moves calculateMoves(int[] rollResult, Player pCurrent) {
 		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
 			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
+		} else if (GameConstants.FORCE_DOUBLE_ONES) {
+			rollResult = dices.getDoubleOnes(DieInstance.DEFAULT);
 		}
 		
-		DieInstance instance = DieInstance.DEFAULT;
-		if (rollResult[0] == rollResult[1]) {
-			instance = DieInstance.DOUBLE;
-		}
-		
-		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
+		// calculate rollmoves of normal moves.
+		// calculate rollmoves of sum moves.
+		// combine normal moves and sum moves together.
 		Moves moves = new Moves();
-		
-		// take sum by pairs of rollResult.
-		int pairSum = 0;
+		calculateNormalMoves(moves, rollResult, pCurrent);
+		calculateSumMoves(moves, rollResult, pCurrent);
+		return moves;
+	}
+	
+	private LinkedList<Move> calculateNormalMoves(Moves moves, int[] rollResult, Player pCurrent) {
+		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		
 		// consider each die result.
-		RollMoves rollMoves = null;
-		for (int i = 0; i < 2; i++) {
-			pairSum += rollResult[i];
-			rollMoves = new RollMoves(rollResult[i], false);
+		for (int i = 0; i < rollResult.length; i++) {
+			RollMoves rollMoves = new RollMoves(rollResult[i], null);
 			
 			// BarToPip
 			if (hasCheckersInBar) {
@@ -105,24 +116,57 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				}
 			}
 			moves.add(rollMoves);
-			if (instance == DieInstance.DOUBLE) moves.add(new RollMoves(rollMoves));
+		}
+		return null;
+	}
+	
+	private LinkedList<Move> calculateSumMoves(Moves moves, int[] rollResult, Player pCurrent) {
+		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
+		
+		DieInstance instance = DieInstance.DEFAULT;
+		if (rollResult[0] == rollResult[1]) {
+			instance = DieInstance.DOUBLE;
 		}
 		
-		// consider sum of die result.
-		rollMoves = new RollMoves(pairSum, true);
-		// BarToPip
-		if (hasCheckersInBar) {
-			addedAsBarToPipMove(moves, rollMoves, pCurrent, pairSum, true);
-		// PipToPip or PipToHome
-		} else {
-			for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-				addedAsMove(moves, rollMoves, pCurrent, fromPip, pairSum, true);
+		// Consider sum of roll die results.
+		// sumMove starts at 2nd element in rollResult.
+		int theSum = 0;
+		for (int i = 0; i < rollResult.length; i++) {
+			theSum += rollResult[i];
+			
+			if (i > 0) {
+				RollMoves rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, 0, i));
+				
+				// BarToPip
+				if (hasCheckersInBar) {
+					addedAsBarToPipMove(moves, rollMoves, pCurrent, theSum, true);
+				// PipToPip or PipToHome
+				} else {
+					for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+						addedAsMove(moves, rollMoves, pCurrent, fromPip, theSum, true);
+					}
+				}
+				moves.add(rollMoves);
+				
+				// links the other sumRollMoves to other normalRollMoves.
+				// i.e. [3,3,3,3] has [6,6]. First 6 is taken care of above, Second 6 below.
+				if (instance == DieInstance.DOUBLE && i == rollResult.length/2-1) {
+					rollMoves = new RollMoves(rollMoves);
+					rollMoves.setDependentRollMoves(calculateDependentRollMoves(moves, i+1, rollResult.length-1));
+					moves.add(rollMoves);
+				}
 			}
 		}
-		moves.add(rollMoves);
-		if (instance == DieInstance.DOUBLE) moves.add(new RollMoves(rollMoves));
 		
-		return moves;
+		return null;
+	}
+	
+	private LinkedList<RollMoves> calculateDependentRollMoves(Moves moves, int startRange, int endRange) {
+		LinkedList<RollMoves> dependentRollMoves = new LinkedList<>();
+		for (int i = startRange; i <= endRange; i++) {
+			dependentRollMoves.add(moves.get(i));
+		}
+		return dependentRollMoves;
 	}
 	
 	private boolean hasCheckersInBar(Player pCurrent) {
@@ -137,9 +181,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		if (isPipNumberInRange(toPip) && ((moveResult = isBarToPipMove(pCurrent.getColor(), toPip)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
-				Move intermediateMove;
-				if ((intermediateMove = isSumMove(moves, getBearOnFromPip(pCurrent), toPip)) != null) {
-					rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit, intermediateMove));
+				LinkedList<Move> intermediateMoves;
+				if ((intermediateMoves = isSumMove(moves, getBearOnFromPip(pCurrent), toPip)) != null) {
+					rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit, intermediateMoves));
 					addedAsMove = true;
 				}
 			} else {
@@ -181,9 +225,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		if (isPipNumberInRange(toPip) && ((moveResult = isPipToPipMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
-				Move intermediateMove;
-				if ((intermediateMove = isSumMove(moves, fromPip, toPip)) != null) {
-					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, isHit, intermediateMove));
+				LinkedList<Move> intermediateMoves;
+				if ((intermediateMoves = isSumMove(moves, fromPip, toPip)) != null) {
+					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, isHit, intermediateMoves));
 					addedAsMove = true;
 				}
 			} else {
@@ -221,9 +265,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
 			if (isSumMove) {
-				Move intermediateMove;
-				if ((intermediateMove = isSumMove(moves, fromPip, getBearOffToPip(pCurrent))) != null) {
-					rollMoves.getMoves().add(new PipToHome(fromPip, pCurrent.getColor(), rollMoves, intermediateMove));
+				LinkedList<Move> intermediateMoves;
+				if ((intermediateMoves = isSumMove(moves, fromPip, getBearOffToPip(pCurrent))) != null) {
+					rollMoves.getMoves().add(new PipToHome(fromPip, pCurrent.getColor(), rollMoves, intermediateMoves));
 					addedAsMove = true;
 				}
 			} else {
@@ -367,17 +411,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * @param toPip
 	 * @return the intermediate move.
 	 */
-	private Move isSumMove(Moves moves, int fromPip, int toPip) {
+	private LinkedList<Move> isSumMove(Moves moves, int fromPip, int toPip) {
+		LinkedList<Move> intermediateMoves = null;
 		Move intermediateMove = null;
 		for (RollMoves rollMove : moves) {
 			for (Move aMove : rollMove.getMoves()) {
 				if ((intermediateMove = hasIntermediate(aMove, fromPip, toPip)) != null) {
+					intermediateMoves = new LinkedList<>();
+					intermediateMoves.add(intermediateMove);
 					break;
 				}
 			}
 			if (intermediateMove != null) break;
 		}
-		return intermediateMove;
+		return intermediateMoves;
 	}
 	
 	/**

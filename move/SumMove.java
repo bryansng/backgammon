@@ -1,9 +1,10 @@
 package move;
 
+import java.util.LinkedList;
 import interfaces.ColorParser;
 
 /**
- * This abstract class represents that SumMove.
+ * This abstract class represents the SumMove.
  * This abstract class should be extended by all classes that implement the Move interface.
  * To animate checker hopping, animator will need the intermediate move.
  * 
@@ -19,34 +20,39 @@ import interfaces.ColorParser;
  *
  */
 public abstract class SumMove implements ColorParser {
-	private Move intermediateMove;
+	private LinkedList<Move> intermediateMoves;
 	
-	public SumMove(Move intermediateMove) {
-		this.intermediateMove = intermediateMove;
+	public SumMove(LinkedList<Move> intermediateMoves) {
+		this.intermediateMoves = intermediateMoves;
 	}
 	
-	public boolean hasIntermediateMove() {
-		return intermediateMove != null;
+	public boolean hasIntermediateMoves() {
+		return intermediateMoves != null;
 	}
 	
-	public Move getIntermediateMove() {
-		return intermediateMove;
+	public LinkedList<Move> getIntermediateMoves() {
+		return intermediateMoves;
 	}
 	
-	public String printIntermediate() {
-		String s = "IntermediateMove - ";
-		
-		if (intermediateMove instanceof PipToPip) {
-			PipToPip move = (PipToPip) intermediateMove;
-			s += "fromPip: " + move.getFromPip() + ", toPip: " + move.getToPip();
-		} else if (intermediateMove instanceof PipToHome) {
-			PipToHome move = (PipToHome) intermediateMove;
-			s += "fromPip: " + move.getFromPip() + ", toHome";
-		} else if (intermediateMove instanceof BarToPip) {
-			BarToPip move = (BarToPip) intermediateMove;
-			s += "fromBar: " + parseColor(move.getFromBar()) + ", toPip: " + move.getToPip();
+	public String printIntermediate(String spaces) {
+		String s = "";
+		if (hasIntermediateMoves()) {
+			String prefix = "IM - ";
+			s += spaces + "IntermediateMoves:\n";
+			
+			for (Move aMove : intermediateMoves) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					s += spaces + prefix + "fromPip: " + move.getFromPip() + ", toPip: " + move.getToPip() + "\n";
+				} else if (aMove instanceof PipToHome) {
+					PipToHome move = (PipToHome) aMove;
+					s += spaces + prefix + "fromPip: " + move.getFromPip() + ", toHome\n";
+				} else if (aMove instanceof BarToPip) {
+					BarToPip move = (BarToPip) aMove;
+					s += spaces + prefix + "fromBar: " + parseColor(move.getFromBar()) + ", toPip: " + move.getToPip() + "\n";
+				}
+			}
 		}
-		
 		return s;
 	}
 }

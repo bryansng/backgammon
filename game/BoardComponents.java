@@ -95,6 +95,15 @@ public class BoardComponents extends HBox {
 						pips[i].initCheckers(1, Color.WHITE);
 						break;
 				}
+			} else if (GameConstants.FORCE_TWO_CHECKER) {
+				switch (i) {
+					case 12:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 11:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+				}
 			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING) {
 				switch (i) {
 					case 9:

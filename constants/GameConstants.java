@@ -19,6 +19,7 @@ public class GameConstants {
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
+	public static final boolean FORCE_TWO_CHECKER = false;
 	
 	// for debug isGameOver.
 	// for checkers at home.
@@ -36,7 +37,7 @@ public class GameConstants {
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
 	
 	// for debug PipToHome moves.
-	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = true;
+	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_LESSER_CHECKERS_IN_HOME_BOARD = false;
@@ -45,6 +46,7 @@ public class GameConstants {
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;
+	public static final boolean FORCE_DOUBLE_ONES = false;
 	
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;

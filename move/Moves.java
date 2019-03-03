@@ -172,8 +172,8 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	 * @param rollMoves rollMoves to remove.
 	 */
 	public void removeRollMoves(RollMoves theRollMoves) {
-		removeOtherRollMoves(theRollMoves);
 		this.remove(theRollMoves);		// remove used rollMoves.
+		removeOtherRollMoves(theRollMoves);
 	}
 	
 	/**
@@ -184,22 +184,33 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	 * @param rollMoves rollMoves that was removed.
 	 */
 	private void removeOtherRollMoves(RollMoves theRollMoves) {
-		// we use this way of iterating and use iter.remove() to remove,
-		// if not while removing will raised ConcurrentModificationException.
-		int count = 1;
-		for (Iterator<RollMoves> iter = this.iterator(); iter.hasNext();) {
-			RollMoves aRollMoves = iter.next();
-			
-			// if sum moved, remove other two.
-			if (theRollMoves.isSumMove() && aRollMoves.isNormalMove()) {
-				iter.remove();
-				if (count == 2) break;
-				count++;
+		// if NormalRollMoves, we remove SumRollMoves relied on it.
+		if (theRollMoves.isNormalRollMoves()) {
+			for (Iterator<RollMoves> iter = this.iterator(); iter.hasNext();) {
+				RollMoves aRollMoves = iter.next();
+				if (aRollMoves.isSumRollMoves()) {
+					if (aRollMoves.getDependedRollMoves().contains(theRollMoves)) {
+						iter.remove();
+					}
+				}
 			}
-			// if not sum moved, remove sum.
-			if (theRollMoves.isNormalMove() && aRollMoves.isSumMove()) {
-				iter.remove();
-				break;
+		// if SumRollMoves,
+		// 1. we remove SumRollMove's NormalRollMoves.
+		// 2. we remove other SumRollMoves that rely on the removed SumRollMoves's NormalRollMoves.
+		} else if (theRollMoves.isSumRollMoves()) {
+			// remove the relied NormalRollMoves.
+			for (RollMoves dependedRollMoves : theRollMoves.getDependedRollMoves()) {
+				this.remove(dependedRollMoves);
+
+				// remove the other SumRollMoves that rely on the removed SumRollMove's NormalRollMoves.
+				for (Iterator<RollMoves> iter = this.iterator(); iter.hasNext();) {
+					RollMoves aRollMoves = iter.next();
+					if (aRollMoves.isSumRollMoves()) {
+						if (aRollMoves.getDependedRollMoves().contains(dependedRollMoves)) {
+							iter.remove();
+						}
+					}
+				}
 			}
 		}
 	}
