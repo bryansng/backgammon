@@ -414,8 +414,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	private void runMusicCommand(String[] args) {
-		if (args.length == 1) {
-			infoPnl.print("Incorrect Syntax: Expected /music [play | next | prev | pause | stop | mute | unmute]", MessageType.ERROR);
+		if (args.length != 2) {
+			infoPnl.print("Incorrect Syntax: Expected /music [play | next | prev | pause | stop | repeat | mute | unmute]", MessageType.ERROR);
 			return;
 		}
 		
@@ -431,6 +431,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			musicPlayer.pause();
 		else if (args[1].equals("stop"))
 			musicPlayer.stop();
+		else if (args[1].equals("repeat"))
+			musicPlayer.repeat();
 		else if (args[1].equals("mute"))
 			musicPlayer.muteVolume(true);
 		else if (args[1].equals("unmute")) 
