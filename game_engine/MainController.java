@@ -1,8 +1,10 @@
 package game_engine;
 
 import java.util.Optional;
+
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
+import musicplayer.MusicPlayer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -45,6 +47,7 @@ public class MainController extends GridPane {
 	private CommandController cmd;
 	private GameplayController gameplay;
 	private EventController event;
+	private MusicPlayer musicPlayer;
 	private Stage stage;
 	private boolean playerInfosEnteredFirstTimeFlag, promptCancelFlag;
 	
@@ -80,9 +83,10 @@ public class MainController extends GridPane {
 	 * Initialize game components and sub-controllers.
 	 */
 	private void initGame() {
+		musicPlayer = new MusicPlayer();
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
-		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
+		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
 	}
