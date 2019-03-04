@@ -22,27 +22,44 @@ import java.util.Random;
  */
 public class MusicPlayer {
 
+	/**
+	 * Private fields
+	 */
 	private MediaPlayer mediaPlayer;
 	private Media media;
 	private ArrayList<String> playlist;
 	private final String defaultMusic = "animal_crossing.aiff";
 	private String currentMusic;
 
+	/**
+	 * Constructor
+	 */
 	public MusicPlayer() {
 		initPlaylist();
 		initMediaPlayer(defaultMusic);
 		setCurrentMusic(defaultMusic);
 	}
 
+	/**
+	 * Method to load the music file into the mediaPlayer object to be played
+	 * 
+	 * @param fileName to be loaded into the media object to play the music
+	 */
 	private void initMediaPlayer(String fileName) {
 		media = new Media(new File(getPathOfMusic(fileName)).toURI().toString());
 		mediaPlayer = new MediaPlayer(media);
 		mediaPlayer.setVolume(100);
 
+		/**
+		 * We cannot play the file instantly as it has not properly loaded. Therefore we can only call it when it's loaded, i.e getStatus() == READY
+		 */
 		mediaPlayer.setOnReady(new Runnable() {
 			public void run() {
 				mediaPlayer.setVolume(100);
-				System.out.println("Run status: " + mediaPlayer.getStatus());
+				/**
+				 * Debugging purposes
+				 */
+				System.out.println("Run status: " + mediaPlayer.getStatus()); // Should return READY
 				System.out.println("Music duration: " + media.getDuration().toMinutes());
 				System.out.println("Volume: " + mediaPlayer.getVolume());
 				System.out.println("Tracks: " + media.getTracks());
@@ -57,7 +74,7 @@ public class MusicPlayer {
 			}
 		});
 
-		System.out.println("Init music status: " + mediaPlayer.getStatus());
+		System.out.println("Init music status: " + mediaPlayer.getStatus()); // Should return UNKNOWN
 	}
 
 	private String getPathOfMusic(String fileName) {
@@ -108,6 +125,9 @@ public class MusicPlayer {
 		
 		int indexOfSong = playlist.indexOf(currentMusic);
 
+		/**
+		 * If indexOfSong isn't the last song
+		 */
 		if (indexOfSong == playlist.size() - 1)
 			setCurrentMusic(playlist.get(0));
 		else
@@ -121,6 +141,9 @@ public class MusicPlayer {
 		
 		int indexOfSong = playlist.indexOf(currentMusic);
 
+		/**
+		 * If indexOfSong isn't the first song
+		 */
 		if (indexOfSong != 0)
 			setCurrentMusic(playlist.get(indexOfSong - 1));
 		else
@@ -129,6 +152,12 @@ public class MusicPlayer {
 		initMediaPlayer(getCurrentMusic());
 	}
 
+	/**
+	 * 
+	 * This is to show the user that their command worked
+	 * 
+	 * @return String representation of the status of the mediaPlayer object
+	 */
 	public String getStatus() {
 		Status status = mediaPlayer.getStatus();
 		String outputStatus;
