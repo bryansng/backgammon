@@ -417,22 +417,29 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * It is sum move if it has an intermediate move in rollMoves.
 	 * This function searches, hasIntermediate() determines if it is an intermediate move.
 	 * @param moves, the possible moves.
-	 * @param fromPip
-	 * @param toPip
-	 * @return the intermediate move.
+	 * @param fro sumMove's fro (BarToPip's -1 or 24, or PipToPip's fromPip).
+	 * @param to sumMove's to (PipToHome's -1 or 24, or PipToPip's toPip).
+	 * @return the intermediate moves.
 	 */
-	private LinkedList<Move> isSumMove(Moves moves, int fromPip, int toPip) {
-		LinkedList<Move> intermediateMoves = null;
-		Move intermediateMove = null;
+	private LinkedList<Move> isSumMove(Moves moves, int fro, int to) {
+		LinkedList<Move> intermediateMoves = new LinkedList<>();
+		Move theMove = null;
 		for (RollMoves rollMove : moves) {
 			for (Move aMove : rollMove.getMoves()) {
-				if ((intermediateMove = hasIntermediate(aMove, fromPip, toPip)) != null) {
-					intermediateMoves = new LinkedList<>();
-					intermediateMoves.add(intermediateMove);
-					break;
+				if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
+					intermediateMoves.add(theMove);
+					/*
+					if (!contains(intermediateMoves, theMove)) {
+						intermediateMoves.add(theMove);
+						//break;
+					}
+					*/
 				}
 			}
-			if (intermediateMove != null) break;
+			//if (intermediateMove != null) break;
+		}
+		if (intermediateMoves.isEmpty()) {
+			return null;
 		}
 		return intermediateMoves;
 	}
@@ -499,6 +506,18 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			}
 		}
 		return intermediateMove;
+	}
+	
+	// used to check if something like 'theMove' already exists in intermediateMove.
+	private boolean contains(LinkedList<Move> intermediateMoves, Move theMove) {
+		boolean contains = false;
+		for (Move aMove : intermediateMoves) {
+			if (theMove.equals(aMove)) {
+				contains = true;
+				break;
+			}
+		}
+		return contains;
 	}
 	
 	/**
