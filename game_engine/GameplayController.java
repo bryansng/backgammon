@@ -8,6 +8,7 @@ import game.Bar;
 import game.Home;
 import game.Pip;
 import interfaces.ColorParser;
+import interfaces.ColorPerspectiveParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
 import javafx.scene.paint.Color;
@@ -28,7 +29,7 @@ import ui.InfoPanel;
  * @author @LxEmily, 17200573
  *
  */
-public class GameplayController implements ColorParser, InputValidator, IndexOffset {
+public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset {
 	private Moves moves;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
@@ -221,15 +222,16 @@ public class GameplayController implements ColorParser, InputValidator, IndexOff
 			else if (theMove instanceof PipToHome) fromPip = ((PipToHome) theMove).getFromPip();
 			
 			if (pips[fromPip].size() == 1 || pips[fromPip].isEmpty()) {
-				moves.removeMovesOfFromPip(fromPip);
+				moves.removeMovesOfFro(fromPip);
 				infoPnl.print("Removing moves of pip: " + correct(fromPip), MessageType.DEBUG);
 			}
 		} else if (theMove instanceof BarToPip) {
 			Color barColor = ((BarToPip) theMove).getFromBar();
 			Bar fromBar = game.getBars().getBar(barColor);
+			int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(barColor));
 
 			if (fromBar.size() == 1 || fromBar.isEmpty()) {
-				moves.removeMovesOfFromBar(barColor);
+				moves.removeMovesOfFro(fromBarPipNum);
 				infoPnl.print("Removing moves of bar: " + parseColor(barColor), MessageType.DEBUG);
 			}
 		}

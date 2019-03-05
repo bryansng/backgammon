@@ -11,6 +11,7 @@ import game.CheckersStorer;
 import game.Home;
 import game.Pip;
 import interfaces.ColorParser;
+import interfaces.ColorPerspectiveParser;
 import interfaces.InputValidator;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
@@ -33,7 +34,7 @@ import ui.RollDieButton;
  * @author @LxEmily, 17200573
  *
  */
-public class EventController implements ColorParser, InputValidator {
+public class EventController implements ColorParser, ColorPerspectiveParser, InputValidator {
 	private Stage stage;
 	private MainController root;
 	private GameComponentsController game;
@@ -123,8 +124,9 @@ public class EventController implements ColorParser, InputValidator {
 				if (!isPipSelectionMode) {
 					storerSelected = object;
 					String fromBar = parseColor(((Bar) storerSelected).getColor());
+					int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(parseColor(fromBar)));
 					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
-					if (!gameplay.isStarted() || gameplay.getValidMoves().isValidFro(fromBar)) {
+					if (!gameplay.isStarted() || gameplay.getValidMoves().isValidFro(fromBarPipNum)) {
 						gameplay.highlightPips(fromBar);
 						isBarSelectionMode = true;
 						infoPnl.print("Bar clicked.", MessageType.DEBUG);

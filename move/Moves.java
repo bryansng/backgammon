@@ -2,7 +2,6 @@ package move;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-
 import interfaces.ColorParser;
 import interfaces.InputValidator;
 import javafx.scene.paint.Color;
@@ -127,7 +126,7 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	
 	// Removes all the moves (PipToPip, PipToHome) that has the fromPip, 'fromPip'.
 	// used by removeMovesOfEmptyCheckersStorer().
-	public void removeMovesOfFromPip(int fromPip) {
+	public void removeMovesOfFro(int fro) {
 		// we use this way of iterating and use iter.remove() to remove,
 		// if not while removing will raised ConcurrentModificationException.
 		for (Iterator<RollMoves> iterRollMoves = this.iterator(); iterRollMoves.hasNext();) {
@@ -135,34 +134,16 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 			for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
 				Move aMove = iterMove.next();
 				if (aMove instanceof PipToPip) {
-					if (((PipToPip) aMove).getFromPip() == fromPip) iterMove.remove();
+					if (((PipToPip) aMove).getFromPip() == fro) iterMove.remove();
 				} else if (aMove instanceof PipToHome) {
-					if (((PipToHome) aMove).getFromPip() == fromPip) iterMove.remove();
+					if (((PipToHome) aMove).getFromPip() == fro) iterMove.remove();
+				} else if (aMove instanceof BarToPip) {
+					if (((BarToPip) aMove).getFromBarPipNum() == fro) iterMove.remove();
 				}
 			}
 			
 			// removes the entire rollMoves if it has no moves left and is used.
 			if (aRollMoves.getMoves().isEmpty() && aRollMoves.isUsed()) iterRollMoves.remove();
-		}
-	}
-	// Removes all the moves (PipToPip, PipToHome) that has the fromPip, 'fromPip'.
-	// used by removeMovesOfEmptyCheckersStorer().
-	public void removeMovesOfFromBar(Color fromBar) {
-		// we use this way of iterating and use iter.remove() to remove,
-		// if not while removing will raised ConcurrentModificationException.
-		for (Iterator<RollMoves> iterRollMoves = this.iterator(); iterRollMoves.hasNext();) {
-			RollMoves aRollMoves = iterRollMoves.next();
-			for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
-				Move aMove = iterMove.next();
-				if (aMove instanceof BarToPip) {
-					if (((BarToPip) aMove).getFromBar() == fromBar) iterMove.remove();
-				}
-			}
-			
-			// removes the entire rollMoves if it has no moves left and is used.
-			if (aRollMoves.getMoves().isEmpty() && aRollMoves.isUsed()) {
-				iterRollMoves.remove();
-			}
 		}
 	}
 	
@@ -183,7 +164,7 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	 * - if either one result moved, sum result is forfeited.
 	 * @param rollMoves rollMoves that was removed.
 	 */
-	private void removeOtherRollMoves(RollMoves theRollMoves) {
+	public void removeOtherRollMoves(RollMoves theRollMoves) {
 		// if NormalRollMoves, we remove SumRollMoves relied on it.
 		if (theRollMoves.isNormalRollMoves()) {
 			for (Iterator<RollMoves> iter = this.iterator(); iter.hasNext();) {
@@ -216,37 +197,27 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	}
 	
 	/**
-	 * Checks if fromPip is part of possible moves.
+	 * Checks if fromPip or fromBarPipNum is part of possible moves.
 	 * Only used for mouse clicks of fro.
-	 * Atm, considers pips, no bars.
-	 * @param fromPip
+	 * @param fro, fromPip or BarPipNum
 	 * @return boolean value indicating if fromPip is part of possible moves.
 	 */
-	public boolean isValidFro(int fromPip) {
+	public boolean isValidFro(int fro) {
 		boolean isValidFro = false;
 		for (RollMoves rollMoves : this) {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
-					if (((PipToPip) aMove).getFromPip() == fromPip) {
+					if (((PipToPip) aMove).getFromPip() == fro) {
 						isValidFro = true;
 						break;
 					}
 				} else if (aMove instanceof PipToHome) {
-					if (((PipToHome) aMove).getFromPip() == fromPip) {
+					if (((PipToHome) aMove).getFromPip() == fro) {
 						isValidFro = true;
 						break;
 					}
-				}
-			}
-		}
-		return isValidFro;
-	}
-	public boolean isValidFro(String fromBar) {
-		boolean isValidFro = false;
-		for (RollMoves rollMoves : this) {
-			for (Move aMove : rollMoves.getMoves()) {
-				if (aMove instanceof BarToPip) {
-					if (((BarToPip) aMove).getFromBar() == parseColor(fromBar)) {
+				} else if (aMove instanceof BarToPip) {
+					if (((BarToPip) aMove).getFromBarPipNum() == fro) {
 						isValidFro = true;
 						break;
 					}

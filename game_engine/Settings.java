@@ -62,11 +62,11 @@ public class Settings {
 		return -1;
 	}
 	
-	public static int getTopBearOnBoundary() {
+	private static int getTopBearOnBoundary() {
 		return getBottomBearOffBoundary();
 	}
 	
-	public static int getBottomBearOnBoundary() {
+	private static int getBottomBearOnBoundary() {
 		return getTopBearOffBoundary();
 	}
 	
