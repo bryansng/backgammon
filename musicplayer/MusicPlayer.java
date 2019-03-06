@@ -5,7 +5,6 @@ package musicplayer;
 
 import javafx.scene.media.Media;
 import javafx.scene.media.MediaPlayer;
-import javafx.scene.media.MediaPlayer.Status;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -28,7 +27,7 @@ public class MusicPlayer {
 	private MediaPlayer mediaPlayer;
 	private Media media;
 	private ArrayList<String> playlist;
-	private final String defaultMusic = "animal_crossing.aiff";
+	private final String defaultMusic = "jazz.aiff";
 	private String currentMusic;
 
 	/**
@@ -48,7 +47,7 @@ public class MusicPlayer {
 	private void initMediaPlayer(String fileName) {
 		media = new Media(new File(getPathOfMusic(fileName)).toURI().toString());
 		mediaPlayer = new MediaPlayer(media);
-		mediaPlayer.setVolume(100);
+		mediaPlayer.setVolume(50);
 
 		/**
 		 * We cannot play the file instantly as it has not properly loaded. Therefore we can only call it when it's loaded, i.e getStatus() == READY
@@ -73,6 +72,12 @@ public class MusicPlayer {
 				System.out.println("Error status: " + mediaPlayer.getError());
 			}
 		});
+		
+		mediaPlayer.setOnEndOfMedia(new Runnable() {
+			public void run() {
+				play();
+			}
+		});
 
 		System.out.println("Init music status: " + mediaPlayer.getStatus()); // Should return UNKNOWN
 	}
@@ -84,8 +89,8 @@ public class MusicPlayer {
 	private void initPlaylist() { // Can implement a text file and just read from text file for the names
 		playlist = new ArrayList<String>();
 
-		playlist.add("animal_crossing.aiff");
-		playlist.add("instagram.aiff");
+		playlist.add("jazz.aiff");
+		playlist.add("classical.aiff");
 	}
 
 	public void random() {
@@ -158,38 +163,36 @@ public class MusicPlayer {
 	 * 
 	 * @return String representation of the status of the mediaPlayer object
 	 */
-	public String getStatus() {
-		Status status = mediaPlayer.getStatus();
-		String outputStatus;
+	public String getStatus(String option) {
+		String outputStatus = "";
 
-		switch (status) {
-			case READY:
-				outputStatus = status.toString() + ": Music is ready to be played";
+		switch (option) {
+			case "play":
+				outputStatus = "Playing music..";
 				break;
-			case DISPOSED:
-				outputStatus = status.toString() + ": Music is removed";
+			case "next":
+				outputStatus = "Next track..";
 				break;
-			case HALTED:
-				outputStatus = status.toString() + ": Music has halted";
+			case "prev":
+				outputStatus = "Previous track..";
 				break;
-			case PAUSED:
-				outputStatus = status.toString() + ": Music is paused";
+			case "pause":
+				outputStatus = "Pausing music..";
 				break;
-			case PLAYING:
-				outputStatus = status.toString() + ": Music is playing";
+			case "stop":
+				outputStatus = "Stopping music..";
 				break;
-			case STALLED:
-				outputStatus = status.toString() + ": Music has stalled";
+			case "random":
+				outputStatus = "Random song..";
 				break;
-			case STOPPED:
-				outputStatus = status.toString() + ": Music has stopped";
+			case "mute":
+				outputStatus = "Muting..";
 				break;
-			case UNKNOWN:
-				outputStatus = status.toString() + ": File cannot be recognised or is incompatible";
+			case "unmute":
+				outputStatus = "Unmuting..";
 				break;
 			default:
-				outputStatus = status.toString() + ": MAJOR ERROR";
-				break;
+				outputStatus = "Please try again";
 		}
 		
 		return outputStatus;
