@@ -171,7 +171,6 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	private void calculateNormalMoves(Moves moves, int[] rollResult, Player pCurrent) {
 		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		
-		@SuppressWarnings("unused")
 		DieInstance instance = DieInstance.DEFAULT;
 		if (rollResult[0] == rollResult[1]) {
 			instance = DieInstance.DOUBLE;
@@ -193,15 +192,12 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				}
 			}
 			moves.add(rollMoves);
-			/*
-			// check if this can work.
 			if (instance == DieInstance.DOUBLE) {
 				moves.add(new RollMoves(rollMoves));
 				moves.add(new RollMoves(rollMoves));
 				moves.add(new RollMoves(rollMoves));
 				return;
 			}
-			*/
 		}
 	}
 
