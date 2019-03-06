@@ -13,17 +13,15 @@ import java.util.LinkedList;
 public class PipToPip extends SumMove {
 	private int fromPip;
 	private int toPip;
-	private boolean isHit;
 	
 	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit) {
 		this(fromPip, toPip, rollMoves, isHit, null);
 	}
 	
 	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit, LinkedList<Move> intermediateMoves) {
-		super(intermediateMoves, rollMoves);
+		super(intermediateMoves, rollMoves, isHit);
 		this.fromPip = fromPip;
 		this.toPip = toPip;
-		this.isHit = isHit;
 	}
 
 	// Copy Constructor.
@@ -37,10 +35,6 @@ public class PipToPip extends SumMove {
 	
 	public int getToPip() {
 		return toPip;
-	}
-	
-	public boolean isHit() {
-		return isHit;
 	}
 	
 	// not used atm.

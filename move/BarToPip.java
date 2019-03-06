@@ -18,14 +18,13 @@ import javafx.scene.paint.Color;
 public class BarToPip extends SumMove implements ColorParser, ColorPerspectiveParser {
 	private Color fromBar;
 	private int toPip, fromBarPipNum;
-	private boolean isHit;
 	
 	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit) {
 		this(fromBar, toPip, rollMoves, isHit, null);
 	}
 	
 	public BarToPip(Color fromBar, int toPip, RollMoves rollMoves, boolean isHit, LinkedList<Move> intermediateMoves) {
-		super(intermediateMoves, rollMoves);
+		super(intermediateMoves, rollMoves, isHit);
 		this.fromBar = fromBar;
 		this.fromBarPipNum = colorToPipBoundaryNum(fromBar);
 		this.toPip = toPip;
@@ -47,10 +46,6 @@ public class BarToPip extends SumMove implements ColorParser, ColorPerspectivePa
 	// either -1 or 24.
 	public int getFromBarPipNum() {
 		return fromBarPipNum;
-	}
-	
-	public boolean isHit() {
-		return isHit;
 	}
 	
 	private int colorToPipBoundaryNum(Color fromBar) {

@@ -24,7 +24,7 @@ public class PipToHome extends SumMove implements ColorParser, ColorPerspectiveP
 	}
 	
 	public PipToHome(int fromPip, Color toHome, RollMoves rollMoves, LinkedList<Move> intermediateMoves) {
-		super(intermediateMoves, rollMoves);
+		super(intermediateMoves, rollMoves, false);
 		this.fromPip = fromPip;
 		this.toHome = toHome;
 		this.toHomePipNum = colorToPipBoundaryNum(toHome);

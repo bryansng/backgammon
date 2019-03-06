@@ -65,20 +65,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		}
 	}
 	
-	// TODO update the hits of each moves after a move.
-	public void updateIsHit(Moves moves) {
-		// refactor to the single getFro and getTo system.
-		// once done, then continue here.
-		//
-		// also, move isHit methods to Move class.
-		/*
+	// update the hits of each moves after a move.
+	public void updateIsHit(Moves moves, Player pCurrent) {
 		for (RollMoves aRollMoves : moves) {
 			for (Move aMove : aRollMoves.getMoves()) {
 				// check if the fromPip and toPip gives a isHit.
 				// if so, then set the rollMoves as hit.
+				if (aMove instanceof BarToPip) {
+					BarToPip move = (BarToPip) aMove;
+					aMove.setHit(isHit(isBarToPipMove(move.getFromBar(), move.getTo())));
+				} else if (aMove instanceof PipToPip) {
+					aMove.setHit(isHit(isPipToPipMove(aMove.getFro(), aMove.getTo(), pCurrent)));
+				}
 			}
 		}
-		*/
 	}
 	
 	/**

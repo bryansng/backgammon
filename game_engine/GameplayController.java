@@ -158,7 +158,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	private void updateMovesAfterMoving() {
 		// update the hits of some moves.
-		game.getBoard().updateIsHit(moves);
+		game.getBoard().updateIsHit(moves, pCurrent);
 	}
 	
 	public void recalculateMoves() {
@@ -344,7 +344,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		String intermediateMove = "";
 		String msg = "Remaining rollMoves: " + moves.size() + ", moves:";
 		for (RollMoves aRollMoves : moves) {
-			if (GameConstants.DEBUG_MODE) {
+			if (GameConstants.VERBOSE_MODE) {
 				msg += "\n" + spaces;
 				msg += "Normal: " + aRollMoves.isNormalRollMoves();
 				msg += ", Sum: " + aRollMoves.isSumRollMoves();
@@ -359,16 +359,16 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
-					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (GameConstants.DEBUG_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
 					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				}
 				prefix++;

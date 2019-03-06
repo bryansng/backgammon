@@ -14,9 +14,11 @@ package move;
  */
 public abstract class Move {
 	private RollMoves rollMoves;
+	private boolean isHit;
 	
-	public Move(RollMoves rollMoves) {
+	public Move(RollMoves rollMoves, boolean isHit) {
 		this.rollMoves = rollMoves;
+		this.isHit = isHit;
 	}
 	
 	public RollMoves getRollMoves() {
@@ -25,6 +27,14 @@ public abstract class Move {
 	
 	public void setRollMoves(RollMoves rollMoves) {
 		this.rollMoves = rollMoves;
+	}
+	
+	public boolean isHit() {
+		return isHit;
+	}
+	
+	public void setHit(boolean isHit) {
+		this.isHit = isHit;
 	}
 	
 	public abstract int getFro();
