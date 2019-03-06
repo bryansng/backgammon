@@ -52,17 +52,34 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 					int toPip = sm.getToPip();
 					boolean isHit = isHit(isPipToPipMove(fromPip, toPip, pCurrent));
 					boolean isSumMove = aRollMoves.isSumRollMoves();
-					if (isSumMove) {
-						LinkedList<Move> intermediateMoves;
-						if ((intermediateMoves = isSumMove(moves, fromPip, toPip, intermediateMove)) != null) {
-							aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit, intermediateMoves));
+
+					// check if a move with that specific fro and to is already in the RollMoves' moves.
+					if (!hasSimilarMoves(fromPip, toPip, aRollMoves)) {
+						if (isSumMove) {
+							LinkedList<Move> intermediateMoves;
+							if ((intermediateMoves = isSumMove(moves, fromPip, toPip, intermediateMove)) != null) {
+								aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit, intermediateMoves));
+							}
+						} else {
+								aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit));
 						}
-					} else {
-						aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit));
 					}
 				}
 			}
 		}
+	}
+	
+	// check if there is a similar moves with 'fromPip' and 'toPip' in
+	// the moves of aRollMoves.
+	private boolean hasSimilarMoves(int fromPip, int toPip, RollMoves aRollMoves) {
+		boolean hasSimilar = false;
+		for (Move aMove : aRollMoves.getMoves()) {
+			if (aMove.getFro() == fromPip && aMove.getTo() == toPip) {
+				hasSimilar = true;
+				break;
+			}
+		}
+		return hasSimilar;
 	}
 	
 	// update the hits of each moves after a move.
