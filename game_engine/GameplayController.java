@@ -18,6 +18,7 @@ import move.Moves;
 import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
+import move.SumMove;
 import ui.InfoPanel;
 
 /**
@@ -131,15 +132,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /move.
 	 */
 	public void move() {
-		boolean moveMadeCausedPlayerAbleBearOff = !moves.isEmpty() && game.getBoard().isAllCheckersInHomeBoard(pCurrent);
-		if (moveMadeCausedPlayerAbleBearOff || moves.hasDiceResultsLeft()) {
-			recalculateMoves();
-		} else if (moves.isEmpty()) {
-			movedFlag = true;
-		} else {
-			printMoves();
-		}
-
+		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
 			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
 			Home filledHome = game.getMainHome().getFilledHome();
@@ -148,7 +141,24 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
 				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
 			resetGameplay();
+		// else, proceed to gameplay.
+		} else {
+			updateMovesAfterMoving();
+			
+			boolean moveMadeCausedPlayerAbleBearOff = !moves.isEmpty() && game.getBoard().isAllCheckersInHomeBoard(pCurrent);
+			if (moveMadeCausedPlayerAbleBearOff || moves.hasDiceResultsLeft()) {
+				recalculateMoves();
+			} else if (moves.isEmpty()) {
+				movedFlag = true;
+			} else {
+				printMoves();
+			}
 		}
+	}
+	
+	private void updateMovesAfterMoving() {
+		// update the hits of some moves.
+		game.getBoard().updateIsHit(moves);
 	}
 	
 	public void recalculateMoves() {
@@ -181,10 +191,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @param to either toPip or toHome (toBar automatically handled internally)
 	 * @return boolean value indicating if move is valid.
 	 */
+	private Move theValidMove = null;
 	public boolean isValidMove(String fro, String to) {
 		boolean isValidMove = false;
-		Move theValidMove = null;
-		
 		if ((theValidMove = moves.isValidPipToPip(fro, to)) != null) {
 			isValidMove = true;
 			infoPnl.print("Is valid PipToPip.", MessageType.DEBUG);
@@ -196,14 +205,43 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			infoPnl.print("Is valid BarToPip.", MessageType.DEBUG);
 		}
 		
-		if (isValidMove) {
+		updateMovesDuringValidation();
+		return isValidMove;
+	}
+	
+	private void updateMovesDuringValidation() {
+		if (theValidMove != null) {
+			// check and update for the ability to move checkers from
+			// intermediate move to sumMove.
+			updatePipToPipHopMoves(theValidMove);
+			
 			moves.removeRollMoves(theValidMove.getRollMoves());
 			
 			// Pre-emption: if its a valid move, check if it caused the pip to be empty.
 			// if so, remove all moves with this fromPip.
 			removeMovesOfEmptyCheckersStorer(theValidMove);
 		}
-		return isValidMove;
+	}
+	
+	// update moves with e
+	private void updatePipToPipHopMoves(Move intermediateMove) {
+		RollMoves tempRollMoves = new RollMoves();
+		for (RollMoves aRollMoves : moves) {
+			// check if any sumMoves in a sumRollMoves have that
+			// as an intermediate move.
+			if (aRollMoves.isSumRollMoves()) {
+				// this prevents us from adding duplicate moves to RollMoves.
+				if (!aRollMoves.equalsValueOf(tempRollMoves)) {
+					tempRollMoves = aRollMoves;
+					for (Move move : aRollMoves.getMoves()) {
+						SumMove aMove = (SumMove) move;
+						if (aMove.getIntermediateMoves().contains(intermediateMove)) {
+							game.getBoard().addPipToPipHopMoves(moves, pCurrent, aMove, intermediateMove);
+						}
+					}
+				}
+			}
+		}
 	}
 	
 	/**

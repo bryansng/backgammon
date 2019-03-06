@@ -10,8 +10,7 @@ import java.util.LinkedList;
  * @author @LxEmily, 17200573
  *
  */
-public class PipToPip extends SumMove implements Move {
-	private RollMoves rollMoves;
+public class PipToPip extends SumMove {
 	private int fromPip;
 	private int toPip;
 	private boolean isHit;
@@ -21,8 +20,7 @@ public class PipToPip extends SumMove implements Move {
 	}
 	
 	public PipToPip(int fromPip, int toPip, RollMoves rollMoves, boolean isHit, LinkedList<Move> intermediateMoves) {
-		super(intermediateMoves);
-		this.rollMoves = rollMoves;
+		super(intermediateMoves, rollMoves);
 		this.fromPip = fromPip;
 		this.toPip = toPip;
 		this.isHit = isHit;
@@ -31,14 +29,6 @@ public class PipToPip extends SumMove implements Move {
 	// Copy Constructor.
 	public PipToPip(PipToPip move) {
 		this(move.getFromPip(), move.getToPip(), move.getRollMoves(), move.isHit(), move.getIntermediateMoves());
-	}
-	
-	public RollMoves getRollMoves() {
-		return rollMoves;
-	}
-	
-	public void setRollMoves(RollMoves rollMoves) {
-		this.rollMoves = rollMoves;
 	}
 	
 	public int getFromPip() {

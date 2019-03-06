@@ -19,10 +19,11 @@ import interfaces.ColorParser;
  * @author @LxEmily, 17200573
  *
  */
-public abstract class SumMove implements ColorParser {
+public abstract class SumMove extends Move implements ColorParser {
 	private LinkedList<Move> intermediateMoves;
 	
-	public SumMove(LinkedList<Move> intermediateMoves) {
+	public SumMove(LinkedList<Move> intermediateMoves, RollMoves rollMoves) {
+		super(rollMoves);
 		this.intermediateMoves = intermediateMoves;
 	}
 	

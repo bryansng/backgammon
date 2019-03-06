@@ -217,11 +217,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			}
 		}
 		
-		gameplay.unhighlightPips();
 		if (gameplay.isRolled() && !gameplay.isMoved()) {
 			gameplay.move();
 		}
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
+		gameplay.unhighlightPips();
 	}
 	
 	public String correct(int pipNum) {

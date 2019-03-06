@@ -1,7 +1,7 @@
 package move;
 
 /**
- * This interface represents the Move (can be PipToPip, PipToHome, BarToPip).
+ * This abstract class represents the Move (can be PipToPip, PipToHome, BarToPip).
  * 
  * Used to decouple relationship between classes.
  * i.e. (RollMoves with PipToPip, PipToHome, BarToPip).
@@ -12,7 +12,18 @@ package move;
  * @author @LxEmily, 17200573
  *
  */
-public interface Move {
-	RollMoves getRollMoves();
-	void setRollMoves(RollMoves rollMoves);
+public abstract class Move {
+	private RollMoves rollMoves;
+	
+	public Move(RollMoves rollMoves) {
+		this.rollMoves = rollMoves;
+	}
+	
+	public RollMoves getRollMoves() {
+		return rollMoves;
+	}
+	
+	public void setRollMoves(RollMoves rollMoves) {
+		this.rollMoves = rollMoves;
+	}
 }

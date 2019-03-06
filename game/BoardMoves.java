@@ -17,6 +17,7 @@ import move.Moves;
 import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
+import move.SumMove;
 
 /**
  * This class represents the Board object in Backgammon from the perspective of moves calculation.
@@ -34,14 +35,60 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		this.game = game;
 	}
 	
+	public void addPipToPipHopMoves(Moves moves, Player pCurrent, SumMove sMove, Move intermediateMove) {
+		int diceResult = sMove.getRollMoves().getRollResult() - intermediateMove.getRollMoves().getRollResult();
+		for (RollMoves aRollMoves : moves) {
+			if (diceResult == aRollMoves.getRollResult()) {
+				if (sMove instanceof PipToPip) {
+					PipToPip im = (PipToPip) intermediateMove;
+					PipToPip sm = (PipToPip) sMove;
+					int fromPip = im.getToPip();
+					int toPip = sm.getToPip();
+					boolean isHit = isHit(isPipToPipMove(fromPip, toPip, pCurrent));
+					boolean isSumMove = aRollMoves.isSumRollMoves();
+					if (isSumMove) {
+						LinkedList<Move> intermediateMoves;
+						if ((intermediateMoves = isSumMove(moves, fromPip, toPip, intermediateMove)) != null) {
+							aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit, intermediateMoves));
+						}
+					} else {
+						aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit));
+					}
+				}
+			}
+		}
+	}
+	
+	// TODO update the hits of each moves after a move.
+	public void updateIsHit(Moves moves) {
+		// refactor to the single getFro and getTo system.
+		// once done, then continue here.
+		//
+		// also, move isHit methods to Move class.
+		/*
+		for (RollMoves aRollMoves : moves) {
+			for (Move aMove : aRollMoves.getMoves()) {
+				// check if the fromPip and toPip gives a isHit.
+				// if so, then set the rollMoves as hit.
+			}
+		}
+		*/
+	}
+	
 	/**
 	 * Different from calculateMoves.
 	 * 		- it calculates using remaining dice results, instead of adding more.
+	 * 		- able to specify the range of pips to recalculate moves for. (default is 0 to 23)
 	 * @param prevMoves
 	 * @param pCurrent
+	 * @param startRange
+	 * @param endRange
 	 * @return
 	 */
 	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
+		return recalculateMoves(prevMoves, pCurrent, 0, pips.length);
+	}
+	public Moves recalculateMoves(Moves prevMoves, Player pCurrent, int startRange, int endRange) {
 		Moves moves = prevMoves;
 		// recalculate using remaining dice results.
 		for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
@@ -60,7 +107,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
-				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+				for (int fromPip = startRange; fromPip < endRange; fromPip++) {
 					// addAsMove returns a boolean indicating if move is valid and added as move.
 					 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
 						 hasMove = true;
@@ -97,8 +144,15 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		return moves;
 	}
 	
-	private LinkedList<Move> calculateNormalMoves(Moves moves, int[] rollResult, Player pCurrent) {
+	// calculates the normal moves, creates the move and adds them into 'moves'.
+	private void calculateNormalMoves(Moves moves, int[] rollResult, Player pCurrent) {
 		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
+		
+		@SuppressWarnings("unused")
+		DieInstance instance = DieInstance.DEFAULT;
+		if (rollResult[0] == rollResult[1]) {
+			instance = DieInstance.DOUBLE;
+		}
 		
 		// consider each die result.
 		for (int i = 0; i < rollResult.length; i++) {
@@ -116,11 +170,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				}
 			}
 			moves.add(rollMoves);
+			/*
+			// check if this can work.
+			if (instance == DieInstance.DOUBLE) {
+				moves.add(new RollMoves(rollMoves));
+				moves.add(new RollMoves(rollMoves));
+				moves.add(new RollMoves(rollMoves));
+				return;
+			}
+			*/
 		}
-		return null;
 	}
-	
-	private LinkedList<Move> calculateSumMoves(Moves moves, int[] rollResult, Player pCurrent) {
+
+	// calculates the sum moves, creates the move and adds them into 'moves'.
+	private void calculateSumMoves(Moves moves, int[] rollResult, Player pCurrent) {
 		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		
 		DieInstance instance = DieInstance.DEFAULT;
@@ -167,8 +230,6 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				}
 			}
 		}
-		
-		return null;
 	}
 	
 	private LinkedList<RollMoves> calculateDependentRollMoves(Moves moves, int startRange, int endRange) {
@@ -216,22 +277,22 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 */
 	private boolean addedAsMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
+		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		
 		// pipToPip
-		if (addedAsPipToPipMove(moves, rollMoves, pCurrent, fromPip, diceResult, isSumMove))
+		if (addedAsPipToPipMove(moves, rollMoves, pCurrent, fromPip, toPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
 		// pipToHome
-		if (addedAsPipToHomeMove(moves, rollMoves, pCurrent, fromPip, diceResult, isSumMove))
+		if (addedAsPipToHomeMove(moves, rollMoves, pCurrent, fromPip, toPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
 		return addedAsMove;
 	}
 	
-	private boolean addedAsPipToPipMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+	private boolean addedAsPipToPipMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int toPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
 		MoveResult moveResult;
-		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		if (isPipNumberInRange(toPip) && ((moveResult = isPipToPipMove(fromPip, toPip, pCurrent)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
@@ -270,9 +331,8 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		return isHit;
 	}
 	
-	private boolean addedAsPipToHomeMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int diceResult, boolean isSumMove) {
+	private boolean addedAsPipToHomeMove(Moves moves, RollMoves rollMoves, Player pCurrent, int fromPip, int toPip, int diceResult, boolean isSumMove) {
 		boolean addedAsMove = false;
-		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
 			if (isSumMove) {
 				LinkedList<Move> intermediateMoves;
@@ -428,15 +488,29 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			for (Move aMove : rollMove.getMoves()) {
 				if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
 					intermediateMoves.add(theMove);
-					/*
-					if (!contains(intermediateMoves, theMove)) {
-						intermediateMoves.add(theMove);
-						//break;
-					}
-					*/
 				}
 			}
-			//if (intermediateMove != null) break;
+		}
+		if (intermediateMoves.isEmpty()) {
+			return null;
+		}
+		return intermediateMoves;
+	}
+	// difference from above, it checks if the 'intermediateMove's RollMoves 
+	// is contained in the rollMoves's dependentRollMoves,
+	// if it is, then the RollMoves and its moves will be removed,
+	// so we don't bother.
+	private LinkedList<Move> isSumMove(Moves moves, int fro, int to, Move intermediateMove) {
+		LinkedList<Move> intermediateMoves = new LinkedList<>();
+		Move theMove = null;
+		for (RollMoves aRollMoves : moves) {
+			if (aRollMoves.isSumRollMoves() && !aRollMoves.getDependedRollMoves().contains(intermediateMove.getRollMoves())) {
+				for (Move aMove : aRollMoves.getMoves()) {
+					if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
+						intermediateMoves.add(theMove);
+					}
+				}
+			}
 		}
 		if (intermediateMoves.isEmpty()) {
 			return null;
@@ -506,18 +580,6 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			}
 		}
 		return intermediateMove;
-	}
-	
-	// used to check if something like 'theMove' already exists in intermediateMove.
-	private boolean contains(LinkedList<Move> intermediateMoves, Move theMove) {
-		boolean contains = false;
-		for (Move aMove : intermediateMoves) {
-			if (theMove.equals(aMove)) {
-				contains = true;
-				break;
-			}
-		}
-		return contains;
 	}
 	
 	/**

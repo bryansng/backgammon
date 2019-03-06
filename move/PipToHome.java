@@ -15,8 +15,7 @@ import javafx.scene.paint.Color;
  * @author @LxEmily, 17200573
  *
  */
-public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspectiveParser {
-	private RollMoves rollMoves;
+public class PipToHome extends SumMove implements ColorParser, ColorPerspectiveParser {
 	private int fromPip, toHomePipNum;
 	private Color toHome;
 	
@@ -25,8 +24,7 @@ public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspe
 	}
 	
 	public PipToHome(int fromPip, Color toHome, RollMoves rollMoves, LinkedList<Move> intermediateMoves) {
-		super(intermediateMoves);
-		this.rollMoves = rollMoves;
+		super(intermediateMoves, rollMoves);
 		this.fromPip = fromPip;
 		this.toHome = toHome;
 		this.toHomePipNum = colorToPipBoundaryNum(toHome);
@@ -35,14 +33,6 @@ public class PipToHome extends SumMove implements Move, ColorParser, ColorPerspe
 	// Copy Constructor.
 	public PipToHome(PipToHome move) {
 		this(move.getFromPip(), move.getToHome(), move.getRollMoves(), move.getIntermediateMoves());
-	}
-	
-	public RollMoves getRollMoves() {
-		return rollMoves;
-	}
-	
-	public void setRollMoves(RollMoves rollMoves) {
-		this.rollMoves = rollMoves;
 	}
 	
 	public int getFromPip() {

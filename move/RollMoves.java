@@ -23,6 +23,10 @@ public class RollMoves {
 	private boolean isUsed;
 	private LinkedList<Move> moves;
 	
+	public RollMoves() {
+		this(-1, null);
+	}
+	
 	public RollMoves(int rollResult, LinkedList<RollMoves> dependedRollMoves) {
 		this.rollResult = rollResult;
 		this.dependedRollMoves = dependedRollMoves;
@@ -94,5 +98,9 @@ public class RollMoves {
 			}
 		}
 		return s;
+	}
+	
+	public boolean equalsValueOf(RollMoves other) {
+		return rollResult == other.getRollResult() && isUsed == other.isUsed;
 	}
 }

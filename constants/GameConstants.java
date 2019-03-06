@@ -22,7 +22,7 @@ public class GameConstants {
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
-	public static final boolean FORCE_TWO_CHECKER = true;
+	public static final boolean FORCE_TWO_CHECKER = false;
 	
 	// for debug isGameOver.
 	// for checkers at home.
@@ -42,7 +42,7 @@ public class GameConstants {
 	// for debug PipToHome moves.
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
-	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
+	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = true;
 	public static final boolean FORCE_LESSER_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD = false;
 	public static final boolean FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD = false;
