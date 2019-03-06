@@ -9,6 +9,7 @@ import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import musicplayer.MusicPlayer;
+import musicplayer.SoundEffectsPlayer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
@@ -34,6 +35,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private Player bottomPlayer, topPlayer;
 	private MainController root;
 	private MusicPlayer musicPlayer;
+	private SoundEffectsPlayer soundFXPlayer;
 
 	public CommandController(Stage stage, MainController root, GameComponentsController game,
 			GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer, MusicPlayer musicPlayer) {
@@ -45,6 +47,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		this.gameplay = gameplay;
 		this.infoPnl = infoPnl;
 		this.musicPlayer = musicPlayer;
+		soundFXPlayer = new SoundEffectsPlayer();
 	}
 
 	/**
@@ -220,7 +223,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				infoPnl.print("Invalid move.", MessageType.ERROR);
 			}
 		}
-
+		
+		soundFXPlayer.playCheckerSound();
 		gameplay.unhighlightPips();
 		if (gameplay.isMoved()) {
 			infoPnl.print("Move over.");
@@ -440,7 +444,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		else
 			infoPnl.print("Invalid command for /music", MessageType.ERROR);
 		
-		infoPnl.print(musicPlayer.getStatus());
+		infoPnl.print(musicPlayer.getStatus(args[1]));
 	}
 
 	/**
