@@ -26,4 +26,7 @@ public abstract class Move {
 	public void setRollMoves(RollMoves rollMoves) {
 		this.rollMoves = rollMoves;
 	}
+	
+	public abstract int getFro();
+	public abstract int getTo();
 }

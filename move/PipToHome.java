@@ -60,4 +60,12 @@ public class PipToHome extends SumMove implements ColorParser, ColorPerspectiveP
 		}
 		return s;
 	}
+	
+	public int getFro() {
+		return getFromPip();
+	}
+	
+	public int getTo() {
+		return getToHomePipNum();
+	}
 }

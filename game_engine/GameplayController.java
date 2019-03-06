@@ -138,7 +138,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			Home filledHome = game.getMainHome().getFilledHome();
 			if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor())))
 				infoPnl.print("Congratulations, " + topPlayer.getName() + " won.");
-			if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
+			else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
 				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
 			resetGameplay();
 		// else, proceed to gameplay.
@@ -255,9 +255,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private void removeMovesOfEmptyCheckersStorer(Move theMove) {
 		if (theMove instanceof PipToPip || theMove instanceof PipToHome) {
 			Pip[] pips = game.getBoard().getPips();
-			int fromPip = -1;
-			if (theMove instanceof PipToPip) fromPip = ((PipToPip) theMove).getFromPip();
-			else if (theMove instanceof PipToHome) fromPip = ((PipToHome) theMove).getFromPip();
+			int fromPip = theMove.getFro();
 			
 			if (pips[fromPip].size() == 1 || pips[fromPip].isEmpty()) {
 				moves.removeMovesOfFro(fromPip);
@@ -266,7 +264,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else if (theMove instanceof BarToPip) {
 			Color barColor = ((BarToPip) theMove).getFromBar();
 			Bar fromBar = game.getBars().getBar(barColor);
-			int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(barColor));
+			int fromBarPipNum = theMove.getFro();
 
 			if (fromBar.size() == 1 || fromBar.isEmpty()) {
 				moves.removeMovesOfFro(fromBarPipNum);

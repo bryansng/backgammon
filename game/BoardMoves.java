@@ -35,6 +35,12 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		this.game = game;
 	}
 	
+	// With the sumMove and intermediate Move,
+	// we can calculate the difference in dice result, 
+	// then find the remaining RollMoves with that dice result.
+	//
+	// Once found, we calculate the move to get from the intermediateMove to the sumMove,
+	// that will be the new Move added into the RollMoves of the dice result.
 	public void addPipToPipHopMoves(Moves moves, Player pCurrent, SumMove sMove, Move intermediateMove) {
 		int diceResult = sMove.getRollMoves().getRollResult() - intermediateMove.getRollMoves().getRollResult();
 		for (RollMoves aRollMoves : moves) {
@@ -536,46 +542,15 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		// for PipToHome, toPip will be -1 or 24,
 		// the move's fromPip and toPip will lie between the fro and to.
 		Move intermediateMove = null;
-		if (aMove instanceof PipToPip) {
-			PipToPip move = (PipToPip) aMove;
-			if (fro == move.getFromPip()) {
-				if (to > fro) {
-					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToPip() > fro && move.getToPip() < to) {
-						intermediateMove = move;
-					}
-				} else {
-					if (move.getToPip() < fro && move.getToPip() > to) {
-						intermediateMove = move;
-					}
+		if (fro == aMove.getFro()) {
+			if (to > fro) {
+				// if move's to pip is within the range of fromPip and toPip.
+				if (aMove.getTo() > fro && aMove.getTo() < to) {
+					intermediateMove = aMove;
 				}
-			}
-		} else if (aMove instanceof PipToHome) {
-			PipToHome move = (PipToHome) aMove;
-			if (fro == move.getFromPip()) {
-				if (to > fro) {
-					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToHomePipNum() > fro && move.getToHomePipNum() < to) {
-						intermediateMove = move;
-					}
-				} else {
-					if (move.getToHomePipNum() < fro && move.getToHomePipNum() > to) {
-						intermediateMove = move;
-					}
-				}
-			}
-		} else if (aMove instanceof BarToPip) {
-			BarToPip move = (BarToPip) aMove;
-			if (fro == move.getFromBarPipNum()) {
-				if (to > fro) {
-					// if move's to pip is within the range of fromPip and toPip.
-					if (move.getToPip() > fro && move.getToPip() < to) {
-						intermediateMove = move;
-					}
-				} else {
-					if (move.getToPip() < fro && move.getToPip() > to) {
-						intermediateMove = move;
-					}
+			} else {
+				if (aMove.getTo() < fro && aMove.getTo() > to) {
+					intermediateMove = aMove;
 				}
 			}
 		}

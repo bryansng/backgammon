@@ -133,13 +133,7 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 			RollMoves aRollMoves = iterRollMoves.next();
 			for (Iterator<Move> iterMove = aRollMoves.getMoves().iterator(); iterMove.hasNext();) {
 				Move aMove = iterMove.next();
-				if (aMove instanceof PipToPip) {
-					if (((PipToPip) aMove).getFromPip() == fro) iterMove.remove();
-				} else if (aMove instanceof PipToHome) {
-					if (((PipToHome) aMove).getFromPip() == fro) iterMove.remove();
-				} else if (aMove instanceof BarToPip) {
-					if (((BarToPip) aMove).getFromBarPipNum() == fro) iterMove.remove();
-				}
+				if (aMove.getFro() == fro) iterMove.remove();
 			}
 			
 			// removes the entire rollMoves if it has no moves left and is used.
@@ -206,21 +200,9 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 		boolean isValidFro = false;
 		for (RollMoves rollMoves : this) {
 			for (Move aMove : rollMoves.getMoves()) {
-				if (aMove instanceof PipToPip) {
-					if (((PipToPip) aMove).getFromPip() == fro) {
-						isValidFro = true;
-						break;
-					}
-				} else if (aMove instanceof PipToHome) {
-					if (((PipToHome) aMove).getFromPip() == fro) {
-						isValidFro = true;
-						break;
-					}
-				} else if (aMove instanceof BarToPip) {
-					if (((BarToPip) aMove).getFromBarPipNum() == fro) {
-						isValidFro = true;
-						break;
-					}
+				if (aMove.getFro() == fro) {
+					isValidFro = true;
+					break;
 				}
 			}
 		}

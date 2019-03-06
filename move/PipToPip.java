@@ -51,4 +51,12 @@ public class PipToPip extends SumMove {
 		}
 		return s;
 	}
+	
+	public int getFro() {
+		return getFromPip();
+	}
+	
+	public int getTo() {
+		return getToPip();
+	}
 }

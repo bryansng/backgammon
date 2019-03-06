@@ -65,4 +65,12 @@ public class BarToPip extends SumMove implements ColorParser, ColorPerspectivePa
 		}
 		return s;
 	}
+	
+	public int getFro() {
+		return getFromBarPipNum();
+	}
+	
+	public int getTo() {
+		return getToPip();
+	}
 }
