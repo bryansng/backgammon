@@ -1,7 +1,6 @@
 package game_engine;
 
 import java.util.Optional;
-
 import constants.GameConstants;
 import constants.MessageType;
 import events.CheckersStorerHandler;
@@ -177,9 +176,10 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	private void initCommandPanelListeners() {
 		cmdPnl.setOnAction((ActionEvent event) -> {
 			String text = cmdPnl.getText();
+			cmdPnl.addHistory(text);
 			String[] args = text.split(" ");
 			
-			if (text.startsWith("/")) {
+			if (cmdPnl.isCommand(text)) {
 				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (args.length == 2 && isPip(args[0]) && isPip(args[1])) {
 				cmd.runCommand("/move " + text, true);
