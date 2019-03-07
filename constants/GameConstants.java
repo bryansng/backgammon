@@ -34,7 +34,7 @@ public class GameConstants {
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;
 	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;
 	// for checkers at pips.
-	public static final boolean FORCE_CHECKERS_EASY_HITTING = true;
+	public static final boolean FORCE_CHECKERS_EASY_HITTING = false;
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD = false;
 	
 	// test if can bear off after hit.
@@ -50,7 +50,7 @@ public class GameConstants {
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;
-	public static final boolean FORCE_DOUBLE_ONES = true;
+	public static final boolean FORCE_DOUBLE_ONES = false;
 	
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
@@ -147,6 +147,16 @@ public class GameConstants {
 	 */
 	public static Background getBoardImage() {
 		InputStream input = getFile("img/board/green.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		return bg;
+	}
+
+	/**
+	 * Returns the image of the table (Window background).
+	 * @return image of the table.
+	 */
+	public static Background getTableImage() {
+		InputStream input = getFile("img/board/table.png");
 		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
 		return bg;
 	}

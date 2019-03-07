@@ -2,8 +2,10 @@ package ui;
 
 import constants.GameConstants;
 import javafx.scene.control.TextField;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
+import javafx.scene.paint.Color;
 
 /**
  * A TextField that takes in player input.
@@ -22,6 +24,7 @@ public class CommandPanel extends TextField {
 		
 		setPromptText("Player inputs text here, then hit Enter\n");
 		setMinHeight(GameConstants.getUIHeight());
+		setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		setFont(GameConstants.getFont());
 		initListeners();
 	}

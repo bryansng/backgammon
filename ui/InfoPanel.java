@@ -9,6 +9,9 @@ import java.io.IOException;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.effect.DropShadow;
+import javafx.scene.layout.Background;
+import javafx.scene.layout.Border;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
@@ -44,17 +47,22 @@ public class InfoPanel extends ScrollPane {
 		setFitToWidth(true);									// text fits into width.
 		setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);		// no horizontal scroll bar.
 		vvalueProperty().bind(textContainer.heightProperty());	// auto scroll down with texts.
+		//setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
+		//setPadding(new Insets(0));
+		setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		setFocusTraversable(false);
 	}
 	
 	private void styleTextContainer() {
 		double height = GameConstants.getHalfBoardSize().getHeight();
 		textPadding = 3;
-		textContainer.setPadding(new Insets(textPadding));
+		textContainer.setPadding(new Insets(textPadding, textPadding*3, textPadding, textPadding*3));
 		textContainer.setLineSpacing(textPadding / 2.0);
-		textContainer.setStyle("-fx-background-color: rgb(245, 255, 250, 1);");
-		//textContainer.setStyle("-fx-background-color: rgb(139, 69, 19, 0.5);");
+		//textContainer.setStyle("-fx-background-color: rgb(255, 255, 255, 0.5)");
+		//textContainer.setStyle("-fx-background-color: rgb(245, 255, 250, 1);"); //minty color
+		//textContainer.setStyle("-fx-background-color: rgb(139, 69, 19, 0.5);"); //brownish
 		textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
+		//textContainer.setLineSpacing(textPadding);
 	}
 	
 	private void initLayout() {

@@ -20,18 +20,19 @@ public class RollDieButton extends Button {
 		setMaxWidth(Double.MAX_VALUE);
 		setMinHeight(GameConstants.getUIHeight());
 		setFont(GameConstants.getFont());
+		setEffect(new DropShadow(10, 0, 0, Color.BLACK));
 		initEventEffects();
 	}
 	
 	public void initEventEffects() {
 		// make button distinct on click with shadow on click
 		setOnMousePressed((MouseEvent event) -> {
-			setEffect(new DropShadow());
+			setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		});
 
 		// remove shadow when click is released
 		setOnMouseReleased((MouseEvent event) -> {
-			setEffect(new DropShadow(0, Color.BLACK));
+			setEffect(new DropShadow(10, 0, 0, Color.BLACK));
 		});
 	}
 }

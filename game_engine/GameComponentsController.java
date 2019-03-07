@@ -9,6 +9,7 @@ import game.Home;
 import game.HomePanel;
 import game.Pip;
 import game.PlayerPanel;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -68,6 +69,7 @@ public class GameComponentsController extends VBox {
 		
 		getChildren().addAll(topPlayerPnl, middlePart, btmPlayerPnl);
 		setBackground(GameConstants.getGameImage());
+		setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		setMaxHeight(topPlayerPnl.getMinHeight() + middlePart.getHeight() + btmPlayerPnl.getMinHeight());
 		
 		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
