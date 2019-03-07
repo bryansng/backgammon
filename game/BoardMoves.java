@@ -515,7 +515,8 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		}
 		return intermediateMoves;
 	}
-	// difference from above, it checks if the 'intermediateMove's RollMoves 
+	// difference from above,
+	// 1. it checks if the 'intermediateMove's RollMoves 
 	// is contained in the rollMoves's dependentRollMoves,
 	// if it is, then the RollMoves and its moves will be removed,
 	// so we don't bother.
@@ -523,7 +524,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		LinkedList<Move> intermediateMoves = new LinkedList<>();
 		Move theMove = null;
 		for (RollMoves aRollMoves : moves) {
-			if (aRollMoves.isSumRollMoves() && !aRollMoves.getDependedRollMoves().contains(intermediateMove.getRollMoves())) {
+			if (aRollMoves.isNormalRollMoves() || !aRollMoves.getDependedRollMoves().contains(intermediateMove.getRollMoves())) {
 				for (Move aMove : aRollMoves.getMoves()) {
 					if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
 						intermediateMoves.add(theMove);

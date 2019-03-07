@@ -19,7 +19,7 @@ import javafx.scene.text.Font;
  */
 public class GameConstants {
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean VERBOSE_MODE = false;
+	public static final boolean VERBOSE_MODE = true;
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
@@ -34,8 +34,13 @@ public class GameConstants {
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;
 	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;
 	// for checkers at pips.
-	public static final boolean FORCE_CHECKERS_EASY_HITTING = true;
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD = false;
+	
+	// test intermediate moves hitting to move on.
+	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP = false;
+	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME = true;
+	// test blocked in between.
+	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES = false;
 	
 	// test if can bear off after hit.
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
