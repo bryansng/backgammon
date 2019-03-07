@@ -47,7 +47,7 @@ public class MusicPlayer {
 	private void initMediaPlayer(String fileName) {
 		media = new Media(new File(getPathOfMusic(fileName)).toURI().toString());
 		mediaPlayer = new MediaPlayer(media);
-		mediaPlayer.setVolume(50);
+		mediaPlayer.setVolume(0.01);
 
 		/**
 		 * We cannot play the file instantly as it has not properly loaded. Therefore we can only call it when it's loaded, i.e getStatus() == READY
