@@ -163,7 +163,7 @@ public class GameComponentsController extends VBox {
 	 * @return returns a integer value indicating if the checker was moved.
 	 */
 	public MoveResult moveToHome(int fromPip) {
-		MoveResult moveResult = board.isPipToHomeMove(fromPip);
+		MoveResult moveResult = board.isPipToHomeMove(fromPip, null);
 		
 		switch (moveResult) {
 			case MOVED_TO_HOME_FROM_PIP:

@@ -106,10 +106,8 @@ public class BoardComponents extends HBox {
 				}
 			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP) {
 				switch (i) {
-					case 10:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
 					case 9:
+					case 10:
 					case 11:
 						pips[i].initCheckers(1, Color.BLACK);
 						break;
@@ -133,16 +131,18 @@ public class BoardComponents extends HBox {
 				}
 			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES) {
 				switch (i) {
-				case 9:
-				case 10:
-				case 11:
-					pips[i].initCheckers(1, Color.BLACK);
-					break;
-				case 14:
-				case 13:
-				case 12:
-					pips[i].initCheckers(1, Color.WHITE);
-					break;
+					case 10:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+					case 9:
+					case 11:
+						pips[i].initCheckers(1, Color.BLACK);
+						break;
+					case 14:
+					case 13:
+					case 12:
+						pips[i].initCheckers(1, Color.WHITE);
+						break;
 				}
 			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD) {
 				switch (i) {

@@ -371,7 +371,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		boolean canToHome = false;
 		
 		boolean isCheckersInHomeBoard = isAllCheckersInHomeBoard(pCurrent) && !game.getBars().isCheckersInBar(pCurrent);
-		boolean isValidMove = isPipToHomeMove(fromPip) == MoveResult.MOVED_TO_HOME_FROM_PIP;
+		boolean isValidMove = isPipToHomeMove(fromPip, pCurrent) == MoveResult.MOVED_TO_HOME_FROM_PIP;
 		boolean hasBetterPipsToBearOff = hasBetterPipsToBearOff(pCurrent, fromPip, diceResult);
 		
 		// if all checkers at home board, and fromPip not empty.
@@ -393,7 +393,6 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				canToHome = true;
 			}
 		}
-		
 		return canToHome;
 	}
 	
@@ -415,10 +414,12 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		return moveResult;
 	}
 	
-	public MoveResult isPipToHomeMove(int fromPip) {
+	public MoveResult isPipToHomeMove(int fromPip, Player pCurrent) {
 		MoveResult moveResult = MoveResult.NOT_MOVED;
 		if (!pips[fromPip].isEmpty()) {
-			moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
+			if (isPipColorEqualsPlayerColor(fromPip, pCurrent)) {
+				moveResult = MoveResult.MOVED_TO_HOME_FROM_PIP;
+			}
 		} else {
 			moveResult = MoveResult.PIP_EMPTY;
 		}

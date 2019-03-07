@@ -364,7 +364,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
 					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
-					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
+					msg += extraSpace + prefix + ". " + parseColor(move.getToHome()) + " " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
