@@ -1,7 +1,5 @@
 package musicplayer;
 
-import java.net.URL;
-
 import javafx.scene.media.AudioClip;
 
 /**
@@ -17,24 +15,61 @@ public class SoundEffectsPlayer {
 
 	private AudioClip checker;
 	private AudioClip dice;
+	private AudioClip bearOff;
+	private AudioClip bearOn;
+	private AudioClip hit;
 	
 	public SoundEffectsPlayer() {
 		initCheckerSound();
-		//dice = new AudioClip(getPathOfMusic("dice.aiff"));
+		initDiceSound();
+		initBearOffSound();
+		initBearOnSound();
+		initHitCheckerSound();
 	}
 	
 	public void playCheckerSound() {
-		checker.setVolume(100);
+		checker.setVolume(100000);
 		checker.play();
-		System.out.println("Checker: SUCESS");
 	}
 	
 	public void playDiceSound() {
+		dice.setVolume(100000);
 		dice.play();
 	}
 	
+	public void playBearOffSound() {
+		bearOff.setVolume(100000);
+		bearOff.play();
+	}
+	
+	public void playBearOnSound() {
+		bearOn.setVolume(100000);
+		bearOn.play();
+	}
+	
+	public void playCheckerHitSound() {
+		hit.setVolume(100000);
+		hit.play();
+	}
+	
 	private void initCheckerSound() {
-		checker = new AudioClip(convertToURL("checker"));
+		checker = new AudioClip(convertToURL("checker.aiff"));
+	}
+	
+	private void initDiceSound() {
+		dice = new AudioClip(convertToURL("dice.aiff"));
+	}
+	
+	private void initBearOffSound() {
+		bearOff = new AudioClip(convertToURL("bearoff.aiff"));
+	}
+	
+	private void initBearOnSound() {
+		bearOn = new AudioClip(convertToURL("bearon.aiff"));
+	}
+	
+	private void initHitCheckerSound() {
+		hit = new AudioClip(convertToURL("hit.aiff"));
 	}
 	
 	private String getPathOfMusic(String fileName) {
@@ -42,7 +77,7 @@ public class SoundEffectsPlayer {
 	}
 	
 	private String convertToURL(String fileName) {
-		URL url = getClass().getClassLoader().getResource(getPathOfMusic(fileName));
-		return url.toExternalForm();
+		String source = getClass().getClassLoader().getResource(getPathOfMusic(fileName)).toExternalForm();
+		return source;
 	}
 }
