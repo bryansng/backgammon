@@ -1,7 +1,6 @@
 package move;
 
 import java.util.LinkedList;
-
 import game_engine.Settings;
 import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
@@ -13,6 +12,7 @@ import javafx.scene.paint.Color;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class BarToPip extends SumMove implements ColorParser, ColorPerspectiveParser {

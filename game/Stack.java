@@ -12,6 +12,7 @@ import javafx.scene.layout.VBox;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  */
 public class Stack<E> extends VBox implements StackInterface<E>, Iterable<E> {
 	private final int MAXSIZE = GameConstants.MAX_CHECKERS_PER_CHECKERS_STORER;

@@ -8,7 +8,7 @@ import java.util.LinkedList;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
- *
+ * @author Braddy Yeoh, 17357376
  */
 public class PipToPip extends SumMove {
 	private int fromPip;

@@ -12,6 +12,8 @@ import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
+import musicplayer.MusicPlayer;
+import musicplayer.SoundEffectsPlayer;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
@@ -36,8 +38,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private InfoPanel infoPnl;
 	private Player bottomPlayer, topPlayer;
 	private MainController root;
+	private MusicPlayer musicPlayer;
+	private SoundEffectsPlayer soundFXPlayer;
 	
-	public CommandController(Stage stage, MainController root, GameComponentsController game, GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public CommandController(Stage stage, MainController root, GameComponentsController game,
+			GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer, MusicPlayer musicPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.stage = stage;
@@ -45,6 +50,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		this.game = game;
 		this.gameplay = gameplay;
 		this.infoPnl = infoPnl;
+		this.musicPlayer = musicPlayer;
+		soundFXPlayer = new SoundEffectsPlayer();
 	}
 	
 	/**
@@ -81,6 +88,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			runRestartCommand();
 		} else if (command.equals("/quit")) {
 			runQuitCommand();
+		} else if (command.equals("/music")) {
+			runMusicCommand(args);
 		} else if (command.equals("/test")) {
 			runTestCommand();
 		} else if (command.equals("/cheat")) {
@@ -222,6 +231,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
 		gameplay.unhighlightPips();
+		soundFXPlayer.playCheckerSound();
 	}
 	
 	public String correct(int pipNum) {
@@ -388,7 +398,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runSaveCommand() {
 		infoPnl.saveToFile();
 	}
-
 	
 	/**
 	 * Command: /reset
@@ -412,6 +421,36 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 */
 	public void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
+	}
+	
+	private void runMusicCommand(String[] args) {
+		if (args.length != 2) {
+			infoPnl.print("Incorrect Syntax: Expected /music [play | next | prev | pause | stop | repeat | mute | unmute]", MessageType.ERROR);
+			return;
+		}
+		
+		if (args[1].equals("random"))
+			musicPlayer.random();
+		else if (args[1].equals("play"))
+			musicPlayer.play();
+		else if (args[1].equals("next"))
+			musicPlayer.next();
+		else if (args[1].equals("prev"))
+			musicPlayer.prev();
+		else if (args[1].equals("pause"))
+			musicPlayer.pause();
+		else if (args[1].equals("stop"))
+			musicPlayer.stop();
+		else if (args[1].equals("repeat"))
+			musicPlayer.repeat();
+		else if (args[1].equals("mute"))
+			musicPlayer.muteVolume(true);
+		else if (args[1].equals("unmute")) 
+			musicPlayer.muteVolume(false);
+		else
+			infoPnl.print("Invalid command for /music", MessageType.ERROR);
+		
+		infoPnl.print(musicPlayer.getStatus(args[1]));
 	}
 	
 	/**

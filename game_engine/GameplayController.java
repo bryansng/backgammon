@@ -1,6 +1,7 @@
 package game_engine;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
@@ -28,16 +29,18 @@ import ui.InfoPanel;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset {
 	private Moves moves;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag;
+	private HashMap<String, Move> map;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
-	
+
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
-	
+
 	public GameplayController(GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
@@ -53,8 +56,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		movedFlag = false;
 		firstRollFlag = true;
 		topPlayerFlag = false;
+		movesMapped = false;
+		map = new HashMap<>();
 	}
-	
+
 	/**
 	 * Auto roll die to see which player moves first.
 	 * Called at /start.
@@ -63,7 +68,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		roll();
 		startedFlag = true;
 	}
-	
+
 	/**
 	 * Rolls die, calculates possible moves and highlight top checkers.
 	 * Called at /roll.
@@ -78,7 +83,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			pOpponent = getSecondPlayerToRoll(pCurrent);
 			infoPnl.print("First player to move is: " + pCurrent.getName() + ".");
 			firstRollFlag = false;
-			
+
 			// if first player is top player, then we swap the pip number labels.
 			if (pCurrent.equals(topPlayer)) {
 				game.getBoard().swapPipLabels();
@@ -90,11 +95,42 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		rolledFlag = true;
 		
 		infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
-		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()), MessageType.DEBUG);
-		
+		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()),
+				MessageType.DEBUG);
+
 		// calculate possible moves.
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
+	}
+	
+	/**
+	 * 
+	 * @return character to be mapped with a move object
+	 */
+	private String createKey() {
+		char key = 'A';
+		int ascii = 0;
+		
+		String output = "";
+
+		if (map.containsKey("Z")) {
+			while (map.containsKey(Character.toString(key) + Character.toString((char) (key + ascii)))) ascii++;
+			output = Character.toString(key) + Character.toString((char) (key + ascii));
+		} else {
+			while (map.containsKey(Character.toString((char) (key + ascii)))) ascii++;
+			output = Character.toString((char) (key + ascii));
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * 
+	 * @param key to search in the hashmap to see if it's exists
+	 * @return boolean value of whether the key exists
+	 */
+	public boolean isKey(String key) {
+		return map.containsKey(key);
 	}
 
 	/**
@@ -105,7 +141,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private Player getFirstPlayerToRoll(int[] rollResult) {
 		int bottomPlayerRoll = rollResult[0];
 		int topPlayerRoll = rollResult[1];
-		
+
 		if (bottomPlayerRoll > topPlayerRoll) {
 			return bottomPlayer;
 		} else if (topPlayerRoll > bottomPlayerRoll) {
@@ -113,7 +149,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		}
 		return null;
 	}
-	
+
 	/**
 	 * Returns the second player to roll based on first player.
 	 * i.e. its one or the other.
@@ -127,7 +163,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			return topPlayer;
 		}
 	}
-	
+
 	/**
 	 * Called at /move.
 	 */
@@ -153,6 +189,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			} else {
 				printMoves();
 			}
+			// TODO try ignoring the else.
 		}
 	}
 	
@@ -178,6 +215,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
 			next();
 		} else {
+			// A is the first available move, B is the second etc..
+			mapCharToMoves();
+			
 			printMoves();
 			// highlight top checkers.
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
@@ -185,10 +225,27 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	/**
+	 * Iterates through all the possible moves and associates it with a key
+	 * The key is a letter from the alphabet
+	 */
+	private void mapCharToMoves() {
+		map.clear();
+		for (RollMoves aRollMoves : moves) {
+			for (Move aMove : aRollMoves.getMoves()) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					map.put(createKey(), move);
+				}
+			}
+		}
+		movesMapped = true;
+	}
+
+	/**
 	 * Checks if it is valid to move checkers from 'fro' to 'to'.
 	 * i.e. is it part of possible moves.
 	 * @param fro either fromPip or fromBar
-	 * @param to either toPip or toHome (toBar automatically handled internally)
+	 * @param to  either toPip or toHome (toBar automatically handled internally)
 	 * @return boolean value indicating if move is valid.
 	 */
 	private Move theValidMove = null;
@@ -243,7 +300,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			}
 		}
 	}
-	
+
 	/**
 	 * Helper function of isValidMove().
 	 * Used to check if by executing 'theMove', the fromPip of 'theMove' becomes empty.
@@ -272,7 +329,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			}
 		}
 	}
-	
+
 	/**
 	 * Swap players and pip number labels, used to change turns.
 	 * Called at /next.
@@ -283,19 +340,19 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
 		pOpponent = temp;
-		
+
 		if (pCurrent.equals(topPlayer)) {
 			topPlayerFlag = true;
 		} else {
 			topPlayerFlag = false;
 		}
-		
-		roll();		// auto roll.
+
+		roll(); // auto roll.
 		game.getBoard().swapPipLabels();
 		movedFlag = false;
 		return pCurrent;
 	}
-	
+
 	/**
 	 * Highlight pips and checkers based on mode.
 	 * Used by EventController.
@@ -385,28 +442,50 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private boolean isGameOver() {
 		return game.getMainHome().getFilledHome() != null;
 	}
-	
+
 	public String correct(int pipNum) {
 		return getOutputPipNumber(pipNum, topPlayerFlag);
 	}
-	
+
 	public boolean isStarted() {
 		return startedFlag;
 	}
-	
+
 	public boolean isRolled() {
 		return rolledFlag;
 	}
-	
+
 	public boolean isMoved() {
 		return movedFlag;
 	}
-	
+
 	public boolean isTopPlayer() {
 		return topPlayerFlag;
 	}
 	
 	public Moves getValidMoves() {
 		return moves;
+	}
+	
+	/**
+	 * 
+	 * @param key to search in the hashmap to return the respective move object
+	 * @return String representation of the move object
+	 */
+	public String getMapping(String key) {
+		
+		PipToPip move = (PipToPip) map.get(key);
+		
+		String output = "/move ";
+		String fro = Integer.toString(move.getFromPip());
+		String to = Integer.toString(move.getToPip());
+		
+		output += fro + " " + to;
+		
+		return output;
+	}
+	
+	public boolean isMapped() {
+		return this.movesMapped;
 	}
 }

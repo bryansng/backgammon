@@ -4,6 +4,7 @@ import java.util.Optional;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
+import musicplayer.MusicPlayer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -35,6 +36,7 @@ import ui.RollDieButton;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class MainController extends GridPane implements ColorPerspectiveParser {
@@ -47,6 +49,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	private CommandController cmd;
 	private GameplayController gameplay;
 	private EventController event;
+	private MusicPlayer musicPlayer;
 	private Stage stage;
 	private boolean playerInfosEnteredFirstTimeFlag, promptCancelFlag;
 	
@@ -73,6 +76,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
+		musicPlayer = new MusicPlayer();
 		playerInfosEnteredFirstTimeFlag = true;
 		promptCancelFlag = false;
 		initGame();
@@ -84,7 +88,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	private void initGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
-		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer);
+		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
 	}
