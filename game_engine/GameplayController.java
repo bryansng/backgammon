@@ -33,7 +33,7 @@ import ui.InfoPanel;
  *
  */
 public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset {
-	private Moves moves;
+	private Moves moves, noDuplicateRollMoves;
 	private HashMap<String, Move> map;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
@@ -93,44 +93,13 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
 		rolledFlag = true;
-		
-		infoPnl.print("Dice result: " + Arrays.toString(rollResult) + ".", MessageType.DEBUG);
-		infoPnl.print("Current player: " + pCurrent.getName() + " " + parseColor(pCurrent.getColor()),
-				MessageType.DEBUG);
+
+		infoPnl.print("It is now " + pCurrent.getName() + "'s (" + parseColor(pCurrent.getColor()) + ") move.");
+		infoPnl.print("Roll dice result: " + Arrays.toString(rollResult) + ".");
 
 		// calculate possible moves.
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
-	}
-	
-	/**
-	 * 
-	 * @return character to be mapped with a move object
-	 */
-	private String createKey() {
-		char key = 'A';
-		int ascii = 0;
-		
-		String output = "";
-
-		if (map.containsKey("Z")) {
-			while (map.containsKey(Character.toString(key) + Character.toString((char) (key + ascii)))) ascii++;
-			output = Character.toString(key) + Character.toString((char) (key + ascii));
-		} else {
-			while (map.containsKey(Character.toString((char) (key + ascii)))) ascii++;
-			output = Character.toString((char) (key + ascii));
-		}
-		
-		return output;
-	}
-	
-	/**
-	 * 
-	 * @param key to search in the hashmap to see if it's exists
-	 * @return boolean value of whether the key exists
-	 */
-	public boolean isKey(String key) {
-		return map.containsKey(key);
 	}
 
 	/**
@@ -187,9 +156,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			} else if (moves.isEmpty()) {
 				movedFlag = true;
 			} else {
+				handleCharacterMapping();
 				printMoves();
 			}
-			// TODO try ignoring the else.
 		}
 	}
 	
@@ -215,30 +184,12 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
 			next();
 		} else {
-			// A is the first available move, B is the second etc..
-			mapCharToMoves();
-			
+			handleCharacterMapping();
 			printMoves();
+			
 			// highlight top checkers.
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		}
-	}
-	
-	/**
-	 * Iterates through all the possible moves and associates it with a key
-	 * The key is a letter from the alphabet
-	 */
-	private void mapCharToMoves() {
-		map.clear();
-		for (RollMoves aRollMoves : moves) {
-			for (Move aMove : aRollMoves.getMoves()) {
-				if (aMove instanceof PipToPip) {
-					PipToPip move = (PipToPip) aMove;
-					map.put(createKey(), move);
-				}
-			}
-		}
-		movesMapped = true;
 	}
 
 	/**
@@ -399,17 +350,20 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		char prefix = 'A';
 		String suffix = "";
 		String intermediateMove = "";
-		String msg = "Remaining rollMoves: " + moves.size() + ", moves:";
-		for (RollMoves aRollMoves : moves) {
+		String msg = "";
+		if (GameConstants.DEBUG_MODE) msg += "Remaining rollMoves: " + noDuplicateRollMoves.size() + ", moves:";
+		else msg += "Available moves:";
+		
+		for (RollMoves aRollMoves : noDuplicateRollMoves) {
 			if (GameConstants.VERBOSE_MODE) {
-				msg += "\n" + spaces;
+				msg += spaces;
 				msg += "Normal: " + aRollMoves.isNormalRollMoves();
 				msg += ", Sum: " + aRollMoves.isSumRollMoves();
 				msg += ", isUsed: " + aRollMoves.isUsed();
 				msg += ", Roll of " + aRollMoves.getRollResult() + "\n";
 				msg += aRollMoves.printDependentRollMoves(spaces);
 			}
-			else msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
+			msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
 			
 			for (Move aMove : aRollMoves.getMoves()) {
 				suffix = "";
@@ -432,6 +386,69 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			}
 		}
 		infoPnl.print(msg);
+	}
+	
+	private void handleCharacterMapping() {
+		noDuplicateRollMoves = getNoDuplicateRollMoves();
+		mapCharToMoves();
+	}
+	
+	/**
+	 * Iterates through all the possible moves and associates it with a key.
+	 * The key is a letter from the alphabet.
+	 */
+	private void mapCharToMoves() {
+		infoPnl.print("Moves remapped.", MessageType.DEBUG);
+		map.clear();
+		for (RollMoves aRollMoves : noDuplicateRollMoves) {
+			for (Move aMove : aRollMoves.getMoves()) {
+				map.put(createKey(), aMove);
+			}
+		}
+		movesMapped = true;
+	}
+	
+	/**
+	 * 
+	 * @return character to be mapped with a move object.
+	 */
+	private String createKey() {
+		char key = 'A';
+		int ascii = 0;
+		
+		String output = "";
+
+		if (map.containsKey("Z")) {
+			while (map.containsKey(Character.toString(key) + Character.toString((char) (key + ascii)))) ascii++;
+			output = Character.toString(key) + Character.toString((char) (key + ascii));
+		} else {
+			while (map.containsKey(Character.toString((char) (key + ascii)))) ascii++;
+			output = Character.toString((char) (key + ascii));
+		}
+		
+		return output;
+	}
+	
+	/**
+	 * 
+	 * @param key to search in the hashmap to see if it's exists
+	 * @return boolean value of whether the key exists
+	 */
+	public boolean isKey(String key) {
+		return map.containsKey(key);
+	}
+	
+	private Moves getNoDuplicateRollMoves() {
+		noDuplicateRollMoves = new Moves();
+		RollMoves prev = moves.get(0);
+		noDuplicateRollMoves.add(prev);
+		for (RollMoves curr : moves) {
+			if (!prev.equalsValueOf(curr)) {
+				noDuplicateRollMoves.add(curr);
+				prev = curr;
+			}
+		}
+		return noDuplicateRollMoves;
 	}
 	
 	/**
@@ -486,6 +503,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	public boolean isMapped() {
-		return this.movesMapped;
+		return movesMapped;
 	}
 }
