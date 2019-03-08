@@ -103,7 +103,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					} else {
 						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
 					}
-					// either pip or bar selected, basis for toPip or toBar selection.
+				// either pip or bar selected, basis for toPip or toBar selection.
 				} else {
 					// prevent moving checkers from pip to bar.
 					// i.e select pip, to bar.
@@ -122,7 +122,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					isPipSelectionMode = false;
 					isBarSelectionMode = false;
 				}
-				// bar selected, basis for fromBar selection.
+			// bar selected, basis for fromBar selection.
 			} else if (object instanceof Bar) {
 				// prevent entering into both pip and bar selection mode.
 				if (!isPipSelectionMode) {
@@ -138,7 +138,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
 					}
 				}
-				// home selected, basis for toHome selection.
+			// home selected, basis for toHome selection.
 			} else if (object instanceof Home) {
 				if (isPipSelectionMode || isBarSelectionMode) {
 					String toHome = parseColor(((Home) object).getColor());
@@ -190,6 +190,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (args.length == 2 && isPip(args[0]) && isPip(args[1])) {
 				cmd.runCommand("/move " + text, true);
+			} else if (gameplay.isMapped() && gameplay.isKey(text.toUpperCase().trim())) {
+				cmd.runCommand(gameplay.getMapping(text.toUpperCase().trim()));
 			} else if (text.equals("quit")) {
 				cmd.runCommand("/quit");
 			} else if (text.equals("save")) {
@@ -200,14 +202,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand("/cheat");
 			} else if (text.trim().isEmpty()) {
 				// ignores if string empty or whitespace only.
-			} else if (gameplay.isMapped() && gameplay.isKey(text.toUpperCase().trim())) {
-				cmd.runCommand(gameplay.getMapping(text.toUpperCase().trim()));
 			} else {
-				// player chat, need to implement players to differentiate which player is
-				// which.
-				// in the meantime, just add text to info panel.
-				System.out.println(args[0].toUpperCase().trim());
-				System.out.println(args[0].trim().toUpperCase());
 				infoPnl.print(text, MessageType.CHAT);
 			}
 			cmdPnl.setText("");

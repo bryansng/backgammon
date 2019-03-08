@@ -19,7 +19,7 @@ import javafx.scene.text.Font;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = true;
 	public static final boolean VERBOSE_MODE = false;
 	
 	// force ways to init pips and checkers.
@@ -38,7 +38,7 @@ public class GameConstants {
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD = false;
 	
 	// test intermediate moves hitting to move on.
-	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP = true;
+	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP = false;
 	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME = false;
 	// test blocked in between.
 	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES = false;
@@ -56,7 +56,7 @@ public class GameConstants {
 	
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;
-	public static final boolean FORCE_DOUBLE_ONES = true;
+	public static final boolean FORCE_DOUBLE_ONES = false;
 	
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;

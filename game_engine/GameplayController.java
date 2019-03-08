@@ -37,6 +37,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private HashMap<String, Move> map;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
+	private int stalemateCount;
 
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
@@ -51,12 +52,14 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	private void resetGameplay() {
 		moves = null;
+		noDuplicateRollMoves = null;
 		startedFlag = false;
 		rolledFlag = false;
 		movedFlag = false;
 		firstRollFlag = true;
 		topPlayerFlag = false;
 		movesMapped = false;
+		stalemateCount = 0;
 		map = new HashMap<>();
 	}
 
@@ -65,8 +68,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /start.
 	 */
 	public void start() {
-		roll();
 		startedFlag = true;
+		roll();
 	}
 
 	/**
@@ -137,6 +140,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /move.
 	 */
 	public void move() {
+		if (isStalemate()) return;
+		
 		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
 			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
@@ -178,6 +183,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	// used to check if there are moves able to be made,
 	// if not, end turn for current player, via next().
 	private void handleEndOfMovesCalculation(Moves moves) {
+		if (isStalemate()) return;
+		
 		if (moves.hasDiceResultsLeft()) {
 			recalculateMoves();
 		} else if (moves.isEmpty()) {
@@ -388,6 +395,15 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		infoPnl.print(msg);
 	}
 	
+	/**
+	 * Letters should be mapped to non-duplicate moves.
+	 * 
+	 * The 'moves' instance variable contains duplicate moves since
+	 * that is how moves are calculated and maintained.
+	 * 
+	 * This method handles the translation of
+	 * moves -> non-duplicate moves -> character mappings.
+	 */
 	private void handleCharacterMapping() {
 		noDuplicateRollMoves = getNoDuplicateRollMoves();
 		mapCharToMoves();
@@ -504,5 +520,30 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public boolean isMapped() {
 		return movesMapped;
+	}
+	
+	/**
+	 * Used to detect for stalemates,
+	 * i.e. where both players have no possible moves regardless of whatever they rolled.
+	 * 
+	 * Stalemates are checked after every move and every moves calculation.
+	 * - After every move to resolve stalemates.
+	 * - After every move calculation to detect stalements (endless recalculation).
+	 */
+	private final static int STALEMATE_LIMIT = 20;
+	private boolean isStalemate() {
+		boolean isStalemate = false;
+		
+		// reset count if moved.
+		if (movedFlag) {
+			stalemateCount = 0;
+		} else if (stalemateCount > STALEMATE_LIMIT) {
+			infoPnl.print("Stalemate detected. Neither players can move after roll. Ending current game.", MessageType.ERROR);
+			isStalemate = true;
+			resetGameplay();
+		} else {
+			stalemateCount++;
+		}
+		return isStalemate;
 	}
 }
