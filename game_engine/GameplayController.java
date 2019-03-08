@@ -168,12 +168,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	private void updateMovesAfterMoving() {
-		// update the hits of some moves.
 		game.getBoard().updateIsHit(moves, pCurrent);
 	}
 	
 	public void recalculateMoves() {
-		// recalculate moves.
 		infoPnl.print("Recalculating moves.", MessageType.DEBUG);
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);
@@ -425,15 +423,14 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	/**
-	 * 
-	 * @return character to be mapped with a move object.
+	 * Returns character/letter/key to be mapped with a move object.
+	 * @return the character/letter/key.
 	 */
 	private String createKey() {
 		char key = 'A';
 		int ascii = 0;
 		
 		String output = "";
-
 		if (map.containsKey("Z")) {
 			while (map.containsKey(Character.toString(key) + Character.toString((char) (key + ascii)))) ascii++;
 			output = Character.toString(key) + Character.toString((char) (key + ascii));
@@ -441,19 +438,46 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			while (map.containsKey(Character.toString((char) (key + ascii)))) ascii++;
 			output = Character.toString((char) (key + ascii));
 		}
-		
 		return output;
 	}
 	
 	/**
-	 * 
-	 * @param key to search in the hashmap to see if it's exists
-	 * @return boolean value of whether the key exists
+	 * Returns a boolean value indicating whether the key exists in the hashmap.
+	 * @param key to search in the hashmap.
+	 * @return the boolean value.
 	 */
 	public boolean isKey(String key) {
 		return map.containsKey(key);
 	}
 	
+	/**
+	 * Translates the key received from player input to a move command.
+	 * @param key to search in the hashmap to get the move object.
+	 * @return a move command.
+	 */
+	public String getMapping(String key) {
+		String cmd = "/move ";
+		Move aMove = map.get(key);
+		if (aMove instanceof PipToPip) {
+			cmd += aMove.getFro() + " " + aMove.getTo();
+		} else if (aMove instanceof PipToHome) {
+			PipToHome theMove = (PipToHome) aMove;
+			cmd += theMove.getFromPip() + " " + parseColor(theMove.getToHome());
+		} else if (aMove instanceof BarToPip) {
+			BarToPip theMove = (BarToPip) aMove;
+			cmd += parseColor(theMove.getFromBar()) + " " + theMove.getToPip();
+		}
+		return cmd;
+	}
+	
+	public boolean isMapped() {
+		return movesMapped;
+	}
+	
+	/**
+	 * Returns the moves without duplicate roll moves.
+	 * @return new moves instance variable without duplicate roll moves.
+	 */
 	private Moves getNoDuplicateRollMoves() {
 		noDuplicateRollMoves = new Moves();
 		RollMoves prev = moves.get(0);
@@ -498,28 +522,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public Moves getValidMoves() {
 		return moves;
-	}
-	
-	/**
-	 * 
-	 * @param key to search in the hashmap to return the respective move object
-	 * @return String representation of the move object
-	 */
-	public String getMapping(String key) {
-		
-		PipToPip move = (PipToPip) map.get(key);
-		
-		String output = "/move ";
-		String fro = Integer.toString(move.getFromPip());
-		String to = Integer.toString(move.getToPip());
-		
-		output += fro + " " + to;
-		
-		return output;
-	}
-	
-	public boolean isMapped() {
-		return movesMapped;
 	}
 	
 	/**
