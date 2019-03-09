@@ -235,12 +235,11 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				} else {
 					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, 0, i));
 				}
-				
-				// BarToPip
-				if (hasCheckersInBar) {
-					addedAsBarToPipMove(moves, rollMoves, pCurrent, theSum, true);
+
+				// BarToPip's sumMoves not calculated, there is issues with its sumMove.
+				//
 				// PipToPip or PipToHome
-				} else {
+				if (!hasCheckersInBar) {
 					for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 						addedAsMove(moves, rollMoves, pCurrent, fromPip, theSum, true);
 					}
@@ -278,6 +277,10 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		int toPip = getPossibleToPip(pCurrent, getBearOnFromPip(pCurrent), diceResult);
 		if (isPipNumberInRange(toPip) && ((moveResult = isBarToPipMove(pCurrent.getColor(), toPip)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
+			// currently, this isSumMove's entire body is not used,
+			// because sumMoves actually don't apply to BarToPip moves.
+			// i.e. move finish normalMoves of BarToPip,
+			// then able to move remaining dice roll results.
 			if (isSumMove) {
 				LinkedList<Move> intermediateMoves;
 				if ((intermediateMoves = isSumMove(moves, getBearOnFromPip(pCurrent), toPip)) != null) {
@@ -306,11 +309,11 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		boolean addedAsMove = false;
 		int toPip = getPossibleToPip(pCurrent, fromPip, diceResult);
 		
-		// pipToPip
+		// PipToPip
 		if (addedAsPipToPipMove(moves, rollMoves, pCurrent, fromPip, toPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
-		// pipToHome
+		// PipToHome
 		if (addedAsPipToHomeMove(moves, rollMoves, pCurrent, fromPip, toPip, diceResult, isSumMove))
 			addedAsMove = true;
 		
