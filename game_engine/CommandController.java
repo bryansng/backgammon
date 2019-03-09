@@ -3,11 +3,11 @@ package game_engine;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.util.Arrays;
 import constants.GameConstants;
 import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
+import game.DieResults;
 import game.Pip;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
@@ -280,9 +280,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			}
 			
 			// rollDices returns null if playerNum is invalid.
-			int[] res = game.getBoard().rollDices(pov);
+			DieResults res = game.getBoard().rollDices(pov);
 			if (res != null) {
-				infoPnl.print("Roll dice results: " + Arrays.toString(res));
+				infoPnl.print("Roll dice results: " + res);
 			} else {
 				infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
 			}
@@ -329,8 +329,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (gameplay.isStarted()) {
 			if (gameplay.isMoved()) {
 				infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
-				Player pCurrent = gameplay.next();
-				infoPnl.print("It is now " + pCurrent.getName() + "'s turn.");
+				Player pOpponent = gameplay.getOpponent();
+				infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
+				gameplay.next();
 			} else {
 				infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
 			}

@@ -1,11 +1,11 @@
 package game_engine;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
 import game.Bar;
+import game.DieResults;
 import game.Home;
 import game.Pip;
 import interfaces.ColorParser;
@@ -79,7 +79,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public void roll() {
 		// start() calls this method(),
 		// we only get the first player once.
-		int[] rollResult;
+		DieResults rollResult;
 		if (firstRollFlag) {
 			rollResult = game.getBoard().rollDices(DieInstance.SINGLE);
 			pCurrent = getFirstPlayerToRoll(rollResult);
@@ -95,11 +95,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
+		infoPnl.print("Roll dice result: " + rollResult + ".");
 		rolledFlag = true;
-
-		infoPnl.print("It is now " + pCurrent.getName() + "'s (" + parseColor(pCurrent.getColor()) + ") move.");
-		infoPnl.print("Roll dice result: " + Arrays.toString(rollResult) + ".");
-
+		
 		// calculate possible moves.
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
@@ -110,9 +108,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @param rollResult roll die result.
 	 * @return first player to roll.
 	 */
-	private Player getFirstPlayerToRoll(int[] rollResult) {
-		int bottomPlayerRoll = rollResult[0];
-		int topPlayerRoll = rollResult[1];
+	private Player getFirstPlayerToRoll(DieResults rollResult) {
+		int bottomPlayerRoll = rollResult.getFirst().getDiceResult();
+		int topPlayerRoll = rollResult.getLast().getDiceResult();
 
 		if (bottomPlayerRoll > topPlayerRoll) {
 			return bottomPlayer;
@@ -140,7 +138,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /move.
 	 */
 	public void move() {
-		if (isStalemate()) return;
+		stalemateCount = 0;
 		
 		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
@@ -236,7 +234,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		}
 	}
 	
-	// update moves with e
 	private void updatePipToPipHopMoves(Move intermediateMove) {
 		RollMoves tempRollMoves = new RollMoves();
 		for (RollMoves aRollMoves : moves) {
@@ -302,9 +299,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else {
 			topPlayerFlag = false;
 		}
-
-		roll(); // auto roll.
 		game.getBoard().swapPipLabels();
+		
+		roll(); // auto roll.
 		movedFlag = false;
 		return pCurrent;
 	}
@@ -356,19 +353,22 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		String suffix = "";
 		String intermediateMove = "";
 		String msg = "";
-		if (GameConstants.DEBUG_MODE) msg += "Remaining rollMoves: " + noDuplicateRollMoves.size() + ", moves:";
+		if (GameConstants.VERBOSE_MODE) msg += "Remaining rollMoves: " + moves.size() + ", moves:";
+		else if (GameConstants.DEBUG_MODE) msg += "Remaining rollMoves: " + noDuplicateRollMoves.size() + ", moves:";
 		else msg += "Available moves:";
 		
-		for (RollMoves aRollMoves : noDuplicateRollMoves) {
+		Moves loopMoves = noDuplicateRollMoves;
+		if (GameConstants.VERBOSE_MODE) loopMoves = moves;
+		
+		for (RollMoves aRollMoves : loopMoves) {
 			if (GameConstants.VERBOSE_MODE) {
 				msg += spaces;
 				msg += "Normal: " + aRollMoves.isNormalRollMoves();
 				msg += ", Sum: " + aRollMoves.isSumRollMoves();
 				msg += ", isUsed: " + aRollMoves.isUsed();
-				msg += ", Roll of " + aRollMoves.getRollResult() + "\n";
 				msg += aRollMoves.printDependentRollMoves(spaces);
 			}
-			msg += "\n" + spaces + "Roll of " + aRollMoves.getRollResult() + "\n";
+			msg += "\n" + spaces + "Roll of " + aRollMoves.getDiceResult() + "\n";
 			
 			for (Move aMove : aRollMoves.getMoves()) {
 				suffix = "";
@@ -389,6 +389,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				}
 				prefix++;
 			}
+			if (GameConstants.VERBOSE_MODE) msg += "\n";
 		}
 		infoPnl.print(msg);
 	}
@@ -403,7 +404,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * moves -> non-duplicate moves -> character mappings.
 	 */
 	private void handleCharacterMapping() {
-		noDuplicateRollMoves = getNoDuplicateRollMoves();
+		if (!GameConstants.VERBOSE_MODE)
+			noDuplicateRollMoves = getNoDuplicateRollMoves();
 		mapCharToMoves();
 	}
 	
@@ -414,7 +416,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private void mapCharToMoves() {
 		infoPnl.print("Moves remapped.", MessageType.DEBUG);
 		map.clear();
-		for (RollMoves aRollMoves : noDuplicateRollMoves) {
+		Moves loopMoves = noDuplicateRollMoves;
+		if (GameConstants.VERBOSE_MODE) loopMoves = moves;
+		
+		for (RollMoves aRollMoves : loopMoves) {
 			for (Move aMove : aRollMoves.getMoves()) {
 				map.put(createKey(), aMove);
 			}
@@ -524,22 +529,23 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		return moves;
 	}
 	
+	public Player getOpponent() {
+		return pOpponent;
+	}
+	
 	/**
 	 * Used to detect for stalemates,
 	 * i.e. where both players have no possible moves regardless of whatever they rolled.
 	 * 
-	 * Stalemates are checked after every move and every moves calculation.
-	 * - After every move to resolve stalemates.
+	 * Stalemates are checked after every moves calculation.
 	 * - After every move calculation to detect stalements (endless recalculation).
+	 * - Stalemates are resolved as long as player moves (counter is reset at move()).
 	 */
-	private final static int STALEMATE_LIMIT = 20;
+	private final static int STALEMATE_LIMIT = 10;
 	private boolean isStalemate() {
 		boolean isStalemate = false;
 		
-		// reset count if moved.
-		if (movedFlag) {
-			stalemateCount = 0;
-		} else if (stalemateCount > STALEMATE_LIMIT) {
+		if (stalemateCount > STALEMATE_LIMIT) {
 			infoPnl.print("Stalemate detected. Neither players can move after roll. Ending current game.", MessageType.ERROR);
 			isStalemate = true;
 			resetGameplay();

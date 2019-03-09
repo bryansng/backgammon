@@ -149,6 +149,7 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	public void removeRollMoves(RollMoves theRollMoves) {
 		this.remove(theRollMoves);		// remove used rollMoves.
 		removeOtherRollMoves(theRollMoves);
+		setUsedDices(theRollMoves);
 	}
 	
 	/**
@@ -156,7 +157,7 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 	 * Rules state,
 	 * - if sum result is moved, then two other result is forfeited.
 	 * - if either one result moved, sum result is forfeited.
-	 * @param rollMoves rollMoves that was removed.
+	 * @param theRollMoves rollMoves that was removed.
 	 */
 	public void removeOtherRollMoves(RollMoves theRollMoves) {
 		// if NormalRollMoves, we remove SumRollMoves relied on it.
@@ -187,6 +188,21 @@ public class Moves extends LinkedList<RollMoves> implements InputValidator, Colo
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Once the roll moves has been used, we set its dice as used.
+	 * i.e. set a darken effect on the dice image.
+	 * @param theRollMoves rollMoves that was removed.
+	 */
+	private void setUsedDices(RollMoves theRollMoves) {
+		if (theRollMoves.isSumRollMoves()) {
+			for (RollMoves aRollMoves : theRollMoves.getDependedRollMoves()) {
+				aRollMoves.getDice().setUsed();
+			}
+		} else {
+			theRollMoves.getDice().setUsed();
 		}
 	}
 	

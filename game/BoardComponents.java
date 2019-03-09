@@ -144,7 +144,7 @@ public class BoardComponents extends HBox {
 						pips[i].initCheckers(1, Color.WHITE);
 						break;
 				}
-			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD) {
+			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT) {
 				switch (i) {
 					case 0:
 					case 1:
@@ -158,6 +158,19 @@ public class BoardComponents extends HBox {
 					case 21:
 					case 22:
 					case 23:
+						pips[i].initCheckers(2, Color.BLACK);
+						break;
+				}
+			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK) {
+				switch (i) {
+					case 3:
+					case 4:
+					case 5:
+						pips[i].initCheckers(2, Color.WHITE);
+						break;
+					case 18:
+					case 19:
+					case 20:
 						pips[i].initCheckers(2, Color.BLACK);
 						break;
 				}

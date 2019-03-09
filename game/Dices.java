@@ -71,12 +71,11 @@ public class Dices extends HBox implements ColorParser {
 	 * Returns an array of integers, containing the result of each dice roll.
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
-	public int[] getTotalRoll(DieInstance instance) {
+	public DieResults getTotalRoll(DieInstance instance) {
 		int numDices = getNumDices(instance);
-		int[] res = new int[numDices];
+		DieResults res = new DieResults();
 		for (int i = 0; i < numDices; i++) {
-			res[i] = dices[i].roll();
-			dices[i].draw();
+			res.add(dices[i].draw(dices[i].roll()));
 		}
 		drawDices(instance);
 		
@@ -91,21 +90,21 @@ public class Dices extends HBox implements ColorParser {
 	 * @param res, result of die roll.
 	 * @return boolean value indicating if so.
 	 */
-	private boolean isDouble(int[] res) {
+	private boolean isDouble(DieResults res) {
 		boolean isDouble = true;
-		
 		// can't be double if only 1 dice.
-		if (res.length > 1) {
-			for (int i = 0; i < res.length-1; i++) {
-				if (res[i] != res[i+1]) {
+		if (res.size() > 1) {
+			Dice prev = res.getFirst();
+			for (Dice curr : res) {
+				if (!prev.equalsValueOf(curr)) {
 					isDouble = false;
 					break;
 				}
+				prev = curr;
 			}
 		} else {
 			isDouble = false;
 		}
-		
 		return isDouble;
 	}
 	
@@ -114,11 +113,11 @@ public class Dices extends HBox implements ColorParser {
 	 * @param res the roll die result.
 	 * @return double the roll die result.
 	 */
-	private int[] addDoubleDie(int[] res) {
-		int[] newRes = new int[res.length*2];
-		for (int i = 0; i < newRes.length; i++) {
-			newRes[i] = res[0];
-			dices[i].draw(newRes[i]);
+	private DieResults addDoubleDie(DieResults res) {
+		int numberOfDices = getNumDices(DieInstance.DOUBLE);
+		DieResults newRes = new DieResults();
+		for (int i = 0; i < numberOfDices; i++) {
+			newRes.add(dices[i].draw(res.getFirst().getDiceResult()));
 		}
 		drawDices(DieInstance.DOUBLE);
 		return newRes;
@@ -146,40 +145,27 @@ public class Dices extends HBox implements ColorParser {
 	}
 	
 	// Used to hard-create double rolls, added in Board's calculateMoves() method.
-	// Activated by DOUBLE_INSTANCE constant in GameConstants.
-	public int[] getDoubleRoll(DieInstance instance) {
-		int numDices = getNumDices(instance);
-		int[] res = new int[numDices];
-		res[0] = dices[0].roll();
-		res[1] = res[0];
-		dices[1].draw(res[1]);
-		drawDices(instance);
-		
-		if (isDouble(res)) {
-			res = addDoubleDie(res);
+	// Activated by FORCE_DOUBLE_INSTANCE constant in GameConstants.
+	public DieResults getDoubleRoll(DieInstance instance) {
+		int numberOfDices = getNumDices(instance);
+		int randomRoll = dices[0].roll();
+		DieResults res = new DieResults();
+		for (int i = 0; i < numberOfDices; i++) {
+			res.add(dices[i].draw(randomRoll));
 		}
+		drawDices(instance);
 		return res;
 	}
 	
 	// Used to hard-create double rolls of ones, added in Board's calculateMoves() method.
-	// Activated by DOUBLE_ONES constant in GameConstants.
-	public int[] getDoubleOnes(DieInstance instance) {
-		int numDices = getNumDices(instance);
-		int[] res = new int[numDices];
-		res[0] = 1;
-		res[1] = res[0];
-		dices[0].draw(res[0]);
-		dices[1].draw(res[1]);
-		drawDices(instance);
-		
-		if (isDouble(res)) {
-			res = addDoubleDie(res);
+	// Activated by FORCE_DOUBLE_ONES constant in GameConstants.
+	public DieResults getDoubleOnes(DieInstance instance) {
+		int numberOfDices = getNumDices(instance);
+		DieResults res = new DieResults();
+		for (int i = 0; i < numberOfDices; i++) {
+			res.add(dices[i].draw(1));
 		}
+		drawDices(instance);
 		return res;
-	}
-	
-	// Added just for hard-create double rolls.
-	public Dice[] getDices() {
-		return dices;
 	}
 }

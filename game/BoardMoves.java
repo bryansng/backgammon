@@ -42,9 +42,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	// Once found, we calculate the move to get from the intermediateMove to the sumMove,
 	// that will be the new Move added into the RollMoves of the dice result.
 	public void addPipToPipHopMoves(Moves moves, Player pCurrent, SumMove sMove, Move intermediateMove) {
-		int diceResult = sMove.getRollMoves().getRollResult() - intermediateMove.getRollMoves().getRollResult();
+		int diceResult = sMove.getRollMoves().getDiceResult() - intermediateMove.getRollMoves().getDiceResult();
 		for (RollMoves aRollMoves : moves) {
-			if (diceResult == aRollMoves.getRollResult()) {
+			if (diceResult == aRollMoves.getDiceResult()) {
 				if (sMove instanceof PipToPip) {
 					PipToPip im = (PipToPip) intermediateMove;
 					PipToPip sm = (PipToPip) sMove;
@@ -119,20 +119,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			
 			aRollMoves.getMoves().clear();
 			boolean hasMove = false;
-			int rollResult = aRollMoves.getRollResult();
+			Dice dice = aRollMoves.getDice();
 			boolean isSumMove = aRollMoves.isSumRollMoves();
 			boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 
 			// BarToPip
 			if (hasCheckersInBar) {
-				if (addedAsBarToPipMove(moves, aRollMoves, pCurrent, rollResult, isSumMove))
+				if (addedAsBarToPipMove(moves, aRollMoves, pCurrent, dice.getDiceResult(), isSumMove))
 					hasMove = true;
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
 				for (int fromPip = startRange; fromPip < endRange; fromPip++) {
 					// addAsMove returns a boolean indicating if move is valid and added as move.
-					 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, rollResult, isSumMove)) {
+					 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, dice.getDiceResult(), isSumMove)) {
 						 hasMove = true;
 					 }
 				}
@@ -151,11 +151,11 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * @param isRecalculate recalculation doesn't add sumMove.
 	 * @return the possible moves.
 	 */
-	public Moves calculateMoves(int[] rollResult, Player pCurrent) {
+	public Moves calculateMoves(DieResults rollResult, Player pCurrent) {
 		if (GameConstants.FORCE_DOUBLE_INSTANCE) {
-			rollResult = dices.getDoubleRoll(DieInstance.DEFAULT);
+			rollResult = dices.getDoubleRoll(DieInstance.DOUBLE);
 		} else if (GameConstants.FORCE_DOUBLE_ONES) {
-			rollResult = dices.getDoubleOnes(DieInstance.DEFAULT);
+			rollResult = dices.getDoubleOnes(DieInstance.DOUBLE);
 		}
 		
 		// calculate rollmoves of normal moves.
@@ -168,53 +168,60 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	}
 	
 	// calculates the normal moves, creates the move and adds them into 'moves'.
-	private void calculateNormalMoves(Moves moves, int[] rollResult, Player pCurrent) {
+	private void calculateNormalMoves(Moves moves, DieResults dieRes, Player pCurrent) {
 		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		
 		DieInstance instance = DieInstance.DEFAULT;
-		if (rollResult[0] == rollResult[1]) {
+		if (dieRes.getFirst().getDiceResult() == dieRes.getLast().getDiceResult()) {
 			instance = DieInstance.DOUBLE;
 		}
 		
 		// consider each die result.
-		for (int i = 0; i < rollResult.length; i++) {
-			RollMoves rollMoves = new RollMoves(rollResult[i], null);
+		for (Iterator<Dice> iterDieRes = dieRes.iterator(); iterDieRes.hasNext();) {
+			Dice aDice = iterDieRes.next();
+			RollMoves rollMoves = new RollMoves(aDice, null);
 			
 			// BarToPip
 			if (hasCheckersInBar) {
-				addedAsBarToPipMove(moves, rollMoves, pCurrent, rollResult[i], false);
+				addedAsBarToPipMove(moves, rollMoves, pCurrent, aDice.getDiceResult(), false);
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
 				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
 					// addAsMove returns a boolean indicating if move is valid and added as move.
-					addedAsMove(moves, rollMoves, pCurrent, fromPip, rollResult[i], false);
+					addedAsMove(moves, rollMoves, pCurrent, fromPip, aDice.getDiceResult(), false);
 				}
 			}
 			moves.add(rollMoves);
+			
+			// Since double (same dice result),
+			// remaining RollMoves will be the same as the first calculated RollMoves.
+			//
+			// So, we simply add copies of the RollMoves and set their respective
+			// dice objects.
 			if (instance == DieInstance.DOUBLE) {
-				moves.add(new RollMoves(rollMoves));
-				moves.add(new RollMoves(rollMoves));
-				moves.add(new RollMoves(rollMoves));
+				moves.add(new RollMoves(rollMoves).setDice(iterDieRes.next()));
+				moves.add(new RollMoves(rollMoves).setDice(iterDieRes.next()));
+				moves.add(new RollMoves(rollMoves).setDice(iterDieRes.next()));
 				return;
 			}
 		}
 	}
 
 	// calculates the sum moves, creates the move and adds them into 'moves'.
-	private void calculateSumMoves(Moves moves, int[] rollResult, Player pCurrent) {
+	private void calculateSumMoves(Moves moves, DieResults dieRes, Player pCurrent) {
 		boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 		
 		DieInstance instance = DieInstance.DEFAULT;
-		if (rollResult[0] == rollResult[1]) {
+		if (dieRes.getFirst().getDiceResult() == dieRes.getLast().getDiceResult()) {
 			instance = DieInstance.DOUBLE;
 		}
 		
 		// Consider sum of roll die results.
 		// sumMove starts at 2nd element in rollResult.
-		int theSum = 0;
-		for (int i = 0; i < rollResult.length; i++) {
-			theSum += rollResult[i];
+		int theSum = 0, i = 0;
+		for (Dice aDice : dieRes) {
+			theSum += aDice.getDiceResult();
 			
 			if (i > 0) {
 				RollMoves rollMoves;
@@ -222,9 +229,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				// links 3rd sumRollMoves to 3 normalRollMoves, mainly the 3 normalRollMoves on the right.
 				// i.e. [3,3,3,3] has [6,6,9], [9] is the 3rd,
 				// it links with the 3s on the right, starting from the 2nd index.
-				if (i == rollResult.length/2) {	// should be the 3rd element, i = 2.
+				if (i == dieRes.size()/2) {	// should be the 3rd element, i = 2.
 					// range is 1 to 3.
-					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, i-1, rollResult.length-1));
+					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, i-1, dieRes.size()-1));
 				} else {
 					rollMoves = new RollMoves(theSum, calculateDependentRollMoves(moves, 0, i));
 				}
@@ -242,12 +249,13 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				
 				// links the other sumRollMoves to other normalRollMoves.
 				// i.e. [3,3,3,3] has [6,6]. First 6 is taken care of above, Second 6 below.
-				if (instance == DieInstance.DOUBLE && i == rollResult.length/2-1) {
+				if (instance == DieInstance.DOUBLE && i == dieRes.size()/2-1) {
 					rollMoves = new RollMoves(rollMoves);
-					rollMoves.setDependentRollMoves(calculateDependentRollMoves(moves, i+1, rollResult.length-1));
+					rollMoves.setDependentRollMoves(calculateDependentRollMoves(moves, i+1, dieRes.size()-1));
 					moves.add(rollMoves);
 				}
 			}
+			i++;
 		}
 	}
 	

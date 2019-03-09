@@ -141,8 +141,8 @@ public class Board extends BoardMoves {
 	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
-	public int[] rollDices(PlayerPerspectiveFrom pov) {
-		int[] res = null;
+	public DieResults rollDices(PlayerPerspectiveFrom pov) {
+		DieResults res = null;
 		
 		switch (pov) {
 			case BOTTOM:
@@ -172,15 +172,15 @@ public class Board extends BoardMoves {
 	 * @param instance, instance where the dices are single, double or default.
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
-	public int[] rollDices(DieInstance instance) {
-		int[] res = new int[2];
+	public DieResults rollDices(DieInstance instance) {
+		DieResults res = new DieResults();
 		
 		switch (instance) {
 			case SINGLE:
 				leftDice = new Dices(Color.RED);
 				rightDice = new Dices(Color.RED);
-				res[0] = ((Dices)leftDice).getTotalRoll(instance)[0];
-				res[1] = ((Dices)rightDice).getTotalRoll(instance)[0];
+				res.add(((Dices)leftDice).getTotalRoll(instance).getFirst());
+				res.add(((Dices)rightDice).getTotalRoll(instance).getFirst());
 				break;
 			default:
 				leftDice = null;
@@ -190,7 +190,7 @@ public class Board extends BoardMoves {
 		rightBoard.setCenter(rightDice);
 		
 		// if draw, roll again.
-		if (res[0] == res[1]) {
+		if (res.getFirst().getDiceResult() == res.getLast().getDiceResult()) {
 			res = rollDices(instance);
 		}
 		return res;

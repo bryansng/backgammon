@@ -2,6 +2,8 @@ package move;
 
 import java.util.LinkedList;
 
+import game.Dice;
+
 /**
  * This class represents a single roll dice result with a number of moves derived from that result.
  * 
@@ -19,7 +21,7 @@ import java.util.LinkedList;
  *
  */
 public class RollMoves {
-	private int rollResult;
+	private Dice dice;
 	private LinkedList<RollMoves> dependedRollMoves;
 	private boolean isUsed;
 	private LinkedList<Move> moves;
@@ -28,8 +30,12 @@ public class RollMoves {
 		this(-1, null);
 	}
 	
-	public RollMoves(int rollResult, LinkedList<RollMoves> dependedRollMoves) {
-		this.rollResult = rollResult;
+	public RollMoves(int sumDiceResult, LinkedList<RollMoves> dependedRollMoves) {
+		this(new Dice(sumDiceResult), dependedRollMoves);
+	}
+	
+	public RollMoves(Dice dice, LinkedList<RollMoves> dependedRollMoves) {
+		this.dice = dice;
 		this.dependedRollMoves = dependedRollMoves;
 		this.isUsed = false;
 		moves = new LinkedList<>();
@@ -38,7 +44,7 @@ public class RollMoves {
 	// Copy Constructor.
 	// https://www.artima.com/intv/bloch13.html
 	public RollMoves(RollMoves otherRollMoves) {
-		this(otherRollMoves.getRollResult(), otherRollMoves.getDependedRollMoves());
+		this(otherRollMoves.getDice(), otherRollMoves.getDependedRollMoves());
 		
 		for (Move aMove : otherRollMoves.getMoves()) {
 			if (aMove instanceof PipToPip) {
@@ -85,8 +91,19 @@ public class RollMoves {
 		this.dependedRollMoves = dependedRollMoves;
 	}
 	
-	public int getRollResult() {
-		return rollResult;
+	// Used by calculateNormalMoves() in BoardMoves.class as optimization,
+	// to relate with RollMoves' respective dice object.
+	public RollMoves setDice(Dice dice) {
+		this.dice = dice;
+		return this;
+	}
+	
+	public Dice getDice() {
+		return dice;
+	}
+	
+	public int getDiceResult() {
+		return dice.getDiceResult();
 	}
 	
 	public String printDependentRollMoves(String spaces) {
@@ -102,6 +119,6 @@ public class RollMoves {
 	}
 	
 	public boolean equalsValueOf(RollMoves other) {
-		return rollResult == other.getRollResult() && isUsed == other.isUsed;
+		return this.getDiceResult() == other.getDiceResult() && isUsed == other.isUsed;
 	}
 }
