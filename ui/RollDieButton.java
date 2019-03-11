@@ -35,4 +35,9 @@ public class RollDieButton extends Button {
 			setEffect(new DropShadow(0, Color.BLACK));
 		});
 	}
+	
+	public void removeListeners() {
+		setOnMousePressed(null);
+		setOnMouseReleased(null);
+	}
 }

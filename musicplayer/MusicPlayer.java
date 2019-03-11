@@ -45,7 +45,7 @@ public class MusicPlayer {
 			public void run() {
 				mediaPlayer.setVolume(100);
 				
-				if (GameConstants.DEBUG_MODE) {
+				if (GameConstants.VERY_VERBOSE_MODE) {
 					System.out.println("Run status: " + mediaPlayer.getStatus()); // Should return READY
 					System.out.println("Music duration: " + media.getDuration().toMinutes());
 					System.out.println("Volume: " + mediaPlayer.getVolume());
@@ -57,8 +57,10 @@ public class MusicPlayer {
 		
 		mediaPlayer.setOnError(new Runnable() {
 			public void run() {
-				System.out.println("Run status: " + mediaPlayer.getStatus());
-				System.out.println("Error status: " + mediaPlayer.getError());
+				if (GameConstants.VERY_VERBOSE_MODE) {
+					System.out.println("Run status: " + mediaPlayer.getStatus());
+					System.out.println("Error status: " + mediaPlayer.getError());
+				}
 			}
 		});
 		
@@ -67,8 +69,10 @@ public class MusicPlayer {
 				play();
 			}
 		});
-		
-		System.out.println("Init music status: " + mediaPlayer.getStatus()); // Should return UNKNOWN
+
+		if (GameConstants.VERY_VERBOSE_MODE) {
+			System.out.println("Init music status: " + mediaPlayer.getStatus()); // Should return UNKNOWN
+		}
 	}
 	
 	private void initPlaylist() { // Can implement a text file and just read from text file for the names
@@ -174,5 +178,11 @@ public class MusicPlayer {
 	
 	public void muteVolume(boolean toggle) {
 		mediaPlayer.setMute(toggle);
+	}
+	
+	public void removeListeners() {
+		mediaPlayer.setOnReady(null);
+		mediaPlayer.setOnError(null);
+		mediaPlayer.setOnEndOfMedia(null);
 	}
 }

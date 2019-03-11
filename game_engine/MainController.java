@@ -63,14 +63,15 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	public MainController(Stage stage) {
 		super();
 		this.stage = stage;
-		resetApplication();
+		initApplication();
+		initGame();
 		style();
 	}
 	
 	/**
 	 * Initialize players and UI components.
 	 */
-	public void resetApplication() {
+	private void initApplication() {
 		bottomPlayer = new Player("Cup", 0, getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
 		topPlayer = new Player("Tea", 0, getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
 		infoPnl = new InfoPanel();
@@ -79,18 +80,42 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		musicPlayer = new MusicPlayer();
 		playerInfosEnteredFirstTimeFlag = true;
 		promptCancelFlag = false;
-		initGame();
 	}
 	
 	/**
 	 * Initialize game components and sub-controllers.
 	 */
 	private void initGame() {
+		if (game != null) {
+			event.removeListeners();
+			event = null;
+			cmd = null;
+			gameplay = null;
+			game.removeListeners();
+			game = null;
+		}
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
+	}
+
+	/**
+	 * Remove previous event listeners and start application.
+	 */
+	public void resetApplication() {
+		rollDieBtn.removeListeners();
+		rollDieBtn = null;
+		cmdPnl.removeListeners();
+		cmdPnl = null;
+		musicPlayer.removeListeners();
+		musicPlayer = null;
+		bottomPlayer = null;
+		topPlayer = null;
+		infoPnl = null;
+		initApplication();
+		initGame();
 	}
 	
 	/**
@@ -98,7 +123,6 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * Called every /start.
 	 */
 	public void restartGame() {
-		event.removeListeners();	// deactivate previous listeners.
 		startGame();
 	}
 	

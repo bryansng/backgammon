@@ -78,7 +78,8 @@ public class GameComponentsController extends VBox {
 	}
 	
 	/**
-	 * Removes all checkers from board (pips, homes, bars)
+	 * Removes all checkers from board (pips, homes, bars).
+	 * Used by /cheat or runCheatComamnd() in CommandController.
 	 */
 	public void removeAllCheckers() {		
 		// Remove from pips.
@@ -216,5 +217,17 @@ public class GameComponentsController extends VBox {
 	}
 	public Bars getBars() {
 		return bars;
+	}
+	
+	public void removeListeners() {
+		Pip[] pips = board.getPips();
+		for (int i = 0; i < pips.length; i++) {
+			pips[i].removeListeners();
+		}
+		
+		bars.removeListeners();
+		
+		leftHome.removeListeners();
+		rightHome.removeListeners();
 	}
 }

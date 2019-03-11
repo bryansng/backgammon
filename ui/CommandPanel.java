@@ -41,6 +41,10 @@ public class CommandPanel extends TextField {
 		});
 	}
 	
+	public void removeListeners() {
+		setOnKeyPressed(null);
+	}
+	
 	private void up() {
 		String text = history.up(getText());
 		setText(text);

@@ -142,6 +142,8 @@ public class Board extends BoardMoves {
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
 	public DieResults rollDices(PlayerPerspectiveFrom pov) {
+		leftDice = null;
+		rightDice = null;
 		DieResults res = null;
 		
 		switch (pov) {
@@ -173,6 +175,8 @@ public class Board extends BoardMoves {
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
 	public DieResults rollDices(DieInstance instance) {
+		leftDice = null;
+		rightDice = null;
 		DieResults res = new DieResults();
 		
 		switch (instance) {

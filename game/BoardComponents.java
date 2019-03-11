@@ -37,6 +37,17 @@ public class BoardComponents extends HBox {
 	 */
 	public BoardComponents() {
 		super();
+		pips = null;
+		leftBoard = null;
+		rightBoard = null;
+		quad1 = null;
+		quad2 = null;
+		quad3 = null;
+		quad4 = null;
+		quads = null;
+		leftDice = null;
+		rightDice = null;
+		dices = null;
 		quads = new LinkedList<>();
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
@@ -427,9 +438,6 @@ public class BoardComponents extends HBox {
 		return pips;
 	}
 	
-	/**
-	 * 
-	 */
 	private void initDices() {
 		/** IGNORE THIS ATM, currently considering to use red for all,
 		 * then when its the player's turn then change the dice to that

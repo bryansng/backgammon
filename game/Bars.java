@@ -83,4 +83,9 @@ public class Bars extends VBox implements ColorPerspectiveParser {
 		if (!top.isEmpty()) top.top().setNormalImage();
 		if (!bottom.isEmpty()) bottom.top().setNormalImage();
 	}
+	
+	public void removeListeners() {
+		top.removeListeners();
+		bottom.removeListeners();
+	}
 }

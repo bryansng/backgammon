@@ -60,6 +60,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		topPlayerFlag = false;
 		movesMapped = false;
 		stalemateCount = 0;
+		map = null;
 		map = new HashMap<>();
 	}
 
@@ -99,6 +100,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		rolledFlag = true;
 		
 		// calculate possible moves.
+		moves = null;
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
@@ -171,6 +173,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public void recalculateMoves() {
 		infoPnl.print("Recalculating moves.", MessageType.DEBUG);
+		moves = null;
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
@@ -404,8 +407,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * moves -> non-duplicate moves -> character mappings.
 	 */
 	private void handleCharacterMapping() {
-		if (!GameConstants.VERBOSE_MODE)
+		if (!GameConstants.VERBOSE_MODE) {
 			noDuplicateRollMoves = getNoDuplicateRollMoves();
+		}
 		mapCharToMoves();
 	}
 	

@@ -89,6 +89,9 @@ public class CommandHistory extends LinkedList<String> {
 	}
 	
 	private void reset() {
+		iterCurr = null;
+		curr = null;
+		
 		iterCurr = this.listIterator();
 		if (iterCurr.hasNext()) curr = iterCurr.next();
 		isStashed = false;
