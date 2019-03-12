@@ -210,7 +210,6 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	}
 
 	private int dieState = 2;
-
 	private void initRollDieButtonListeners() {
 		rollDieBtn.setOnAction((ActionEvent event) -> {
 			if (dieState == 1) {
@@ -246,11 +245,10 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 		});
 	}
 
-	public void removeListeners() {
-		root.removeEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, checkersStorerHandler);
-		game.setOnMouseClicked(null);
-		rollDieBtn.setOnAction(null);
-		cmdPnl.setOnAction(null);
-		stage.setOnCloseRequest(null);
+	public void reset() {
+		dieState = 2;
+		isPipSelectionMode = false;
+		isBarSelectionMode = false;
+		storerSelected = null;
 	}
 }

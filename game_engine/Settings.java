@@ -100,4 +100,19 @@ public class Settings {
 		}
 		return bound;
 	}
+	
+	public static String getDefaultPlayerName(PlayerPerspectiveFrom pov) {
+		String name = null;
+		switch (pov) {
+			case BOTTOM:
+				name = "Cup";
+				break;
+			case TOP:
+				name = "Tea";
+				break;
+			default:
+				throw new PlayerNoPerspectiveException();
+		}
+		return name;
+	}
 }

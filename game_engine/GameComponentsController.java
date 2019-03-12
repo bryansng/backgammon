@@ -70,30 +70,6 @@ public class GameComponentsController extends VBox {
 		getChildren().addAll(topPlayerPnl, middlePart, btmPlayerPnl);
 		setBackground(GameConstants.getGameImage());
 		setMaxHeight(topPlayerPnl.getMinHeight() + middlePart.getHeight() + btmPlayerPnl.getMinHeight());
-		
-		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
-			mainHome.getHome(topPlayer.getColor()).initCheckers(13, topPlayer.getColor());
-			mainHome.getHome(bottomPlayer.getColor()).initCheckers(13, bottomPlayer.getColor());
-		}
-	}
-	
-	/**
-	 * Removes all checkers from board (pips, homes, bars).
-	 * Used by /cheat or runCheatComamnd() in CommandController.
-	 */
-	public void removeAllCheckers() {		
-		// Remove from pips.
-		Pip[] pips = board.getPips();		
-		for (int i = 0; i < pips.length; i++) 
-			pips[i].removeAllCheckers();
-		
-		// Remove from homes.
-		mainHome.getHome(Settings.getTopPerspectiveColor()).removeAllCheckers();
-		mainHome.getHome(Settings.getBottomPerspectiveColor()).removeAllCheckers();
-		
-		// Remove from bars.
-		bars.getBar(Settings.getTopPerspectiveColor()).removeAllCheckers();
-		bars.getBar(Settings.getBottomPerspectiveColor()).removeAllCheckers();
 	}	
 	
 	/**
@@ -218,16 +194,17 @@ public class GameComponentsController extends VBox {
 	public Bars getBars() {
 		return bars;
 	}
-	
-	public void removeListeners() {
-		Pip[] pips = board.getPips();
-		for (int i = 0; i < pips.length; i++) {
-			pips[i].removeListeners();
-		}
-		
-		bars.removeListeners();
-		
-		leftHome.removeListeners();
-		rightHome.removeListeners();
+
+	/**
+	 * Removes all checkers from board (pips, homes, bars).
+	 * Used by /cheat or runCheatComamnd() in CommandController.
+	 */
+	public void reset() {
+		board.reset();
+		leftHome.reset();
+		rightHome.reset();
+		bars.reset();
+		topPlayerPnl.reset();
+		btmPlayerPnl.reset();
 	}
 }

@@ -27,10 +27,16 @@ public class Bar extends CheckersStorer {
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);
 		
+		initBar();
+	}
+	
+	private void initBar() {
 		if (GameConstants.FORCE_CHECKERS_AT_BARS) {
-			initCheckers(2, color);
+			initCheckers(2, checkerColorsToStore);
 		} else if (GameConstants.FORCE_LESS_CHECKERS_AT_BARS) {
-			initCheckers(1, color);
+			initCheckers(1, checkerColorsToStore);
+		} else {
+			super.reset();
 		}
 	}
 	
@@ -40,5 +46,9 @@ public class Bar extends CheckersStorer {
 	 */
 	public Color getColor() {
 		return checkerColorsToStore;
+	}
+	
+	public void reset() {
+		initBar();
 	}
 }

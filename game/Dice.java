@@ -1,8 +1,8 @@
 package game;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
-
 import interfaces.ColorParser;
 import javafx.scene.effect.ColorAdjust;
 import javafx.scene.image.Image;
@@ -56,8 +56,13 @@ public class Dice extends ImageView implements ColorParser {
 	private void initImages() {
 		String colorString = parseColor(color);
 		for (int i = 0; i < dices.length; i++) {
-			InputStream input = getClass().getResourceAsStream("img/dices/" + colorString + "/" + (i+1) + ".png");
-			dices[i] = new Image(input);
+			try {
+				InputStream input = getClass().getResourceAsStream("img/dices/" + colorString + "/" + (i+1) + ".png");
+				dices[i] = new Image(input);
+				input.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		}
 	}
 	

@@ -72,8 +72,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * Initialize players and UI components.
 	 */
 	private void initApplication() {
-		bottomPlayer = new Player("Cup", 0, getColor(PlayerPerspectiveFrom.BOTTOM), PlayerPerspectiveFrom.BOTTOM);
-		topPlayer = new Player("Tea", 0, getColor(PlayerPerspectiveFrom.TOP), PlayerPerspectiveFrom.TOP);	
+		bottomPlayer = new Player(PlayerPerspectiveFrom.BOTTOM);
+		topPlayer = new Player(PlayerPerspectiveFrom.TOP);
 		infoPnl = new InfoPanel();
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
@@ -86,52 +86,42 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * Initialize game components and sub-controllers.
 	 */
 	private void initGame() {
-		if (game != null) {
-			event.removeListeners();
-			event = null;
-			cmd = null;
-			gameplay = null;
-			game.removeListeners();
-			game = null;
-		}
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
 	}
-
-	/**
-	 * Remove previous event listeners and start application.
-	 */
+	
 	public void resetApplication() {
-		rollDieBtn.removeListeners();
-		rollDieBtn = null;
-		cmdPnl.removeListeners();
-		cmdPnl = null;
-		musicPlayer.removeListeners();
-		musicPlayer = null;
-		bottomPlayer = null;
-		topPlayer = null;
-		infoPnl = null;
-		initApplication();
-		initGame();
+		cmdPnl.reset();
+		musicPlayer.reset();
+		bottomPlayer.reset();
+		topPlayer.reset();
+		infoPnl.reset();
+		resetGame();
 	}
 	
+	private void resetGame() {
+		game.reset();
+		gameplay.reset();
+		cmd.reset();
+		event.reset();
+	}
+
 	/**
 	 * Remove previous event listeners and start game.
 	 * Called every /start.
 	 */
 	public void restartGame() {
+		resetGame();
 		startGame();
 	}
 	
 	/**
-	 * Re-initialize the game components and start the game.
+	 * Asks for player name and start the game.
 	 */
-	public void startGame() {
-		initGame();
-		
+	private void startGame() {
 		// prompt players for their infos only if it is their first time.
 		if (playerInfosEnteredFirstTimeFlag) {
 			promptPlayerInfos();

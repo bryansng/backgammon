@@ -168,4 +168,8 @@ public class Dices extends HBox implements ColorParser {
 		drawDices(instance);
 		return res;
 	}
+	
+	public void reset() {
+		getChildren().clear();
+	}
 }

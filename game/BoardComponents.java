@@ -26,8 +26,8 @@ public class BoardComponents extends HBox {
 	protected BorderPane leftBoard, rightBoard;
 	protected BoardQuadrant quad1, quad2, quad3, quad4, whiteQuad, blackQuad;
 	protected LinkedList<BoardQuadrant> quads;
-	protected HBox leftDice, rightDice;
-	protected Dices dices;
+	protected Dices leftDices, rightDices, dices;
+	private boolean isLabelsFlipped;
 	
 	/**
 	 * Default Constructor
@@ -37,17 +37,7 @@ public class BoardComponents extends HBox {
 	 */
 	public BoardComponents() {
 		super();
-		pips = null;
-		leftBoard = null;
-		rightBoard = null;
-		quad1 = null;
-		quad2 = null;
-		quad3 = null;
-		quad4 = null;
-		quads = null;
-		leftDice = null;
-		rightDice = null;
-		dices = null;
+		isLabelsFlipped = false;
 		quads = new LinkedList<>();
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
@@ -97,177 +87,212 @@ public class BoardComponents extends HBox {
 				pips[i] = new Pip(Color.WHITE, rotation, i);
 			}
 			
-			if (GameConstants.FORCE_ONE_CHECKER) {
-				switch (i) {
-					case 12:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-					case 11:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_TWO_CHECKER) {
-				switch (i) {
-					case 12:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 11:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP) {
-				switch (i) {
-					case 9:
-					case 10:
-					case 11:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-					case 14:
-					case 13:
-					case 12:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME) {
-				switch (i) {
-					case 0:
-					case 1:
-					case 2:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-					case 3:
-					case 4:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES) {
-				switch (i) {
-					case 10:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 9:
-					case 11:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-					case 14:
-					case 13:
-					case 12:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT) {
-				switch (i) {
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-					case 19:
-					case 20:
-					case 21:
-					case 22:
-					case 23:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK) {
-				switch (i) {
-					case 3:
-					case 4:
-					case 5:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-					case 18:
-					case 19:
-					case 20:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_CANT_BEAR_OFF_WHEN_HIT) {
-				switch (i) {
-					case 0:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-					case 5:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD) {
-				switch (i) {
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-					case 4:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-					case 5:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 23:
-					case 22:
-					case 21:
-					case 20:
-					case 19:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 18:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5) {
-				switch (i) {
-					case 0:
-					case 1:
-					case 2:
-					case 3:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-					case 4:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 23:
-					case 22:
-					case 21:
-					case 20:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 19:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_LESS_CHECKERS_IN_HOME_BOARD) {
-				switch (i) {
-					case 0:
-					case 1:
-					case 2:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-					case 23:
-					case 22:
-					case 21:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_LESSER_CHECKERS_IN_HOME_BOARD) {
-				switch (i) {
-					case 0:
-					case 1:
-						pips[i].initCheckers(1, Color.WHITE);
-						break;
-					case 22:
-					case 23:
-						pips[i].initCheckers(1, Color.BLACK);
-						break;
-				}
-			} else if (GameConstants.FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD) {
-				switch (i) {
+			initCheckers(i);
+		}
+		drawPips();
+	}
+
+	private void initCheckers() {
+		for (int i = 0; i < MAXPIPS; i++) {
+			initCheckers(i);
+		}
+	}
+	private void initCheckers(int i) {
+		if (GameConstants.FORCE_ONE_CHECKER) {
+			switch (i) {
+				case 12:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 11:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_TWO_CHECKER) {
+			switch (i) {
+				case 12:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 11:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP) {
+			switch (i) {
+				case 9:
+				case 10:
+				case 11:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 14:
+				case 13:
+				case 12:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 3:
+				case 4:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES) {
+			switch (i) {
+				case 10:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 9:
+				case 11:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 14:
+				case 13:
+				case 12:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 19:
+				case 20:
+				case 21:
+				case 22:
+				case 23:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK) {
+			switch (i) {
+				case 3:
+				case 4:
+				case 5:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 18:
+				case 19:
+				case 20:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CANT_BEAR_OFF_WHEN_HIT) {
+			switch (i) {
+				case 0:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+				case 5:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 5:
+					pips[i].initCheckers(5, Color.WHITE);
+					break;
+				case 23:
+				case 22:
+				case 21:
+				case 20:
+				case 19:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 18:
+					pips[i].initCheckers(5, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 4:
+					pips[i].initCheckers(5, Color.WHITE);
+					break;
+				case 23:
+				case 22:
+				case 21:
+				case 20:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 19:
+					pips[i].initCheckers(5, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_LESS_CHECKERS_IN_HOME_BOARD) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				case 23:
+				case 22:
+				case 21:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_LESSER_CHECKERS_IN_HOME_BOARD) {
+			switch (i) {
+				case 0:
+				case 1:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				case 22:
+				case 23:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD) {
+			switch (i) {
 				case 0:
 				case 1:
 				case 2:
@@ -294,9 +319,11 @@ public class BoardComponents extends HBox {
 				case 17:
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
-				}
-			} else if (GameConstants.FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD) {
-				switch (i) {
+				default:
+					pips[i].reset();
+			}
+		} else if (GameConstants.FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD) {
+			switch (i) {
 				case 0:
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
@@ -312,37 +339,39 @@ public class BoardComponents extends HBox {
 				case 18:
 					pips[i].initCheckers(4, Color.BLACK);
 					break;
-				}
-			} else {
-				switch (i) {
-					case 0:
-						pips[i].initCheckers(2, Color.BLACK);
-						break;
-					case 5:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 7:
-						pips[i].initCheckers(3, Color.WHITE);
-						break;
-					case 11:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-					case 12:
-						pips[i].initCheckers(5, Color.WHITE);
-						break;
-					case 16:
-						pips[i].initCheckers(3, Color.BLACK);
-						break;
-					case 18:
-						pips[i].initCheckers(5, Color.BLACK);
-						break;
-					case 23:
-						pips[i].initCheckers(2, Color.WHITE);
-						break;
-				}
+				default:
+					pips[i].reset();
+			}
+		} else {
+			switch (i) {
+				case 0:
+					pips[i].initCheckers(2, Color.BLACK);
+					break;
+				case 5:
+					pips[i].initCheckers(5, Color.WHITE);
+					break;
+				case 7:
+					pips[i].initCheckers(3, Color.WHITE);
+					break;
+				case 11:
+					pips[i].initCheckers(5, Color.BLACK);
+					break;
+				case 12:
+					pips[i].initCheckers(5, Color.WHITE);
+					break;
+				case 16:
+					pips[i].initCheckers(3, Color.BLACK);
+					break;
+				case 18:
+					pips[i].initCheckers(5, Color.BLACK);
+					break;
+				case 23:
+					pips[i].initCheckers(2, Color.WHITE);
+					break;
+				default:
+					pips[i].reset();
 			}
 		}
-		drawPips();
 	}
 	
 	/**
@@ -428,6 +457,9 @@ public class BoardComponents extends HBox {
 		temp = quad2.getLabels();
 		quad2.drawQuadrant(quad3.getLabels());
 		quad3.drawQuadrant(temp);
+		
+		if (isLabelsFlipped) isLabelsFlipped = false;
+		else isLabelsFlipped = true;
 	}
 	
 	/**
@@ -447,5 +479,14 @@ public class BoardComponents extends HBox {
 		 * right uses black.
 		 */
 		dices = new Dices(Color.RED);
+	}
+	
+	public void reset() {
+		initCheckers();
+		
+		leftBoard.setCenter(null);
+		rightBoard.setCenter(null);
+		
+		if (isLabelsFlipped) swapPipLabels();
 	}
 }

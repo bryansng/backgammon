@@ -96,8 +96,8 @@ public class HomePanel extends BorderPane {
 		bottom.unhighlight();
 	}
 	
-	public void removeListeners() {
-		top.removeListeners();
-		bottom.removeListeners();
+	public void reset() {
+		top.reset();
+		bottom.reset();
 	}
 }

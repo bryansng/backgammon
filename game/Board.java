@@ -142,27 +142,27 @@ public class Board extends BoardMoves {
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
 	public DieResults rollDices(PlayerPerspectiveFrom pov) {
-		leftDice = null;
-		rightDice = null;
+		leftBoard.setCenter(null);
+		rightBoard.setCenter(null);
 		DieResults res = null;
 		
 		switch (pov) {
 			case BOTTOM:
-				leftDice = dices;
-				rightDice = null;
+				leftDices = dices;
+				leftBoard.setCenter(leftDices);
+				rightBoard.setCenter(null);
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
 			case TOP:
-				leftDice = null;
-				rightDice = dices;
+				rightDices = dices;
+				rightBoard.setCenter(rightDices);
+				leftBoard.setCenter(null);
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
 			case NONE:
-				leftDice = null;
-				rightDice = null;
+				leftBoard.setCenter(null);
+				rightBoard.setCenter(null);
 		}
-		leftBoard.setCenter(leftDice);
-		rightBoard.setCenter(rightDice);
 		
 		return res;
 	}
@@ -175,23 +175,23 @@ public class Board extends BoardMoves {
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
 	public DieResults rollDices(DieInstance instance) {
-		leftDice = null;
-		rightDice = null;
+		leftBoard.setCenter(null);
+		rightBoard.setCenter(null);
 		DieResults res = new DieResults();
 		
 		switch (instance) {
 			case SINGLE:
-				leftDice = new Dices(Color.RED);
-				rightDice = new Dices(Color.RED);
-				res.add(((Dices)leftDice).getTotalRoll(instance).getFirst());
-				res.add(((Dices)rightDice).getTotalRoll(instance).getFirst());
+				leftDices = new Dices(Color.RED);
+				rightDices = new Dices(Color.RED);
+				res.add(((Dices)leftDices).getTotalRoll(instance).getFirst());
+				res.add(((Dices)rightDices).getTotalRoll(instance).getFirst());
+				leftBoard.setCenter(leftDices);
+				rightBoard.setCenter(rightDices);
 				break;
 			default:
-				leftDice = null;
-				rightDice = null;
+				leftBoard.setCenter(null);
+				rightBoard.setCenter(null);
 		}
-		leftBoard.setCenter(leftDice);
-		rightBoard.setCenter(rightDice);
 		
 		// if draw, roll again.
 		if (res.getFirst().getDiceResult() == res.getLast().getDiceResult()) {

@@ -2,7 +2,6 @@ package game;
 
 import constants.GameConstants;
 import events.CheckersStorerSelectedEvent;
-import javafx.event.EventHandler;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
@@ -30,23 +29,13 @@ public class CheckersStorer extends Stack<Checker> {
 	private void initListeners() {
 		// Fires an event to MainController's checkers storer listener when this storer is mouse clicked.
 		// Along with the event, the checkers storer object is passed in as the parameter to MainController.
-		addEventHandler(MouseEvent.MOUSE_CLICKED, clickEventHandler);
-	}
-	
-	EventHandler<MouseEvent> clickEventHandler = new EventHandler<>() {
-		@Override
-		public void handle(MouseEvent event) {
-			CheckersStorer source = (CheckersStorer) event.getSource();
-			source.fireEvent(new CheckersStorerSelectedEvent(source));
+		addEventHandler(MouseEvent.MOUSE_CLICKED, event -> {
+			this.fireEvent(new CheckersStorerSelectedEvent(this));
 			
 			// consume event before it gets to MainController,
 			// of which has other listeners relying on mouse clicks.
 			event.consume();
-		}
-	};
-	
-	public void removeListeners() {
-		removeEventHandler(MouseEvent.MOUSE_CLICKED, clickEventHandler);
+		});
 	}
 	
 	/**
@@ -56,18 +45,11 @@ public class CheckersStorer extends Stack<Checker> {
 	 * @param checkerColor color of the checkers.
 	 */
 	public void initCheckers(int num, Color checkerColor) {
+		reset();
+		
 		for (int i = 0; i < num; i++) {
 			push(new Checker(checkerColor));
 		}
-		drawCheckers();
-	}
-	
-	/**
-	 * Removes all checkers in the storer (pop off stack).
-	 * Used by /cheat command to clear and re-initialize checkers.
-	 */
-	public void removeAllCheckers() {
-		clear();
 		drawCheckers();
 	}
 	
@@ -125,5 +107,14 @@ public class CheckersStorer extends Stack<Checker> {
 	 */
 	public boolean topCheckerColorEquals(Color color) {
 		return (top().getColor()).equals(color);
+	}
+	
+	/**
+	 * Removes all checkers in the storer (pop off stack).
+	 */
+	public void reset() {
+		getChildren().clear();
+		clear();
+		drawCheckers();
 	}
 }

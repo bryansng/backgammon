@@ -130,11 +130,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
-				for (int fromPip = startRange; fromPip < endRange; fromPip++) {
-					// addAsMove returns a boolean indicating if move is valid and added as move.
-					 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, dice.getDiceResult(), isSumMove)) {
-						 hasMove = true;
-					 }
+				if (pCurrent.getColor() == Settings.getBottomPerspectiveColor()) {
+					for (int fromPip = startRange; fromPip < endRange; fromPip++) {
+						// addAsMove returns a boolean indicating if move is valid and added as move.
+						 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, dice.getDiceResult(), isSumMove)) {
+							 hasMove = true;
+						 }
+					}
+				} else {
+					for (int fromPip = endRange-1; fromPip >= startRange; fromPip--) {
+						// addAsMove returns a boolean indicating if move is valid and added as move.
+						 if (addedAsMove(moves, aRollMoves, pCurrent, fromPip, dice.getDiceResult(), isSumMove)) {
+							 hasMove = true;
+						 }
+					}
 				}
 			}
 			if (!hasMove) {
@@ -187,9 +196,18 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			// PipToPip or PipToHome
 			} else {
 				// loop through pips.
-				for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-					// addAsMove returns a boolean indicating if move is valid and added as move.
-					addedAsMove(moves, rollMoves, pCurrent, fromPip, aDice.getDiceResult(), false);
+				if (pCurrent.getColor() == Settings.getBottomPerspectiveColor()) {
+					// loop through pips.
+					for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+						// addAsMove returns a boolean indicating if move is valid and added as move.
+						addedAsMove(moves, rollMoves, pCurrent, fromPip, aDice.getDiceResult(), false);
+					}
+				} else {
+					// loop through pips.
+					for (int fromPip = pips.length-1; fromPip >= 0; fromPip--) {
+						// addAsMove returns a boolean indicating if move is valid and added as move.
+						addedAsMove(moves, rollMoves, pCurrent, fromPip, aDice.getDiceResult(), false);
+					}
 				}
 			}
 			moves.add(rollMoves);
@@ -240,8 +258,16 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 				//
 				// PipToPip or PipToHome
 				if (!hasCheckersInBar) {
-					for (int fromPip = 0; fromPip < pips.length; fromPip++) {
-						addedAsMove(moves, rollMoves, pCurrent, fromPip, theSum, true);
+					if (pCurrent.getColor() == Settings.getBottomPerspectiveColor()) {
+						// loop through pips.
+						for (int fromPip = 0; fromPip < pips.length; fromPip++) {
+							addedAsMove(moves, rollMoves, pCurrent, fromPip, theSum, true);
+						}
+					} else {
+						// loop through pips.
+						for (int fromPip = pips.length-1; fromPip >= 0; fromPip--) {
+							addedAsMove(moves, rollMoves, pCurrent, fromPip, theSum, true);
+						}
 					}
 				}
 				moves.add(rollMoves);

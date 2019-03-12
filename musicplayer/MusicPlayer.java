@@ -180,9 +180,7 @@ public class MusicPlayer {
 		mediaPlayer.setMute(toggle);
 	}
 	
-	public void removeListeners() {
-		mediaPlayer.setOnReady(null);
-		mediaPlayer.setOnError(null);
-		mediaPlayer.setOnEndOfMedia(null);
+	public void reset() {
+		random();
 	}
 }

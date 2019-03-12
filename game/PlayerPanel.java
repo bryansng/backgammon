@@ -38,7 +38,7 @@ public class PlayerPanel extends HBox implements ColorParser {
 	private Player player;
 	private PlayerInfo playerName;
 	private PlayerInfo playerScore;
-	private PlayerInfo playerColour;
+	private PlayerInfo playerColor;
 	
 	public PlayerPanel(double width, Player player) {
 		super();
@@ -56,18 +56,24 @@ public class PlayerPanel extends HBox implements ColorParser {
 	
 	private void initComponents() {
 		playerName = new PlayerInfo("Name: " + player.getName());
-		playerScore = new PlayerInfo("Score: " + Double.toString(player.getScore()));
+		playerScore = new PlayerInfo("Score: " + player.getScore());
 		
 		// TODO put a checker color beside instead of text, makes things more intuitive.
-		playerColour = new PlayerInfo("Colour: " + parseColor(player.getColor()));
+		playerColor = new PlayerInfo("Color: " + parseColor(player.getColor()));
 	}
 	
 	private void initLayout() {
-		getChildren().addAll(playerName, playerColour, playerScore);
+		getChildren().addAll(playerName, playerColor, playerScore);
 	}
 	
 	public void setPlayerName(Player player, String name) {
 		player.setName(name);
 		playerName.setText("Name: " + player.getName());
+	}
+	
+	public void reset() {
+		playerName.setText("Name: " + player.getName());
+		playerScore.setText("Score: " + player.getScore());
+		playerColor.setText("Color: " + parseColor(player.getColor()));
 	}
 }

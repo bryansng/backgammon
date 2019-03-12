@@ -1,5 +1,6 @@
 package game_engine;
 
+import java.io.IOException;
 import java.io.InputStream;
 import javafx.application.Application;
 import javafx.scene.Scene;
@@ -41,7 +42,12 @@ public class Main extends Application {
 	 * @param stage, the stage of the application.
 	 */
 	public void setStageIcon(Stage stage) {
-		InputStream input = Main.class.getResourceAsStream("/game/img/icon/icon.png");
-		stage.getIcons().add(new Image(input));
+		try {
+			InputStream input = Main.class.getResourceAsStream("/game/img/icon/icon.png");
+			stage.getIcons().add(new Image(input));
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 }

@@ -22,8 +22,8 @@ import javafx.scene.text.TextFlow;
  * 
  */
 public class InfoPanel extends ScrollPane {
-	public int textPadding;
 	private TextFlow textContainer;
+	private int textPadding;
 	
 	public InfoPanel() {
 		super();
@@ -172,5 +172,10 @@ public class InfoPanel extends ScrollPane {
 	// text flow version of textarea's appendText().
 	private void appendText(Text text) {
 		textContainer.getChildren().add(text);
+	}
+	
+	public void reset() {
+		textContainer.getChildren().clear();
+		welcome();
 	}
 }

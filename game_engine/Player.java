@@ -1,6 +1,7 @@
 package game_engine;
 
 import constants.PlayerPerspectiveFrom;
+import interfaces.ColorPerspectiveParser;
 import javafx.scene.paint.Color;
 
 /**
@@ -12,21 +13,17 @@ import javafx.scene.paint.Color;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class Player {
+public class Player implements ColorPerspectiveParser {
 	private String name;
 	private int score;
 	private Color color;
 	private PlayerPerspectiveFrom pov;
 	
-	public Player(String name, int score, Color color, PlayerPerspectiveFrom pov) {
-		this.name = name;
-		this.score = score;
-		this.color = color;
+	public Player(PlayerPerspectiveFrom pov) {
+		this.name = Settings.getDefaultPlayerName(pov);
+		this.score = 0;
+		this.color = getColor(pov);
 		this.pov = pov;
-	}
-	
-	public Player getPlayer() {
-		return this;
 	}
 	
 	public String getName() {
@@ -55,5 +52,10 @@ public class Player {
 	
 	public void setColor(Color color) {
 		this.color = color;
+	}
+	
+	public void reset() {
+		name = Settings.getDefaultPlayerName(pov);
+		score = 0;
 	}
 } 

@@ -2,6 +2,7 @@ package constants;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
+import java.io.IOException;
 import java.io.InputStream;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Background;
@@ -19,9 +20,9 @@ import javafx.scene.text.Font;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = true;
-	public static final boolean VERBOSE_MODE = true;
-	public static final boolean VERY_VERBOSE_MODE = true;
+	public static final boolean DEBUG_MODE = false;
+	public static final boolean VERBOSE_MODE = false;
+	public static final boolean VERY_VERBOSE_MODE = false;
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
@@ -75,8 +76,14 @@ public class GameConstants {
 	 * @return the font.
 	 */
 	public static Font getFont() {
-		InputStream font = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
-		return Font.loadFont(font, FONT_SIZE);
+		InputStream input = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+		Font font = Font.loadFont(input, FONT_SIZE);
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return font;
 	}
 	
 	/**
@@ -156,6 +163,11 @@ public class GameConstants {
 	public static Background getBoardImage() {
 		InputStream input = getFile("img/board/green.png");
 		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return bg;
 	}
 	
@@ -167,6 +179,11 @@ public class GameConstants {
 	public static Background getGameImage() {
 		InputStream input = getFile("img/board/brown.png");
 		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		return bg;
 	}
 	

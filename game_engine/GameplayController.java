@@ -47,10 +47,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		this.topPlayer = topPlayer;
 		this.game = game;
 		this.infoPnl = infoPnl;
-		resetGameplay();
+		this.map = new HashMap<>();
+		reset();
 	}
 	
-	private void resetGameplay() {
+	public void reset() {
 		moves = null;
 		noDuplicateRollMoves = null;
 		startedFlag = false;
@@ -60,8 +61,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		topPlayerFlag = false;
 		movesMapped = false;
 		stalemateCount = 0;
-		map = null;
-		map = new HashMap<>();
+		map.clear();
 	}
 
 	/**
@@ -150,7 +150,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				infoPnl.print("Congratulations, " + topPlayer.getName() + " won.");
 			else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
 				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
-			resetGameplay();
+			reset();
 		// else, proceed to gameplay.
 		} else {
 			updateMovesAfterMoving();
@@ -173,7 +173,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public void recalculateMoves() {
 		infoPnl.print("Recalculating moves.", MessageType.DEBUG);
-		moves = null;
 		moves = game.getBoard().recalculateMoves(moves, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
@@ -418,7 +417,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * The key is a letter from the alphabet.
 	 */
 	private void mapCharToMoves() {
-		infoPnl.print("Moves remapped.", MessageType.DEBUG);
 		map.clear();
 		Moves loopMoves = noDuplicateRollMoves;
 		if (GameConstants.VERBOSE_MODE) loopMoves = moves;
@@ -552,7 +550,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		if (stalemateCount > STALEMATE_LIMIT) {
 			infoPnl.print("Stalemate detected. Neither players can move after roll. Ending current game.", MessageType.ERROR);
 			isStalemate = true;
-			resetGameplay();
+			reset();
 		} else {
 			stalemateCount++;
 		}

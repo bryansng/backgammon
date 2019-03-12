@@ -88,7 +88,7 @@ public class CommandHistory extends LinkedList<String> {
 		return !curr.equals(newCmd);
 	}
 	
-	private void reset() {
+	public void reset() {
 		iterCurr = null;
 		curr = null;
 		

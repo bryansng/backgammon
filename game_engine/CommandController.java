@@ -459,7 +459,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
 	 */
 	public void runCheatCommand() {
-		game.removeAllCheckers();
+		game.reset();
 		initCheatCheckers();
 		if (gameplay.isStarted()) gameplay.recalculateMoves();
 		infoPnl.print("Cheat command ran.");
@@ -543,7 +543,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			step++;
 		}));
 		
-		
 		// test bear-off.
 		bearOffTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 			switch (step) {
@@ -579,5 +578,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 
 		infoPnl.printNewlines(2);
 		hitTl.play();
+	}
+	
+	public void reset() {
+		checkerPos = 24;
+		step = 1;
 	}
 }

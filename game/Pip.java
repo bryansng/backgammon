@@ -1,5 +1,6 @@
 package game;
 
+import java.io.IOException;
 import java.io.InputStream;
 
 import constants.GameConstants;
@@ -44,6 +45,16 @@ public class Pip extends CheckersStorer implements ColorParser {
 		InputStream input2 = getClass().getResourceAsStream("img/board/" + colorString + "_point_highlighted.png");
 		normalBG = new Background(new BackgroundImage(new Image(input1), null, null, null, null));
 		highlightedBG = new Background(new BackgroundImage(new Image(input2), null, null, null, null));
+		try {
+			input1.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		try {
+			input2.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 		
 		setRotate(rotation);
 		setAlignment(Pos.BOTTOM_CENTER);
