@@ -169,9 +169,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			
 			switch (moveResult) {
 				case MOVED_TO_HOME_FROM_PIP:
+					soundFXPlayer.playBearOffSound();
 					infoPnl.print("Moved checker from " + correct(Integer.parseInt(fro)) + " to home.");
 					break;
 				case MOVED_TO_HOME_FROM_BAR:
+					soundFXPlayer.playBearOffSound();
 					infoPnl.print("Moved checker from bar to home.");
 					break;
 				case PIP_EMPTY:
@@ -188,11 +190,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			moveResult = game.moveFromBar(fromBar, toPip);
 			switch (moveResult) {
 				case MOVED_FROM_BAR:
+					soundFXPlayer.playBearOnSound();
 					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
+					soundFXPlayer.playCheckerHitSound();
 					game.moveFromBar(fromBar, toPip);
+					soundFXPlayer.playBearOnSound();
 					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
 					infoPnl.print("Moved checker from bar to " + correct(toPip) + ".");
 					break;
@@ -210,11 +215,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			moveResult = game.getBoard().moveCheckers(fromPip, toPip);
 			switch (moveResult) {
 				case MOVED_TO_PIP:
+					soundFXPlayer.playCheckerSound();
 					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
+					soundFXPlayer.playCheckerHitSound();
 					game.getBoard().moveCheckers(fromPip, toPip);
+					soundFXPlayer.playCheckerSound();
 					infoPnl.print("Moved checker from " + correct(toPip) + " to bar.");
 					infoPnl.print("Moved checker from " + correct(fromPip) + " to " + correct(toPip) + ".");
 					break;
@@ -231,7 +239,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 		if (gameplay.isMoved()) infoPnl.print("Move over.");
 		gameplay.unhighlightPips();
-		soundFXPlayer.playCheckerSound();
 	}
 	
 	public String correct(int pipNum) {
