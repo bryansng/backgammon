@@ -1,5 +1,6 @@
 package game;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import constants.DieInstance;
@@ -57,7 +58,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 					if (!hasSimilarMoves(fromPip, toPip, aRollMoves)) {
 						if (isSumMove) {
 							LinkedList<Move> intermediateMoves;
-							if ((intermediateMoves = isSumMove(moves, fromPip, toPip, intermediateMove)) != null) {
+							if ((intermediateMoves = isSumMove(moves, fromPip, toPip, aRollMoves, intermediateMove)) != null) {
 								aRollMoves.getMoves().add(new PipToPip(fromPip, toPip, aRollMoves, isHit, intermediateMoves));
 							}
 						} else {
@@ -165,6 +166,8 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			rollResult = dices.getDoubleRoll(DieInstance.DOUBLE);
 		} else if (GameConstants.FORCE_DOUBLE_ONES) {
 			rollResult = dices.getDoubleOnes(DieInstance.DOUBLE);
+		} else if (GameConstants.FORCE_DOUBLE_TWOS) {
+			rollResult = dices.getDoubleTwos(DieInstance.DOUBLE);
 		}
 		
 		// calculate rollmoves of normal moves.
@@ -303,20 +306,20 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		int toPip = getPossibleToPip(pCurrent, getBearOnFromPip(pCurrent), diceResult);
 		if (isPipNumberInRange(toPip) && ((moveResult = isBarToPipMove(pCurrent.getColor(), toPip)) != MoveResult.NOT_MOVED) && (moveResult != MoveResult.PIP_EMPTY)) {
 			boolean isHit = isHit(moveResult);
+			rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit));
+			addedAsMove = true;
+			/*
 			// currently, this isSumMove's entire body is not used,
 			// because sumMoves actually don't apply to BarToPip moves.
 			// i.e. move finish normalMoves of BarToPip,
 			// then able to move remaining dice roll results.
 			if (isSumMove) {
 				LinkedList<Move> intermediateMoves;
-				if ((intermediateMoves = isSumMove(moves, getBearOnFromPip(pCurrent), toPip)) != null) {
+				if ((intermediateMoves = isSumMove(moves, getBearOnFromPip(pCurrent), toPip, rollMoves)) != null) {
 					rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit, intermediateMoves));
 					addedAsMove = true;
 				}
-			} else {
-				rollMoves.getMoves().add(new BarToPip(pCurrent.getColor(), toPip, rollMoves, isHit));
-				addedAsMove = true;
-			}
+			}*/
 		}
 		return addedAsMove;
 	}
@@ -353,7 +356,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			boolean isHit = isHit(moveResult);
 			if (isSumMove) {
 				LinkedList<Move> intermediateMoves;
-				if ((intermediateMoves = isSumMove(moves, fromPip, toPip)) != null) {
+				if ((intermediateMoves = isSumMove(moves, fromPip, toPip, rollMoves)) != null) {
 					rollMoves.getMoves().add(new PipToPip(fromPip, toPip, rollMoves, isHit, intermediateMoves));
 					addedAsMove = true;
 				}
@@ -392,7 +395,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		if (canToHome(pCurrent, fromPip, diceResult, toPip, isSumMove)) {
 			if (isSumMove) {
 				LinkedList<Move> intermediateMoves;
-				if ((intermediateMoves = isSumMove(moves, fromPip, getBearOffToPip(pCurrent))) != null) {
+				if ((intermediateMoves = isSumMove(moves, fromPip, getBearOffToPip(pCurrent), rollMoves)) != null) {
 					rollMoves.getMoves().add(new PipToHome(fromPip, pCurrent.getColor(), rollMoves, intermediateMoves));
 					addedAsMove = true;
 				}
@@ -531,24 +534,29 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	}
 	
 	/**
-	 * It is sum move if it has an intermediate move in rollMoves.
+	 * It is sum move if it has an intermediate move in rollMoves,
+	 * and if all the required intermediate moves are present
+	 * (this is determined by the intermediate moves' RollMoves' dice result).
+	 * 
 	 * This function searches, hasIntermediate() determines if it is an intermediate move.
 	 * @param moves, the possible moves.
 	 * @param fro sumMove's fro (BarToPip's -1 or 24, or PipToPip's fromPip).
 	 * @param to sumMove's to (PipToHome's -1 or 24, or PipToPip's toPip).
 	 * @return the intermediate moves.
 	 */
-	private LinkedList<Move> isSumMove(Moves moves, int fro, int to) {
+	private LinkedList<Move> isSumMove(Moves moves, int fro, int to, RollMoves theRollMoves) {
 		LinkedList<Move> intermediateMoves = new LinkedList<>();
+		ArrayList<Integer> diceResults = getDependedDiceResults(theRollMoves);
 		Move theMove = null;
 		for (RollMoves rollMove : moves) {
 			for (Move aMove : rollMove.getMoves()) {
 				if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
 					intermediateMoves.add(theMove);
+					diceResults.remove(Integer.valueOf(theMove.getRollMoves().getDiceResult()));
 				}
 			}
 		}
-		if (intermediateMoves.isEmpty()) {
+		if (intermediateMoves.isEmpty() || !diceResults.isEmpty()) {
 			return null;
 		}
 		return intermediateMoves;
@@ -558,19 +566,21 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	// is contained in the rollMoves's dependentRollMoves,
 	// if it is, then the RollMoves and its moves will be removed,
 	// so we don't bother.
-	private LinkedList<Move> isSumMove(Moves moves, int fro, int to, Move intermediateMove) {
+	private LinkedList<Move> isSumMove(Moves moves, int fro, int to, RollMoves theRollMoves, Move intermediateMove) {
 		LinkedList<Move> intermediateMoves = new LinkedList<>();
+		ArrayList<Integer> diceResults = getDependedDiceResults(theRollMoves);
 		Move theMove = null;
 		for (RollMoves aRollMoves : moves) {
 			if (aRollMoves.isNormalRollMoves() || !aRollMoves.getDependedRollMoves().contains(intermediateMove.getRollMoves())) {
 				for (Move aMove : aRollMoves.getMoves()) {
 					if ((theMove = hasIntermediate(aMove, fro, to)) != null) {
 						intermediateMoves.add(theMove);
+						diceResults.remove(Integer.valueOf(theMove.getRollMoves().getDiceResult()));
 					}
 				}
 			}
 		}
-		if (intermediateMoves.isEmpty()) {
+		if (intermediateMoves.isEmpty() || !diceResults.isEmpty()) {
 			return null;
 		}
 		return intermediateMoves;
@@ -607,6 +617,29 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			}
 		}
 		return intermediateMove;
+	}
+	
+	// Used by isSumMoves to determine if the sumMoves has all the necessary
+	// intermediate Moves.
+	private ArrayList<Integer> getDependedDiceResults(RollMoves theRollMoves) {
+		ArrayList<Integer> diceResults = new ArrayList<>();
+		int size = theRollMoves.getDependedRollMoves().size();
+		
+		// When checking if sumMove for [8] of the roll [2,2,2,2] exists,
+		// we check if there is an intermediate move with [2,4,6].
+		//
+		// NOTE: This ignores normal sum moves, and is only concerned
+		// with sumMove of doubles. 
+		if (size > 2) {
+			int pairSum = 0, i = 1;
+			for (RollMoves aRollMoves : theRollMoves.getDependedRollMoves()) {
+				pairSum += aRollMoves.getDiceResult();
+				diceResults.add(pairSum);
+				i++;
+				if (i == size) break;
+			}
+		}
+		return diceResults;
 	}
 	
 	/**

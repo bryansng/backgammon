@@ -122,11 +122,13 @@ public class BoardComponents extends HBox {
 			}
 		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP) {
 			switch (i) {
+				case 8:
 				case 9:
 				case 10:
 				case 11:
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
+				case 15:
 				case 14:
 				case 13:
 				case 12:

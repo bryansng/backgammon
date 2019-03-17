@@ -377,16 +377,16 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
 					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
-					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
 					msg += extraSpace + prefix + ". " + parseColor(move.getToHome()) + " " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
-					if (GameConstants.VERBOSE_MODE) intermediateMove = move.printIntermediate(extraSpace);
+					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
 					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				}
 				prefix++;
@@ -394,6 +394,28 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			if (GameConstants.VERBOSE_MODE) msg += "\n";
 		}
 		infoPnl.print(msg);
+	}
+	
+	private String printIntermediate(SumMove sumMove, String spaces) {
+		String s = "";
+		if (sumMove.hasIntermediateMoves()) {
+			String prefix = "IM - ";
+			s += spaces + "IntermediateMoves:\n";
+			
+			for (Move aMove : sumMove.getIntermediateMoves()) {
+				if (aMove instanceof PipToPip) {
+					PipToPip move = (PipToPip) aMove;
+					s += spaces + prefix + "fromPip: " + correct(move.getFromPip()) + ", toPip: " + correct(move.getToPip()) + "\n";
+				} else if (aMove instanceof PipToHome) {
+					PipToHome move = (PipToHome) aMove;
+					s += spaces + prefix + "fromPip: " + correct(move.getFromPip()) + ", toHome\n";
+				} else if (aMove instanceof BarToPip) {
+					BarToPip move = (BarToPip) aMove;
+					s += spaces + prefix + "fromBar: " + parseColor(move.getFromBar()) + ", toPip: " + correct(move.getToPip()) + "\n";
+				}
+			}
+		}
+		return s;
 	}
 	
 	/**
