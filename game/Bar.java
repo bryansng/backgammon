@@ -36,7 +36,7 @@ public class Bar extends CheckersStorer {
 		} else if (GameConstants.FORCE_LESS_CHECKERS_AT_BARS) {
 			initCheckers(1, checkerColorsToStore);
 		} else {
-			super.reset();
+			super.removeCheckers();
 		}
 	}
 	

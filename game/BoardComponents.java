@@ -107,7 +107,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_TWO_CHECKER) {
 			switch (i) {
@@ -118,7 +118,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(2, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP) {
 			switch (i) {
@@ -135,7 +135,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME) {
 			switch (i) {
@@ -149,7 +149,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP_INTERMEDIATE_MOVES) {
 			switch (i) {
@@ -166,7 +166,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT) {
 			switch (i) {
@@ -185,7 +185,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(2, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK) {
 			switch (i) {
@@ -200,7 +200,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(2, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CANT_BEAR_OFF_WHEN_HIT) {
 			switch (i) {
@@ -215,7 +215,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD) {
 			switch (i) {
@@ -240,7 +240,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(5, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5) {
 			switch (i) {
@@ -263,7 +263,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(5, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_LESS_CHECKERS_IN_HOME_BOARD) {
 			switch (i) {
@@ -278,7 +278,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(2, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_LESSER_CHECKERS_IN_HOME_BOARD) {
 			switch (i) {
@@ -291,7 +291,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD) {
 			switch (i) {
@@ -322,7 +322,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else if (GameConstants.FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD) {
 			switch (i) {
@@ -342,7 +342,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(4, Color.BLACK);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		} else {
 			switch (i) {
@@ -371,7 +371,7 @@ public class BoardComponents extends HBox {
 					pips[i].initCheckers(2, Color.WHITE);
 					break;
 				default:
-					pips[i].reset();
+					pips[i].removeCheckers();
 			}
 		}
 	}
@@ -481,6 +481,12 @@ public class BoardComponents extends HBox {
 		 * right uses black.
 		 */
 		dices = new Dices(Color.RED);
+	}
+	
+	public void removeCheckers() {
+		for (int i = 0; i < pips.length; i++) {
+			pips[i].removeCheckers();
+		}
 	}
 	
 	public void reset() {

@@ -12,7 +12,10 @@ import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
+import javafx.util.Duration;
 import move.BarToPip;
 import move.Move;
 import move.Moves;
@@ -38,10 +41,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	private int stalemateCount;
-
+	
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
-
+	
 	public GameplayController(GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
@@ -63,7 +66,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		stalemateCount = 0;
 		map.clear();
 	}
-
+	
 	/**
 	 * Auto roll die to see which player moves first.
 	 * Called at /start.
@@ -72,7 +75,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		startedFlag = true;
 		roll();
 	}
-
+	
 	/**
 	 * Rolls die, calculates possible moves and highlight top checkers.
 	 * Called at /roll.
@@ -87,7 +90,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			pOpponent = getSecondPlayerToRoll(pCurrent);
 			infoPnl.print("First player to move is: " + pCurrent.getName() + ".");
 			firstRollFlag = false;
-
+			
 			// if first player is top player, then we swap the pip number labels.
 			if (pCurrent.equals(topPlayer)) {
 				game.getBoard().swapPipLabels();
@@ -100,11 +103,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		rolledFlag = true;
 		
 		// calculate possible moves.
-		moves = null;
+		//moves = null;
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
-
+	
 	/**
 	 * Returns first player to roll based on roll die result.
 	 * @param rollResult roll die result.
@@ -121,7 +124,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		}
 		return null;
 	}
-
+	
 	/**
 	 * Returns the second player to roll based on first player.
 	 * i.e. its one or the other.
@@ -135,7 +138,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			return topPlayer;
 		}
 	}
-
+	
 	/**
 	 * Called at /move.
 	 */
@@ -186,7 +189,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		if (moves.hasDiceResultsLeft()) {
 			recalculateMoves();
 		} else if (moves.isEmpty()) {
-			infoPnl.print("No more moves to be made, turn forfeited.", MessageType.WARNING);
+			infoPnl.print("No moves to be made, turn forfeited.", MessageType.WARNING);
 			next();
 		} else {
 			handleCharacterMapping();
@@ -196,7 +199,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		}
 	}
-
+	
 	/**
 	 * Checks if it is valid to move checkers from 'fro' to 'to'.
 	 * i.e. is it part of possible moves.
@@ -255,7 +258,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			}
 		}
 	}
-
+	
 	/**
 	 * Helper function of isValidMove().
 	 * Used to check if by executing 'theMove', the fromPip of 'theMove' becomes empty.
@@ -277,20 +280,34 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			Color barColor = ((BarToPip) theMove).getFromBar();
 			Bar fromBar = game.getBars().getBar(barColor);
 			int fromBarPipNum = theMove.getFro();
-
+			
 			if (fromBar.size() == 1 || fromBar.isEmpty()) {
 				moves.removeMovesOfFro(fromBarPipNum);
 				infoPnl.print("Removing moves of bar: " + parseColor(barColor), MessageType.DEBUG);
 			}
 		}
 	}
-
+	
 	/**
 	 * Swap players and pip number labels, used to change turns.
 	 * Called at /next.
 	 * @return the next player to roll.
 	 */
 	public Player next() {
+		infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
+		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
+		
+		// pause for 2 seconds before "next-ing".
+		if (Settings.ENABLE_NEXT_PAUSE) {
+			Timeline nextPause = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
+				nextFunction();
+			}));
+			nextPause.setCycleCount(1);
+			nextPause.play();
+		} else nextFunction();
+		return pCurrent;
+	}
+	private void nextFunction() {
 		// swap players.
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
@@ -305,9 +322,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		
 		roll(); // auto roll.
 		movedFlag = false;
-		return pCurrent;
 	}
-
+	
 	/**
 	 * Highlight pips and checkers based on mode.
 	 * Used by EventController.
@@ -508,7 +524,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @return new moves instance variable without duplicate roll moves.
 	 */
 	private Moves getNoDuplicateRollMoves() {
-		noDuplicateRollMoves = new Moves();
+		noDuplicateRollMoves = new Moves(moves.getDieResults());
 		RollMoves prev = moves.get(0);
 		noDuplicateRollMoves.add(prev);
 		for (RollMoves curr : moves) {
@@ -528,23 +544,23 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private boolean isGameOver() {
 		return game.getMainHome().getFilledHome() != null;
 	}
-
+	
 	public String correct(int pipNum) {
 		return getOutputPipNumber(pipNum, topPlayerFlag);
 	}
-
+	
 	public boolean isStarted() {
 		return startedFlag;
 	}
-
+	
 	public boolean isRolled() {
 		return rolledFlag;
 	}
-
+	
 	public boolean isMoved() {
 		return movedFlag;
 	}
-
+	
 	public boolean isTopPlayer() {
 		return topPlayerFlag;
 	}
@@ -565,7 +581,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * - After every move calculation to detect stalements (endless recalculation).
 	 * - Stalemates are resolved as long as player moves (counter is reset at move()).
 	 */
-	private final static int STALEMATE_LIMIT = 10;
+	private final static int STALEMATE_LIMIT = 30;
 	private boolean isStalemate() {
 		boolean isStalemate = false;
 		

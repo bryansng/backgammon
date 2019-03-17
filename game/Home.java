@@ -35,7 +35,7 @@ public class Home extends CheckersStorer {
 		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
 			initCheckers(13, checkerColorsToStore);
 		} else {
-			super.reset();
+			super.removeCheckers();
 		}
 	}
 	

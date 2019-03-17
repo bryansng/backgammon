@@ -335,9 +335,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	public void runNextCommand() {
 		if (gameplay.isStarted()) {
 			if (gameplay.isMoved()) {
-				infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
-				Player pOpponent = gameplay.getOpponent();
-				infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
 				gameplay.next();
 			} else {
 				infoPnl.print("Allowed to swap turns only when you are done making your moves.", MessageType.ERROR);
@@ -466,7 +463,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
 	 */
 	public void runCheatCommand() {
-		game.reset();
+		game.getBoard().removeCheckers();
 		initCheatCheckers();
 		if (gameplay.isStarted()) gameplay.recalculateMoves();
 		infoPnl.print("Cheat command ran.");
@@ -513,6 +510,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private int step = 1;
 	private Timeline hitTl, bearOnTL, bearOffTL, traversalTl;
 	public void runTestCommand() {
+		game.reset();
+		
 		// test hit.
 		hitTl = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 			switch (step) {

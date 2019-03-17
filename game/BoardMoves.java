@@ -105,14 +105,11 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * 		- able to specify the range of pips to recalculate moves for. (default is 0 to 23)
 	 * @param prevMoves
 	 * @param pCurrent
-	 * @param startRange
-	 * @param endRange
 	 * @return
 	 */
 	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
-		return recalculateMoves(prevMoves, pCurrent, 0, pips.length);
-	}
-	public Moves recalculateMoves(Moves prevMoves, Player pCurrent, int startRange, int endRange) {
+		int startRange = 0;
+		int endRange = pips.length;  
 		Moves moves = prevMoves;
 		// recalculate using remaining dice results.
 		for (Iterator<RollMoves> iterRollMoves = moves.iterator(); iterRollMoves.hasNext();) {
@@ -125,12 +122,16 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 			boolean hasCheckersInBar = hasCheckersInBar(pCurrent);
 
 			// BarToPip
-			if (hasCheckersInBar) {
+			// NOTE again: SumMove don't apply to BarToPips.
+			if (hasCheckersInBar && !isSumMove) {
 				if (addedAsBarToPipMove(moves, aRollMoves, pCurrent, dice.getDiceResult(), isSumMove))
 					hasMove = true;
 			// PipToPip or PipToHome
 			} else {
-				// loop through pips.
+				// loop through pips,
+				// if white, loop from start of pips array,
+				// if black, loop from end of pips array.
+				// REASON: moves will be printed in ascending order.
 				if (pCurrent.getColor() == Settings.getBottomPerspectiveColor()) {
 					for (int fromPip = startRange; fromPip < endRange; fromPip++) {
 						// addAsMove returns a boolean indicating if move is valid and added as move.
@@ -173,7 +174,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		// calculate rollmoves of normal moves.
 		// calculate rollmoves of sum moves.
 		// combine normal moves and sum moves together.
-		Moves moves = new Moves();
+		Moves moves = new Moves(rollResult);
 		calculateNormalMoves(moves, rollResult, pCurrent);
 		calculateSumMoves(moves, rollResult, pCurrent);
 		return moves;
@@ -629,7 +630,7 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 		// we check if there is an intermediate move with [2,4,6].
 		//
 		// NOTE: This ignores normal sum moves, and is only concerned
-		// with sumMove of doubles. 
+		// with sumMove of doubles.
 		if (size > 2) {
 			int pairSum = 0, i = 1;
 			for (RollMoves aRollMoves : theRollMoves.getDependedRollMoves()) {

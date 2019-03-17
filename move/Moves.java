@@ -2,6 +2,8 @@ package move;
 
 import java.util.Iterator;
 import java.util.LinkedList;
+
+import game.DieResults;
 import interfaces.ColorParser;
 import interfaces.InputValidator;
 import javafx.scene.paint.Color;
@@ -15,8 +17,15 @@ import javafx.scene.paint.Color;
  */
 @SuppressWarnings("serial")
 public class Moves extends LinkedList<RollMoves> implements InputValidator, ColorParser {
-	public Moves() {
+	private DieResults res;
+	
+	public Moves(DieResults res) {
 		super();
+		this.res = res;
+	}
+	
+	public DieResults getDieResults() {
+		return res;
 	}
 	
 	// If there are no moves left, but there are still dice results.

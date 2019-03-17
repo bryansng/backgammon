@@ -104,6 +104,10 @@ public class Dice extends ImageView implements ColorParser {
 		setEffect(colorAdjust);
 	}
 	
+	public void setNotUsed() {
+		setEffect(null);
+	}
+	
 	public int getDiceResult() {
 		return diceRollResult;
 	}

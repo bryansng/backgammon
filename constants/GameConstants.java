@@ -21,7 +21,7 @@ import javafx.scene.text.Font;
  */
 public class GameConstants {
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean VERBOSE_MODE = false;
+	public static final boolean VERBOSE_MODE = true;
 	public static final boolean VERY_VERBOSE_MODE = false;
 	
 	// force ways to init pips and checkers.

@@ -45,7 +45,7 @@ public class CheckersStorer extends Stack<Checker> {
 	 * @param checkerColor color of the checkers.
 	 */
 	public void initCheckers(int num, Color checkerColor) {
-		reset();
+		removeCheckers();
 		
 		for (int i = 0; i < num; i++) {
 			push(new Checker(checkerColor));
@@ -112,7 +112,7 @@ public class CheckersStorer extends Stack<Checker> {
 	/**
 	 * Removes all checkers in the storer (pop off stack).
 	 */
-	public void reset() {
+	public void removeCheckers() {
 		getChildren().clear();
 		clear();
 		drawCheckers();
