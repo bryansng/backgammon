@@ -50,7 +50,7 @@ public class RollMoves {
 			if (aMove instanceof PipToPip) {
 				PipToPip move = new PipToPip((PipToPip) aMove);
 				move.setRollMoves(this);
-				moves.add(move);
+				moves.add(new PipToPip(move));
 			} else if (aMove instanceof PipToHome) {
 				PipToHome move = new PipToHome((PipToHome) aMove);
 				move.setRollMoves(this);

@@ -12,6 +12,7 @@ import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
+import interfaces.IntegerLettersParser;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
@@ -35,7 +36,7 @@ import ui.InfoPanel;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset {
+public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset, IntegerLettersParser {
 	private Moves moves, noDuplicateRollMoves;
 	private HashMap<String, Move> map;
 	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
@@ -367,7 +368,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private void printMoves() {
 		String spaces = "  ";
 		String extraSpace = spaces + spaces + spaces;
-		char prefix = 'A';
+		int letterValue = 1;
 		String suffix = "";
 		String intermediateMove = "";
 		String msg = "";
@@ -394,18 +395,18 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 					PipToPip move = (PipToPip) aMove;
 					if (move.isHit()) suffix = "*";
 					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
-					msg += extraSpace + prefix + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
+					msg += extraSpace + toLetters(letterValue) + ". " + correct(move.getFromPip()) + "-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
 					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
-					msg += extraSpace + prefix + ". " + parseColor(move.getToHome()) + " " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
+					msg += extraSpace + toLetters(letterValue) + ". " + parseColor(move.getToHome()) + " " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";
 					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
-					msg += extraSpace + prefix + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
+					msg += extraSpace + toLetters(letterValue) + ". Bar-" + correct(move.getToPip()) + suffix + "\n" + intermediateMove;
 				}
-				prefix++;
+				letterValue++;
 			}
 			if (GameConstants.VERBOSE_MODE) msg += "\n";
 		}
@@ -459,9 +460,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		Moves loopMoves = noDuplicateRollMoves;
 		if (GameConstants.VERBOSE_MODE) loopMoves = moves;
 		
+		int letterValue = 1;
 		for (RollMoves aRollMoves : loopMoves) {
 			for (Move aMove : aRollMoves.getMoves()) {
-				map.put(createKey(), aMove);
+				map.put(toLetters(letterValue), aMove);
+				letterValue++;
 			}
 		}
 		movesMapped = true;
@@ -471,6 +474,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Returns character/letter/key to be mapped with a move object.
 	 * @return the character/letter/key.
 	 */
+	@SuppressWarnings("unused")
 	private String createKey() {
 		char key = 'A';
 		int ascii = 0;

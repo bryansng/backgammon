@@ -21,18 +21,21 @@ import javafx.scene.text.Font;
  */
 public class GameConstants {
 	public static final boolean DEBUG_MODE = true;
-	public static final boolean VERBOSE_MODE = true;
+	public static final boolean VERBOSE_MODE = false;
 	public static final boolean VERY_VERBOSE_MODE = false;
+
+	/* Debug Letter Mapping to moves */
+	public static final boolean FORCE_A_LOT_MOVES = false;
 	
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
 	public static final boolean FORCE_TWO_CHECKER = false;
-	
-	// for debug isGameOver.
+
+	/* Debug isGameOver */
 	// for checkers at home.
 	public static final boolean FORCE_13_CHECKERS_AT_HOME = false;
 	
-	// for debug BarToPip moves.
+	/* Debug BarToPip */
 	// for checkers at bars.
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;
 	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;

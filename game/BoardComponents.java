@@ -98,7 +98,32 @@ public class BoardComponents extends HBox {
 		}
 	}
 	private void initCheckers(int i) {
-		if (GameConstants.FORCE_ONE_CHECKER) {
+		if (GameConstants.FORCE_A_LOT_MOVES) {
+			switch (i) {
+				case 4:
+				case 5:
+				case 6:
+				case 7:
+				case 8:
+				case 9:
+				case 10:
+				case 11:
+					pips[i].initCheckers(1, Color.BLACK);
+					break;
+				case 19:
+				case 18:
+				case 17:
+				case 16:
+				case 15:
+				case 14:
+				case 13:
+				case 12:
+					pips[i].initCheckers(1, Color.WHITE);
+					break;
+				default:
+					pips[i].removeCheckers();
+			}
+		} else if (GameConstants.FORCE_ONE_CHECKER) {
 			switch (i) {
 				case 12:
 					pips[i].initCheckers(1, Color.BLACK);
