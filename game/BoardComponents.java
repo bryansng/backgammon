@@ -455,7 +455,7 @@ public class BoardComponents extends HBox {
 	// if it is able to bear off, but there are better pips to bear off, then we bear off those first.
 	// better pips to bear off = pips of the diceResult.
 	protected boolean hasBetterPipsToBearOff(Player pCurrent, int fromPip, int diceResult) {
-		return getHomeQuadOfPlayer(pCurrent).hasBetterPipsToBearOff(fromPip, diceResult);
+		return getHomeQuadOfPlayer(pCurrent).hasBetterPipsToBearOff(pCurrent, fromPip, diceResult);
 	}
 	
 	// get home quad of the player, based on player's color.
@@ -521,5 +521,7 @@ public class BoardComponents extends HBox {
 		rightBoard.setCenter(null);
 		
 		if (isLabelsFlipped) swapPipLabels();
+		
+		dices.reset();
 	}
 }

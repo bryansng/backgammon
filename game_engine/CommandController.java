@@ -237,7 +237,6 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (gameplay.isRolled() && !gameplay.isMoved()) {
 			gameplay.move();
 		}
-		if (gameplay.isMoved()) infoPnl.print("Move over.");
 		gameplay.unhighlightPips();
 	}
 	
@@ -275,6 +274,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			if (!gameplay.isRolled()) {
 				infoPnl.print("Rolling...", MessageType.ANNOUNCEMENT);
 				gameplay.roll();
+				soundFXPlayer.playDiceSound();
 			} else {
 				infoPnl.print("Die has already been rolled.", MessageType.ERROR);
 			}
@@ -290,6 +290,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			DieResults res = game.getBoard().rollDices(pov);
 			if (res != null) {
 				infoPnl.print("Roll dice results: " + res);
+				soundFXPlayer.playDiceSound();
 			} else {
 				infoPnl.print("Player number incorrect. It must be either 1 or 2.", MessageType.ERROR);
 			}
@@ -401,7 +402,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Saves game log (text on info panel) to text file.
 	 */
 	public void runSaveCommand() {
-		infoPnl.saveToFile();
+		if (infoPnl.saveToFile());
+			infoPnl.print("Game log saved to backgammon.txt");
 	}
 	
 	/**

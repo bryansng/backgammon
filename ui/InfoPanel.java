@@ -6,6 +6,7 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Iterator;
 import javafx.geometry.Insets;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
@@ -93,11 +94,13 @@ public class InfoPanel extends ScrollPane {
 	 */
 	public void print(String msg, MessageType mtype) {
 		Text text = new Text();
+		text.setFont(GameConstants.getFont());
 		String prefix = ">";
 		String type = "";
 		switch (mtype) {
 			case ANNOUNCEMENT:
 				prefix = "\n" + prefix;
+				text.setFont(GameConstants.getFont(true));
 			case SYSTEM:
 				type = "[System]";
 				text.setFill(Color.GREEN);
@@ -118,7 +121,6 @@ public class InfoPanel extends ScrollPane {
 				break;
 		}
 		text.setText(prefix + " " + type + " " + msg + "\n");
-		text.setFont(GameConstants.getFont());
 		
 		// same as
 		// (debugMode || (!debugMode && mtype != MessageType.DEBUG))
@@ -145,24 +147,29 @@ public class InfoPanel extends ScrollPane {
 	/**
 	 * Saves everything on the information panel to a text file.
 	 */
-	public void saveToFile() {
+	public boolean saveToFile() {
 		StringBuilder sb = new StringBuilder();
 		for (Node node : textContainer.getChildren()) {
 			if (node instanceof Text) {
 				sb.append(((Text) node).getText());
 			}
 		}
-		
+		return toFile(sb);
+	}
+	
+	private boolean toFile(StringBuilder sb) {
+		boolean isSaved = false;
 		try {
-			BufferedWriter buffer = new BufferedWriter(new FileWriter(new File("backgammon.txt")));
+			BufferedWriter buffer = new BufferedWriter(new FileWriter(new File("log.txt"), true));
 			buffer.append(sb);
 			buffer.newLine();
 			buffer.flush();
 			buffer.close();
+			isSaved = true;
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		print("Game log saved to backgammon.txt");	
+		return isSaved;
 	}
 	
 	public TextFlow getTextContainer() {
@@ -172,6 +179,33 @@ public class InfoPanel extends ScrollPane {
 	// text flow version of textarea's appendText().
 	private void appendText(Text text) {
 		textContainer.getChildren().add(text);
+		removeExcessText();
+	}
+	
+	// If exceed threshold, remove upper half of the text.
+	private void removeExcessText() {
+		if (isFull()) {
+			StringBuilder removedTexts = new StringBuilder();
+			
+			// get removed text.
+			int i = 0;
+			for (Iterator<Node> iterTextNodes = textContainer.getChildren().iterator(); iterTextNodes.hasNext();) {
+				Text aText = (Text) iterTextNodes.next();
+				removedTexts.append(aText.getText());
+				iterTextNodes.remove();
+				i++;
+				
+				// remove half of the texts.
+				if (i >= GameConstants.TEXT_CONTAINER_THRESHOLD/2) break;
+			}
+			toFile(removedTexts);
+			print("Exceeded text container threshold, excess text removed.", MessageType.DEBUG);
+		}
+	}
+	
+	// Check if the number of text node in text container exceeds threshold.
+	private boolean isFull() {
+		return textContainer.getChildren().size() > GameConstants.TEXT_CONTAINER_THRESHOLD;
 	}
 	
 	public void reset() {

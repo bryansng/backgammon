@@ -36,15 +36,13 @@ public class MusicPlayer {
 	private void initMediaPlayer(String fileName) {
 		media = new Media(getClass().getResource("/musicplayer/songs/" + fileName).toExternalForm());
 		mediaPlayer = new MediaPlayer(media);
-		mediaPlayer.setVolume(0.01);
+		mediaPlayer.setVolume(0.1);
 
 		// We cannot play the file instantly as it has not properly loaded.
 		// Therefore we can only call it when it's loaded, 
 		// i.e getStatus() == READY.
 		mediaPlayer.setOnReady(new Runnable() {
 			public void run() {
-				mediaPlayer.setVolume(100);
-				
 				if (GameConstants.VERY_VERBOSE_MODE) {
 					System.out.println("Run status: " + mediaPlayer.getStatus()); // Should return READY
 					System.out.println("Music duration: " + media.getDuration().toMinutes());

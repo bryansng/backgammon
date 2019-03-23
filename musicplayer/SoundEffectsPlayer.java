@@ -12,6 +12,7 @@ import javafx.scene.media.AudioClip;
  *
  */
 public class SoundEffectsPlayer {
+	private double volume = 0.1;
 	private AudioClip checker;
 	private AudioClip dice;
 	private AudioClip bearOff;
@@ -27,27 +28,27 @@ public class SoundEffectsPlayer {
 	}
 	
 	public void playCheckerSound() {
-		checker.setVolume(100000);
+		checker.setVolume(volume);
 		checker.play();
 	}
 	
 	public void playDiceSound() {
-		dice.setVolume(100000);
+		dice.setVolume(volume);
 		dice.play();
 	}
 	
 	public void playBearOffSound() {
-		bearOff.setVolume(100000);
+		bearOff.setVolume(volume);
 		bearOff.play();
 	}
 	
 	public void playBearOnSound() {
-		bearOn.setVolume(100000);
+		bearOn.setVolume(volume);
 		bearOn.play();
 	}
 	
 	public void playCheckerHitSound() {
-		hit.setVolume(100000);
+		hit.setVolume(volume);
 		hit.play();
 	}
 	

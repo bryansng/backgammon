@@ -104,7 +104,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		rolledFlag = true;
 		
 		// calculate possible moves.
-		//moves = null;
+		moves = null;
 		moves = game.getBoard().calculateMoves(rollResult, pCurrent);
 		handleEndOfMovesCalculation(moves);
 	}
@@ -164,6 +164,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				recalculateMoves();
 			} else if (moves.isEmpty()) {
 				movedFlag = true;
+				infoPnl.print("Move over.");
+				next();
 			} else {
 				handleCharacterMapping();
 				printMoves();
@@ -190,7 +192,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		if (moves.hasDiceResultsLeft()) {
 			recalculateMoves();
 		} else if (moves.isEmpty()) {
-			infoPnl.print("No moves to be made, turn forfeited.", MessageType.WARNING);
+			infoPnl.print("No moves available, turn forfeited.", MessageType.WARNING);
 			next();
 		} else {
 			handleCharacterMapping();
@@ -295,6 +297,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @return the next player to roll.
 	 */
 	public Player next() {
+		// this needs to be set first,
+		// if not during wait, players can /next more than once.
+		movedFlag = false;
+		
 		infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
 		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
 		
@@ -322,7 +328,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		game.getBoard().swapPipLabels();
 		
 		roll(); // auto roll.
-		movedFlag = false;
 	}
 	
 	/**
@@ -399,7 +404,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
 					if (GameConstants.VERBOSE_MODE) intermediateMove = printIntermediate(move, extraSpace);
-					msg += extraSpace + toLetters(letterValue) + ". " + parseColor(move.getToHome()) + " " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
+					msg += extraSpace + toLetters(letterValue) + ". " + correct(move.getFromPip()) + "-Off\n" + intermediateMove;
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					if (move.isHit()) suffix = "*";

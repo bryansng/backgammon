@@ -3,6 +3,7 @@ package game;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
+import game_engine.Player;
 import game_engine.Settings;
 import javafx.geometry.Pos;
 import javafx.scene.layout.HBox;
@@ -50,13 +51,13 @@ public class BoardQuadrant extends VBox {
 	
 	// Has better pips to bear off if there are pips
 	// that are not empty and has the same number as the dice result.
-	public boolean hasBetterPipsToBearOff(int fromPip, int diceResult) {
+	public boolean hasBetterPipsToBearOff(Player pCurrent, int fromPip, int diceResult) {
 		boolean hasBetter = false;
 		
 		// loop range, pips further away from home (inclusive) - fromPip (exclusive).
 		if (isWhiteHome) {
 			for (int pipNum = endRange; pipNum > fromPip; pipNum--) {
-				if (!pips[pipNum].isEmpty()) {
+				if (!pips[pipNum].isEmpty() && pips[pipNum].topCheckerColorEquals(pCurrent.getColor())) {
 					hasBetter = true;
 					break;
 				}
@@ -66,7 +67,7 @@ public class BoardQuadrant extends VBox {
 			}
 		} else if (isBlackHome) {
 			for (int pipNum = startRange; pipNum < fromPip; pipNum++) {
-				if (!pips[pipNum].isEmpty()) {
+				if (!pips[pipNum].isEmpty() && pips[pipNum].topCheckerColorEquals(pCurrent.getColor())) {
 					hasBetter = true;
 					break;
 				}

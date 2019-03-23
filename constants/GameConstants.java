@@ -20,7 +20,7 @@ import javafx.scene.text.Font;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = true;
+	public static final boolean DEBUG_MODE = false;
 	public static final boolean VERBOSE_MODE = false;
 	public static final boolean VERY_VERBOSE_MODE = false;
 
@@ -42,7 +42,8 @@ public class GameConstants {
 	// for checkers at pips.
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT = false;
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK = false;
-	
+
+	/* Debug IntermediateMoves */
 	// test intermediate moves hitting to move on.
 	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_PIP = false;
 	public static final boolean FORCE_CHECKERS_EASY_HITTING_PIP_TO_HOME = false;
@@ -51,8 +52,8 @@ public class GameConstants {
 	
 	// test if can bear off after hit.
 	public static final boolean FORCE_CANT_BEAR_OFF_WHEN_HIT = false;
-	
-	// for debug PipToHome moves.
+
+	/* Debug PipToHome */
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
@@ -60,6 +61,7 @@ public class GameConstants {
 	public static final boolean FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD = false;
 	public static final boolean FORCE_OPPONENT_CHECKER_INSIDE_HOME_BOARD = false;
 	
+	/* Debug Dices */
 	// first roll after /start will not appear as doubles, but internally is.
 	public static final boolean FORCE_DOUBLE_INSTANCE = false;
 	public static final boolean FORCE_DOUBLE_ONES = false;
@@ -68,19 +70,21 @@ public class GameConstants {
 	public static final int MAX_CHECKERS_IN_GAME = 30;
 	public static final int MAX_CHECKERS_PER_CHECKERS_STORER = MAX_CHECKERS_IN_GAME / 2;
 	public static final int NUMBER_OF_PIPS = 24;
+	public static final int TEXT_CONTAINER_THRESHOLD = 100;
 
 	public static final int FONT_SIZE = 15;
 	public static final int FONT_SIZE_PLAYER_PANEL = 16;
 	public static final int FONT_SIZE_PIP_NUMBER_LABEL = 14;
-	//public static final String FONT_FAMILY = "Consolas";
 	
 	/**
 	 * Loads font from file and returns a font object with that font.
 	 * Used by InfoPanel.
 	 * @return the font.
 	 */
-	public static Font getFont() {
-		InputStream input = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+	public static Font getFont(boolean isBold) {
+		InputStream input;
+		if (isBold) input = GameConstants.class.getResourceAsStream("Inconsolata-Bold.ttf");
+		else input = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
 		Font font = Font.loadFont(input, FONT_SIZE);
 		try {
 			input.close();
@@ -88,6 +92,9 @@ public class GameConstants {
 			e.printStackTrace();
 		}
 		return font;
+	}
+	public static Font getFont() {
+		return getFont(false);
 	}
 	
 	/**
