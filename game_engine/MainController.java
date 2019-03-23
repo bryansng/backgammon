@@ -100,6 +100,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		topPlayer.reset();
 		infoPnl.reset();
 		resetGame();
+		playerInfosEnteredFirstTimeFlag = true;
+		promptCancelFlag = false;
 	}
 	
 	public void resetGame() {

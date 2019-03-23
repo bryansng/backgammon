@@ -1,6 +1,7 @@
 package game_engine;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
@@ -452,6 +453,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private void handleCharacterMapping() {
 		if (!GameConstants.VERBOSE_MODE) {
 			noDuplicateRollMoves = getNoDuplicateRollMoves();
+			getLargerRollMoves();
 		}
 		mapCharToMoves();
 	}
@@ -545,6 +547,49 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		return noDuplicateRollMoves;
 	}
 	
+	// Rules:
+	// If either number can be played, but not both, player must play the larger one.
+	private void getLargerRollMoves() {
+		// get total number of moves.
+		int numOfMoves = 0;
+		for (RollMoves aRollMoves : noDuplicateRollMoves) {
+			numOfMoves += aRollMoves.getMoves().size();
+			
+			// if greater than 2, the above rule don't apply.
+			// we simply end the function.
+			if (numOfMoves > 2) return;
+		}
+		
+		if (numOfMoves == 2) {
+			// get the two moves from the roll moves.
+			LinkedList<Move> someMoves = new LinkedList<>();
+			for (RollMoves aRollMoves : noDuplicateRollMoves) {
+				if (aRollMoves.getMoves().size() == 1) {
+					someMoves.add(aRollMoves.getMoves().getFirst());
+				}
+			}
+			
+			// check if both moves start from same location (pip/bar).
+			if (someMoves.size() == 2) {
+				Move move1 = someMoves.getFirst();
+				Move move2 = someMoves.getLast();
+				
+				if (move1.getFro() == move2.getFro()) {
+					// get the one with the larger dice result,
+					// remove the other one.
+					if (move1.getRollMoves().getDiceResult() > move2.getRollMoves().getDiceResult()) {
+						move2.getRollMoves().getMoves().remove(move2);
+						infoPnl.print("Rule: Removed move of smaller dice roll.", MessageType.DEBUG);
+					} else if (move1.getRollMoves().getDiceResult() < move2.getRollMoves().getDiceResult()) {
+						move1.getRollMoves().getMoves().remove(move1);
+					} else {
+						return;
+					}
+				}
+			}
+		}
+	}
+	
 	/**
 	 * Check if any homes are filled.
 	 * Game over when one of the player has all 15 checkers at their home.
@@ -595,7 +640,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		boolean isStalemate = false;
 		
 		if (stalemateCount > STALEMATE_LIMIT) {
-			infoPnl.print("Stalemate detected. Neither players can move after roll. Ending current game.", MessageType.ERROR);
+			infoPnl.print("Stalemate detected. Neither players can move after many roll attempts. Ending current game.", MessageType.ERROR);
 			isStalemate = true;
 			reset();
 		} else {
