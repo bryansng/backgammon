@@ -9,10 +9,13 @@ import interfaces.InputValidator;
 import javafx.scene.paint.Color;
 
 /**
+ * This class represents a linked list of roll moves.
+ * Equipped with methods to manipulate the roll moves.
  * 
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 @SuppressWarnings("serial")

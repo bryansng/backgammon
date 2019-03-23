@@ -20,6 +20,7 @@ import javafx.scene.text.TextFlow;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  * 
  */
 public class InfoPanel extends ScrollPane {
@@ -157,6 +158,11 @@ public class InfoPanel extends ScrollPane {
 		return toFile(sb);
 	}
 	
+	/**
+	 * Appends texts in the string builder to the log file.
+	 * @param sb the string builder containing the string.
+	 * @return boolean value indicating if data was saved to file.
+	 */
 	private boolean toFile(StringBuilder sb) {
 		boolean isSaved = false;
 		try {

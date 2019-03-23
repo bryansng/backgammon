@@ -26,6 +26,7 @@ import move.SumMove;
  * @teamname TeaCup
  * @author Bryan Sng, 17205050
  * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
  *
  */
 public class BoardMoves extends BoardComponents implements ColorParser {
@@ -103,9 +104,9 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * Different from calculateMoves.
 	 * 		- it calculates using remaining dice results, instead of adding more.
 	 * 		- able to specify the range of pips to recalculate moves for. (default is 0 to 23)
-	 * @param prevMoves
-	 * @param pCurrent
-	 * @return
+	 * @param prevMoves previous possible moves.
+	 * @param pCurrent current player.
+	 * @return the possible moves.
 	 */
 	public Moves recalculateMoves(Moves prevMoves, Player pCurrent) {
 		int startRange = 0;
@@ -159,7 +160,6 @@ public class BoardMoves extends BoardComponents implements ColorParser {
 	 * Calculate the possible moves based on die roll.
 	 * @param rollResult roll die result.
 	 * @param pCurrent current player.
-	 * @param isRecalculate recalculation doesn't add sumMove.
 	 * @return the possible moves.
 	 */
 	public Moves calculateMoves(DieResults rollResult, Player pCurrent) {

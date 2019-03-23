@@ -2,6 +2,16 @@ package game;
 
 import java.util.LinkedList;
 
+/**
+ * This class represents a linked list of Dice.
+ * Used to represent the dice results in each turn.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 @SuppressWarnings("serial")
 public class DieResults extends LinkedList<Dice> {
 	public DieResults() {

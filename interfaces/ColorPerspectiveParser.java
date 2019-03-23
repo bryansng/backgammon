@@ -4,6 +4,19 @@ import constants.PlayerPerspectiveFrom;
 import game_engine.Settings;
 import javafx.scene.paint.Color;
 
+/**
+ * This interface is used to convert color to pov and vice versa,
+ * implemented by classes that uses static constants from the Color library
+ * but require its equivalence in terms of PlayerPerspectiveFrom or vice versa.
+ * i.e. Color.WHITE -> PlayerPerspectiveFrom.BOTTOM
+ * i.e. PlayerPerspectiveFrom.BOTTOM -> Color.WHITE
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public interface ColorPerspectiveParser {
 	// get the color given its pov.
 	// this method relies on getTopPerspectiveColor() && getBottomPerspectiveColor() in Settings.
