@@ -17,3 +17,13 @@ Aliases
 "/next" = "next"
 "/quit" = "quit"
 "/save" = "save"
+
+Background Music Commands
+/music start  - starts music
+/music pause  - pauses music
+/music stop   - stops music
+/music mute   - mutes music
+/music unmute - unmutes music
+/music next   - plays next track
+/music prev   - plays previous track
+/music random - plays random track

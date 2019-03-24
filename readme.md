@@ -33,6 +33,7 @@ Personally, I prefer Eclipse for Java.
 ## Authors
 * [bryansng](https://github.com/bryansng)
 * [LxEmily](https://github.com/LxEmily)
+* [Abuden](https://github.com/Abuden)
 
 &nbsp;
 ## Acknowledgments
@@ -62,6 +63,40 @@ Personally, I prefer Eclipse for Java.
   For instance, Board used to handle its *functions* (moveCheckers, action methods) and its *initialization* (itself, dices, pips and checkers). Since maintaining code generally happens in the *functions* side of things, it would be nice to separate *functions* and *initialization*. Hence, BoardComponents is the superclass with *initialization* and Board is the subclass that has all the *functions*.
 
 &nbsp;
+## Sprint 3 - Short Documentation
+### Requirements:
+|     | Requirements              | Our interpretation        |
+| --- | ------------------------- | ------------------------- |
+| <ul><li>[x] </li></ul> | App lists legal plays available after player rolls the die. This includes hits, bear offs, and doubles. The format is "#-# #-#" (# for pip numbers, 'Off' for bearing off, 'Bar' for jail, and asterisk to indicate a hit). The list of legal plays does not include duplicate plays, i.e. plays leading to the same board position.  | 👍 Note: Plays are printed vertically down instead of horizontally right. |
+| <ul><li>[x] </li></ul> | App automatically moves then rolls for the next player if there are zero/one possible move(s). App waits to inform player of these automatic events. | Check for possible moves, then call the next function, which calls the roll function internally. App "pauses" to inform players.  |
+| <ul><li>[x] </li></ul> | The displayed list of legal plays are numbered alphabetically, i.e. A, B, ..., Z, AA, AB, ... | Able to translate moves from A to ZZ |
+| <ul><li>[x] </li></ul> | Players may make their moves by typing the corresponding alphabet. The input is case-insensitive, and leading/trailing spaces are allowed. If the input is invalid, app shows error message and prompts player again. | Note: Players can make moves by clicking, "# #" command, "/move # #" command, and typing the corresponding alphabet.  |
+| <ul><li>[x] </li></ul> | Display all plays on the board. | Display plays based on their dice results (makes it neater and easier to identify) |
+| <ul><li>[x] </li></ul> | "cheat" command that causes all checkers given positions for testing purposes. Plays can be made from there. | On "cheat", delete all checkers (logically and visually) on board, then add checkers to the specified positions. If game has started, recalculate the possible moves to play from there. |
+| <ul><li>[x] </li></ul> | Game terminates on "quit". | Done in sprint 1. Both "quit" and "/quit" will terminate the game.  |
+| <ul><li>[x] </li></ul> | On game over, announce winning player. | Game over if a player has exactly 15 checkers at their home. Game over if a player has exactly 15 checkers at their home. Announcement is made on InfoPanel and a dialog prompt. Game exits gameplay mode and enters free-for-all mode.. Game exits gameplay mode and enters free-for-all mode. |
+
+&nbsp;
+### Who did what:
+see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
+
+| Bryan         | Emily         | Braddy        |
+| ------------- | ------------- | ------------- |
+| List legal plays available with correct formatting and without duplicate plays. | "cheat" command, which is possible to play from, for testing purposes. | App automatically moves then rolls for the next player if there are zero/one possible move(s), then waits to inform player of these automatic events. |
+| The displayed list of legal plays are numbered alphabetically, i.e. A, B, ..., Z, AA, AB, ... . | On game over, announce winning player. | Players may make their moves by typing the corresponding alphabet, case-insensitive, whitespace allowed. |
+
+#### Additionally, we also did
+- Added textured backgrounds to the UI.
+- Styled info panel messages.
+- Optimized the app through refactoring and compressing game files. The game should not lag as it progresses.
+- Command panel stores player input history like a terminal (hit up/down to see).
+- Added sounds when checkers are moved, hit, bore on/off.
+- Added background music and associated commands.
+- Added font as a game file so different OSs can see it. Added function for easy reference internally.
+
+&nbsp;
+&nbsp;
+
 ## Sprint 2 - Short Documentation
 ### Requirements:
 |     | Requirements              | Our interpretation        |
