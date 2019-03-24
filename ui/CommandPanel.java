@@ -23,6 +23,7 @@ public class CommandPanel extends TextField {
 		
 		setPromptText("Player inputs text here, then hit Enter\n");
 		setMinHeight(GameConstants.getUIHeight());
+		//setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		setFont(GameConstants.getFont());
 		initListeners();
 	}

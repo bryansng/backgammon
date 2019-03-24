@@ -13,12 +13,14 @@ import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ButtonBar.ButtonData;
+import javafx.scene.effect.DropShadow;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Pair;
@@ -87,7 +89,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 */
 	private void initGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
-		gameplay = new GameplayController(game, infoPnl, bottomPlayer, topPlayer);
+		gameplay = new GameplayController(stage, this, game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		initLayout();
@@ -214,6 +216,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 */
 	public void style() {
 		//setStyle("-fx-font-size: " + GameConstants.FONT_SIZE + "px; -fx-font-family: '" + GameConstants.FONT_FAMILY + "';");
+		setBackground(GameConstants.getTableImage());
 		setPadding(new Insets(10));
 		setVgap(GameConstants.getUIVGap());
 		setHgap(5);
@@ -228,6 +231,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		VBox terminal = new VBox();
 		terminal.getChildren().addAll(infoPnl, cmdPnl);
 		terminal.setAlignment(Pos.CENTER);
+		terminal.setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		
 		getChildren().clear();
 		add(game, 0, 0, 1, 3);

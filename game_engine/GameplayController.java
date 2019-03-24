@@ -2,6 +2,7 @@ package game_engine;
 
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Optional;
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
@@ -18,6 +19,10 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import move.BarToPip;
 import move.Move;
 import move.Moves;
@@ -47,9 +52,14 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private GameComponentsController game;
 	private InfoPanel infoPnl;
 	
-	public GameplayController(GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	private Stage stage;
+	private MainController root;
+	
+	public GameplayController(Stage stage, MainController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
+		this.stage = stage;
+		this.root = root;
 		this.game = game;
 		this.infoPnl = infoPnl;
 		this.map = new HashMap<>();
@@ -149,13 +159,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		
 		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
-			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
-			Home filledHome = game.getMainHome().getFilledHome();
-			if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor())))
-				infoPnl.print("Congratulations, " + topPlayer.getName() + " won.");
-			else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
-				infoPnl.print("Congratulations, " + bottomPlayer.getName() + " won.");
-			reset();
+			handleGameOver();
 		// else, proceed to gameplay.
 		} else {
 			updateMovesAfterMoving();
@@ -587,6 +591,50 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 					}
 				}
 			}
+		}
+	}
+	
+	/**
+	 * Announces game over on infoPnl and dialog prompt, then ask if player wants another game.
+	 */
+	private void handleGameOver() {
+		// Create dialog prompt.
+		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+		dialog.setTitle("Congratulations! Play again?");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		dialog.setGraphic(null);
+		dialog.setContentText("Play again?");
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+		
+		// Output to infoPnl.
+		String winningMsg = "";
+		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
+		Home filledHome = game.getMainHome().getFilledHome();
+		if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor()))) {
+			winningMsg = "Congratulations, " + topPlayer.getName() + " won.";
+			infoPnl.print(winningMsg);
+		}
+		else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor()))) {
+			winningMsg = "Congratulations, " + bottomPlayer.getName() + " won.";
+			infoPnl.print(winningMsg);
+		}		
+		
+		// Auto save game log.
+		infoPnl.saveToFile();
+		
+		// Output to dialog prompt.
+		dialog.setHeaderText(winningMsg);
+		Optional<ButtonType> result = dialog.showAndWait();
+		
+		// Restart game if player wishes,
+		// else exit gameplay mode and enter free-for-all mode.
+		if (ButtonType.OK.equals(result.get())) {
+			infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
+			root.restartGame();
+		} else {
+			infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
+			reset();
 		}
 	}
 	

@@ -67,14 +67,14 @@ Personally, I prefer Eclipse for Java.
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
-| <ul><li>[x] </li></ul> | App lists legal plays available after player rolls the die. This includes hits, bear offs, and doubles. The format is "#-# #-#" (# for pip numbers, 'Off' for bearing off, 'Bar' for jail, and asterisk to indicate a hit). The list of legal plays does not include duplicate plays, i.e. plays leading to the same board position.  | üëç Note: Plays are printed vertically down instead of horizontally right. |
+| <ul><li>[x] </li></ul> | App lists legal plays available after player rolls the die. This includes hits, bear offs, and doubles. The format is "#-# #-#" (# for pip numbers, 'Off' for bearing off, 'Bar' for jail, and asterisk to indicate a hit). The list of legal plays does not include duplicate plays, i.e. plays leading to the same board position.  | Note: Plays are printed vertically down instead of horizontally right. |
 | <ul><li>[x] </li></ul> | App automatically moves then rolls for the next player if there are zero/one possible move(s). App waits to inform player of these automatic events. | Check for possible moves, then call the next function, which calls the roll function internally. App "pauses" to inform players.  |
-| <ul><li>[x] </li></ul> | The displayed list of legal plays are numbered alphabetically, i.e. A, B, ..., Z, AA, AB, ... | Able to translate moves from A to ZZ |
+| <ul><li>[x] </li></ul> | The displayed list of legal plays are numbered alphabetically, i.e. A, B, ..., Z, AA, AB, ... | Able to translate moves from A to ZZ. |
 | <ul><li>[x] </li></ul> | Players may make their moves by typing the corresponding alphabet. The input is case-insensitive, and leading/trailing spaces are allowed. If the input is invalid, app shows error message and prompts player again. | Note: Players can make moves by clicking, "# #" command, "/move # #" command, and typing the corresponding alphabet.  |
-| <ul><li>[x] </li></ul> | Display all plays on the board. | Display plays based on their dice results (makes it neater and easier to identify) |
+| <ul><li>[x] </li></ul> | Display all plays on the board. | Display plays based on their dice results. (looks neater and easier to identify) |
 | <ul><li>[x] </li></ul> | "cheat" command that causes all checkers given positions for testing purposes. Plays can be made from there. | On "cheat", delete all checkers (logically and visually) on board, then add checkers to the specified positions. If game has started, recalculate the possible moves to play from there. |
 | <ul><li>[x] </li></ul> | Game terminates on "quit". | Done in sprint 1. Both "quit" and "/quit" will terminate the game.  |
-| <ul><li>[x] </li></ul> | On game over, announce winning player. | Game over if a player has exactly 15 checkers at their home. Game over if a player has exactly 15 checkers at their home. Announcement is made on InfoPanel and a dialog prompt. Game exits gameplay mode and enters free-for-all mode.. Game exits gameplay mode and enters free-for-all mode. |
+| <ul><li>[x] </li></ul> | On game over, announce winning player. | Game over if a player has exactly 15 checkers at their home. Announcement is made on InfoPanel and a dialog prompt. Game exits gameplay mode and enters free-for-all mode. |
 
 &nbsp;
 ### Who did what:
@@ -104,13 +104,13 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 | <ul><li>[x] </li></ul> | Announce the game.        | Welcome players at application start in Info Panel. Game is announced when players start it. |
 | <ul><li>[x] </li></ul> | Get player names and tell them their checkers' colors. | A dialog to prompt players to input their names and checker colors when they start the game. |
 | <ul><li>[x] </li></ul> | Roll to see who moves first. Roll results are used as starting value. Roll again if dice values are equal. | At game start, roll automatically and prompt players to move based on the rolls. The roll function recursively rolls until the die result are not equal, so to the players, the die result is never equal. |
-| <ul><li>[x] </li></ul> | Allow players to takes turns to roll and move around the board. | üëç |
+| <ul><li>[x] </li></ul> | Allow players to takes turns to roll and move around the board. | üë? |
 | <ul><li>[x] </li></ul> | Rolls are automatic. | All rolls are automatic at start of game ("/start") and change of turn (i.e. "/next"). |
 | <ul><li>[x] </li></ul> | Moves should be entered as "'starting pip' 'ending pip'", e.g. "6 3". | Moves may be made using "/move # #", "# #", or mouse clicks. |
 | <ul><li>[x] </li></ul> | The program returns errors if there are no checkers at the starting pip, if the pip numbers are out of range, or if the command format is invalid. | Errors are returned for the former two. The program echoes whatever is not in the correct command format on the info panel. |
 | <ul><li>[x] </li></ul> | Players are allowed to enter a move again after an error. | Players are allowed to move as long as there are moves left, even in the case of an invalid move. |
 | <ul><li>[x] </li></ul> | Players are only allowed to enter one move at a time. | Move command takes in only 2 arguments, i.e. source and destination, which is only a move. |
-| <ul><li>[x] </li></ul> | The moves do not have to match the dice roll or avoid opponent blocks yet. The program does not need to check that the move is valid yet. | üëç |
+| <ul><li>[x] </li></ul> | The moves do not have to match the dice roll or avoid opponent blocks yet. The program does not need to check that the move is valid yet. | üë? |
 | <ul><li>[x] </li></ul> | When the player enters "next", the current player's turn is over and the other player should then roll and move. | Player enter "/next" or "next" to switch turns. Die is rolled automatically each turn. |
 | <ul><li>[x] </li></ul> | The pip numbers at the edge of the board should be correct for the player who is moving their checkers, i.e. pip numbers change depending on whose move is it. | Depending on the player's perspective, pip numbers automatically change relative to that every "/next". |
 | <ul><li>[x] </li></ul> | Program terminates on "quit". | Done in Sprint 1. Players quit game using "/quit", "quit", or the window close button. |

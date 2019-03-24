@@ -181,6 +181,21 @@ public class GameConstants {
 		}
 		return bg;
 	}
+
+	/**
+	 * Returns the image of the table (Window background).
+	 * @return image of the table.
+	 */
+	public static Background getTableImage() {
+		InputStream input = getFile("img/board/table.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bg;
+	}
 	
 	
 	/**

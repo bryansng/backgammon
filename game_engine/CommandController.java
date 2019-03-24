@@ -359,7 +359,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			while((line = reader.readLine()) != null)
 				s += line + "\n";
 			s +="\n";
-			infoPnl.print(s, MessageType.ANNOUNCEMENT);
+			infoPnl.print(s);
 			reader.close();
 		} catch (IOException e) {
 			e.printStackTrace();
