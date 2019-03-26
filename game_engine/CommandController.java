@@ -65,7 +65,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	public void runCommand(String text, boolean isPlayerInput) {
 		String[] args = text.split(" ");
-		String command = args[0];
+		String command = args[0].toLowerCase();
 		
 		if (command.equals("/move")) {
 			runMoveCommand(args, isPlayerInput);
@@ -404,7 +404,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 */
 	public void runSaveCommand() {
 		if (infoPnl.saveToFile());
-			infoPnl.print("Game log saved to backgammon.txt");
+			infoPnl.print("Game log saved to log.txt");
 	}
 	
 	/**
@@ -436,6 +436,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			infoPnl.print("Incorrect Syntax: Expected /music [play | next | prev | pause | stop | repeat | mute | unmute]", MessageType.ERROR);
 			return;
 		}
+		
+		args[1] = args[1].toLowerCase();
 		
 		if (args[1].equals("random"))
 			musicPlayer.random();
