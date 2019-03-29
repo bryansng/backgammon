@@ -71,6 +71,11 @@ public class PlayerPanel extends HBox implements ColorParser {
 		playerName.setText("Name: " + player.getName());
 	}
 	
+	public void setPlayerScore(Player player, int score) {
+		player.setScore(score);
+		playerScore.setText("Score: " + player.getScore());
+	}
+	
 	public void reset() {
 		playerName.setText("Name: " + player.getName());
 		playerScore.setText("Score: " + player.getScore());

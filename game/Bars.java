@@ -76,12 +76,12 @@ public class Bars extends VBox implements ColorPerspectiveParser {
 	
 	public void highlight(Color color) {
 		Bar bar = getBar(color);
-		if (!bar.isEmpty()) bar.top().setHighlightImage();
+		if (!bar.isEmpty()) bar.getTopChecker().setHighlightImage();
 	}
 	
 	public void unhighlight() {
-		if (!top.isEmpty()) top.top().setNormalImage();
-		if (!bottom.isEmpty()) bottom.top().setNormalImage();
+		if (!top.isEmpty()) top.getTopChecker().setNormalImage();
+		if (!bottom.isEmpty()) bottom.getTopChecker().setNormalImage();
 	}
 	
 	public void reset() {

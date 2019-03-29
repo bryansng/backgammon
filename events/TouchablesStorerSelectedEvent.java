@@ -1,6 +1,6 @@
 package events;
 
-import game.CheckersStorer;
+import game.TouchablesStorer;
 import javafx.event.EventType;
 
 /**
@@ -17,18 +17,18 @@ import javafx.event.EventType;
  * 
  */
 @SuppressWarnings("serial")
-public class CheckersStorerSelectedEvent extends CheckersStorerEvent {
-	public static final EventType<CheckersStorerEvent> STORER_SELECTED = new EventType<>(STORER, "STORER_SELECTED");
+public class TouchablesStorerSelectedEvent extends TouchablesStorerEvent {
+	public static final EventType<TouchablesStorerEvent> STORER_SELECTED = new EventType<>(STORER, "STORER_SELECTED");
 	
-	private final CheckersStorer storerSelected;
+	private final TouchablesStorer storerSelected;
 	
-	public CheckersStorerSelectedEvent(CheckersStorer checkersStorerSelected) {
+	public TouchablesStorerSelectedEvent(TouchablesStorer touchablesStorerSelected) {
 		super(STORER_SELECTED);
-		this.storerSelected = checkersStorerSelected;
+		this.storerSelected = touchablesStorerSelected;
 	}
 	
 	@Override
-	public void invokeHandler(CheckersStorerHandler handler) {
+	public void invokeHandler(TouchablesStorerHandler handler) {
 		handler.onClicked(storerSelected);
 	}
 }

@@ -22,7 +22,6 @@ public class Home extends CheckersStorer {
 		
 		double pointHeight = GameConstants.getPipSize().getHeight();
 		double pointWidth = GameConstants.getPipSize().getWidth();
-		
 		setMinSize(pointWidth, pointHeight);
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);

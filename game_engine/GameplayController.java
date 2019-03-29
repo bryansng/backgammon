@@ -45,7 +45,7 @@ import ui.InfoPanel;
 public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset, IntegerLettersParser {
 	private Moves moves, noDuplicateRollMoves;
 	private HashMap<String, Move> map;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, movesMapped;
+	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, doublingFlag, doubledFlag, maxDoublingFlag, isInTransition, movesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	private int stalemateCount;
 	
@@ -74,6 +74,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		movedFlag = false;
 		firstRollFlag = true;
 		topPlayerFlag = false;
+		doublingFlag = false;
+		doubledFlag = false;
+		maxDoublingFlag = false;
 		movesMapped = false;
 		stalemateCount = 0;
 		map.clear();
@@ -304,22 +307,26 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public Player next() {
 		// this needs to be set first,
 		// if not during wait, players can /next more than once.
+		rolledFlag = false;
 		movedFlag = false;
 		
 		infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
-		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
 		
 		// pause for 2 seconds before "next-ing".
 		if (Settings.ENABLE_NEXT_PAUSE) {
 			Timeline nextPause = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 				nextFunction();
+				isInTransition = false;
 			}));
 			nextPause.setCycleCount(1);
 			nextPause.play();
+			isInTransition = true;
 		} else nextFunction();
 		return pCurrent;
 	}
-	private void nextFunction() {
+	public void nextFunction() {
+		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
+		
 		// swap players.
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
@@ -331,8 +338,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			topPlayerFlag = false;
 		}
 		game.getBoard().swapPipLabels();
-		
-		roll(); // auto roll.
+		if (!isMaxDoubling() || isDoubling()) game.highlightCube();
 	}
 	
 	/**
@@ -360,7 +366,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	/**
-	 * Unhighlight pips based on mode. 
+	 * Unhighlight pips based on mode.
 	 * Used by EventController.
 	 */
 	public void unhighlightPips() {
@@ -373,6 +379,40 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			game.unhighlightAll();
 		}
 	}
+	
+	public void highlightOtherHomeCubeZones() {
+		if (isStarted()) {
+			game.highlightCubeZones(pCurrent.getColor());
+		} else {
+			game.highlightAllPlayersCubeHomes();
+		}
+	}
+	
+	public void highlightBoardCubeZones() {
+		if (isStarted()) {
+			game.getBoard().highlightCubeHome(pCurrent.getColor());
+		} else {
+			game.getBoard().highlightAllCubeHome();
+		}
+	}
+	
+	/*
+	public void unhighlightCubeZones() {
+		// gameplay mode.
+		if (isStarted()) {
+			if (!isRolled() && !isDoubling()) {
+				game.highlightCube();
+			} else if (isDoubling()) {
+				game.highlightCubeZones(pCurrent.getColor());
+			} else if (isDoubled()) {
+				game.unhighlightAllCubeZones();
+			}
+		// free for all mode, i.e. before /start.
+		} else {
+			game.unhighlightAllPlayersCubeHomes();
+		}
+	}
+	*/
 	
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
@@ -443,6 +483,16 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			}
 		}
 		return s;
+	}
+	
+	public void doubling() {
+		if (isDoubling()) {
+			doublingFlag = false;
+			doubledFlag = true;
+		} else {
+			doublingFlag = true;
+			doubledFlag = false;
+		}
 	}
 	
 	/**
@@ -654,25 +704,38 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public boolean isStarted() {
 		return startedFlag;
 	}
-	
 	public boolean isRolled() {
 		return rolledFlag;
 	}
-	
 	public boolean isMoved() {
 		return movedFlag;
 	}
-	
+	public boolean isDoubling() {
+		return doublingFlag;
+	}
+	public boolean isDoubled() {
+		return doubledFlag;
+	}
+	public boolean isMaxDoubling() {
+		return maxDoublingFlag;
+	}
 	public boolean isTopPlayer() {
 		return topPlayerFlag;
 	}
-	
+	public boolean isInTransition() {
+		return isInTransition;
+	}
 	public Moves getValidMoves() {
 		return moves;
 	}
-	
+	public Player getCurrent() {
+		return pCurrent;
+	}
 	public Player getOpponent() {
 		return pOpponent;
+	}
+	public void setIsMaxDoubling(boolean isMaxDoubling) {
+		maxDoublingFlag = isMaxDoubling;
 	}
 	
 	/**

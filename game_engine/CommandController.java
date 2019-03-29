@@ -8,7 +8,11 @@ import constants.MessageType;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
 import game.DieResults;
+import game.DoublingCube;
+import game.DoublingCubeHome;
+import game.Home;
 import game.Pip;
+import game.PlayerPanel;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
@@ -69,10 +73,18 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		
 		if (command.equals("/move")) {
 			runMoveCommand(args, isPlayerInput);
+		} else if (command.equals("/movecube")) {
+			runMoveCubeCommand(args);
 		} else if (command.equals("/roll")) {
 			runRollCommand(args);
 		} else if (command.equals("/start")) {
 			runStartCommand();
+		} else if (command.equals("/double")) {
+			runDoubleCommand();
+		} else if (command.equals("/accept")) {
+			runDoubleAcceptCommand();
+		} else if (command.equals("/decline")) {
+			runDoubleDeclineCommand();
 		} else if (command.equals("/next")) {
 			runNextCommand();
 		} else if (command.equals("/help")) {
@@ -108,7 +120,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * where fromBar is the bar color.
 	 * where toHome is the home color.
 	 */
-	public void runMoveCommand(String[] args, boolean isPlayerInput) {
+	private void runMoveCommand(String[] args, boolean isPlayerInput) {
 		// error checking.
 		if (args.length != 3) {
 			infoPnl.print("Incorrect syntax: expected /move fro to.", MessageType.ERROR);
@@ -140,19 +152,23 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		}
 		
 		// validate moves.
-		// isRolled only if it started.
-		if (gameplay.isRolled()) {
-			if (!gameplay.isMoved()) {
-				game.unhighlightAll();
-				if (gameplay.isValidMove(fro, to)) {
-					infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
+		if (gameplay.isStarted()) {
+			if (gameplay.isRolled()) {
+				if (!gameplay.isMoved()) {
+					game.unhighlightAll();
+					if (gameplay.isValidMove(fro, to)) {
+						infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
+					} else {
+						game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
+						infoPnl.print("You can only move highlighted checkers to highlighted pips.", MessageType.ERROR);
+						return;
+					}
 				} else {
-					game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
-					infoPnl.print("You can only move highlighted checkers to highlighted pips.", MessageType.ERROR);
+					infoPnl.print("You have made your move.", MessageType.ERROR);
 					return;
 				}
 			} else {
-				infoPnl.print("You have made your move.", MessageType.ERROR);
+				infoPnl.print("You must roll the dice to move.", MessageType.ERROR);
 				return;
 			}
 		}
@@ -270,8 +286,16 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * 1 is the player with the perspective from the bottom, dices will be on the left.
 	 * 2 is the player with the perspective from the top, dices will be on the right.
 	 */
-	public void runRollCommand(String[] args) {
+	private void runRollCommand(String[] args) {
 		if (gameplay.isStarted()) {
+			if (gameplay.isInTransition()) {
+				handleInTransitionError();
+				return;
+			} else if (gameplay.isDoubling()) {
+				handleDoublingError();
+				return;
+			}
+			
 			if (!gameplay.isRolled()) {
 				infoPnl.print("Rolling...", MessageType.ANNOUNCEMENT);
 				gameplay.roll();
@@ -321,7 +345,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /start
 	 * Enters into gameplay mode, i.e. start game.
 	 */
-	public void runStartCommand() {
+	private void runStartCommand() {
 		if (!gameplay.isStarted()) {
 			infoPnl.print("Starting game...", MessageType.ANNOUNCEMENT);
 			root.restartGame();
@@ -334,7 +358,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /next
 	 * Move on to the next player's turn.
 	 */
-	public void runNextCommand() {
+	private void runNextCommand() {
 		if (gameplay.isStarted()) {
 			if (gameplay.isMoved()) {
 				gameplay.next();
@@ -347,10 +371,180 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	}
 	
 	/**
+	 * Command: /double
+	 * Throws the doubling cube on the board,
+	 * Opponent player can choose to accept or decline.
+	 */
+	private void runDoubleCommand() {
+		if (gameplay.isInTransition()) {
+			handleInTransitionError();
+			return;
+		} else if (gameplay.isDoubling()) {
+			handleDoublingError();
+			return;
+		}
+		
+		// allowed to double if started, but not rolled.
+		if (gameplay.isStarted()) {
+			if (!gameplay.isRolled()) {
+				if (!gameplay.isMaxDoubling()) {
+					// move cube from its box to player's board.
+					if (!game.getCubeHome().isEmpty()) {
+						runCommand("/movecube box " + parseColor(gameplay.getCurrent().getColor()));
+					// move cube from player's home to player's board.
+					} else if (gameplay.getCurrent().getHasCube()) {
+						String pColorString = parseColor(gameplay.getCurrent().getColor());
+						runCommand("/movecube " + pColorString + " " + pColorString);
+						DoublingCube cube = game.getCube();
+						cube.doubleDoublingCube();
+						gameplay.setIsMaxDoubling(cube.isMaxDoubling());
+					} else {
+						infoPnl.print("Unable to propose doubling the stakes, you do not possess the doubling cube.", MessageType.ERROR);
+						return;
+					}
+					gameplay.doubling();
+					
+					// swap turns.
+					infoPnl.print(gameplay.getCurrent().getName() + " has proposed doubling the stakes.", MessageType.ANNOUNCEMENT);
+					gameplay.nextFunction();
+	
+					// Opponent player can either choose to accept or decline doubling cube.
+					infoPnl.print("Your mission " + gameplay.getCurrent().getName() + ", should you choose to accept it. Is to accept this doubling cube and defeat your enemies.");
+					infoPnl.print("Enter yes/no");
+				} else {
+					infoPnl.print("Unable to propose doubling the stakes, stakes is maxed.", MessageType.ERROR);
+				}
+			} else {
+				infoPnl.print("Doubling allowed only before rolling.", MessageType.ERROR);
+			}
+		} else {
+			infoPnl.print("Game not started. Enter \"/start\" to start the game.", MessageType.ERROR);
+		}
+	}
+	
+	private void handleDoublingError() {
+		infoPnl.print("Game will not proceed until you accept or decline the doubling cube.", MessageType.ERROR);
+	}
+	
+	private void handleInTransitionError() {
+		infoPnl.print("Hold on cowboy, wait out the delay.", MessageType.ERROR);
+	}
+	
+	/**
+	 * Command: /accept
+	 * Swap turns back to proposer.
+	 * Move doubling cube from proposer's half board to opponent's home.
+	 * Roll for the proposer.
+	 */
+	private void runDoubleAcceptCommand() {
+		// checks are made to /accept beforehand.
+		if (gameplay.isDoubling()) {
+			infoPnl.print("Doubling cube accepted, game continues.", MessageType.ANNOUNCEMENT);
+			gameplay.nextFunction();
+			runCommand("/movecube " + parseColor(gameplay.getCurrent().getColor()) + " " + parseColor(gameplay.getOpponent().getColor()));
+			gameplay.getCurrent().setHasCube(false);
+			gameplay.getOpponent().setHasCube(true);
+			gameplay.doubling();
+			gameplay.roll();
+		}
+	}
+	
+	/**
+	 * Command: /decline
+	 * Places doubling cube back into its box.
+	 * Allocates score to the proposer.
+	 * Restarts the game. 
+	 */
+	private void runDoubleDeclineCommand() {
+		// checks are made to /decline beforehand.
+		if (gameplay.isDoubling()) {
+			infoPnl.print("Doubling cube declined, restarting game.", MessageType.ANNOUNCEMENT);
+			
+			// round end, allocate points as required.
+			Player winner = gameplay.getOpponent();
+			DoublingCube cube = game.getBoard().getHomeCubeIsIn().getTopCube();
+			PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
+			winnerPnl.setPlayerScore(winner, winner.getScore() + game.getBoard().getGameScore()*cube.getIntermediateGameMultiplier());
+			infoPnl.print("Starting new game...", MessageType.ANNOUNCEMENT);
+			root.restartGame();
+		}
+	}
+	
+	// used internally to move the doubling cube around.
+	private void runMoveCubeCommand(String[] args) {
+		// error checking.
+		if (args.length != 3) {
+			infoPnl.print("Incorrect syntax: expected /movecube fro to.", MessageType.ERROR);
+			return;
+		}
+		
+		String fro = args[1];
+		String to = args[2];
+
+		if (equalGameColors(fro)) {
+			if (game.getBoard().isCubeInBoard()) {
+				DoublingCubeHome fromCubeHome = game.getBoard().getCubeHomeOfPlayer(parseColor(fro));
+				DoublingCube cube = fromCubeHome.popCube();
+				// move cube from board to box.
+				if (to.equals("box")) {
+					DoublingCubeHome toCubeHome = game.getCubeHome();
+					toCubeHome.addThisCube(cube);
+					cube.resetRotation();
+					infoPnl.print("(Cube Move) Is valid board to box.", MessageType.DEBUG);
+				// move cube from board to player's home.
+				} else if (equalGameColors(to)) {
+					Home toHome = game.getOtherHome().getHome(parseColor(to));
+					toHome.addThisCube(cube);
+					cube.resetRotation();
+					infoPnl.print("(Cube Move) Is valid board to player's home.", MessageType.DEBUG);
+				}
+			} else if (game.isCubeInHome()) {
+				Home fromHome = game.getOtherHome().getHome(parseColor(fro));
+				DoublingCube cube = fromHome.popCube();
+				// move cube from player's home to board.
+				if (equalGameColors(to)) {
+					DoublingCubeHome toCubeHome = game.getBoard().getCubeHomeOfPlayer(parseColor(to));
+					toCubeHome.addThisCube(cube);
+					cube.rotateOnBoard();
+					game.getBoard().drawCubeHome();
+					infoPnl.print("(Cube Move) Is valid player's home to board.", MessageType.DEBUG);
+				// NOT TESTED SINCE NOT IN USE.
+				// move cube from player's home to box.
+				} else if (to.equals("box")) {
+					DoublingCubeHome toCubeHome = game.getCubeHome();
+					toCubeHome.addThisCube(cube);
+					cube.resetRotation();
+					infoPnl.print("(Cube Move) Is valid player's home to box", MessageType.DEBUG);
+				}
+			}
+		} else if (fro.equals("box")) {
+			DoublingCubeHome fromCubeHome = game.getCubeHome();
+			if (!fromCubeHome.isEmpty()) {
+				DoublingCube cube = fromCubeHome.popCube();
+				// move cube from box to board.
+				if (equalGameColors(to)) {
+					DoublingCubeHome toCubeHome = game.getBoard().getCubeHomeOfPlayer(parseColor(to));
+					toCubeHome.addThisCube(cube);
+					cube.rotateOnBoard();
+					game.getBoard().drawCubeHome();
+					infoPnl.print("(Cube Move) Is valid box to board.", MessageType.DEBUG);
+				}
+				// NOT WRITTEN SINCE NOT IN USE,
+				// plus finding a hard time to differentiate board/player's home's Color.
+				// move cube from box to player's home.
+			}
+		}
+	}
+	
+	private boolean equalGameColors(String colorString) {
+		return colorString.equals(parseColor(Settings.getBottomPerspectiveColor())) || colorString.equals(parseColor(Settings.getTopPerspectiveColor()));
+	}
+	
+	/**
 	 * Command: /help
 	 * Displays help commands on info panel.
 	 */
-	public void runHelpCommand() {
+	private void runHelpCommand() {
 		String s = "\n";
 		String line = null;
 		
@@ -370,7 +564,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /name colorPlayerRepresents newName
 	 * Changes player name.
 	 */
-	public void runNameCommand(String[] args) {
+	private void runNameCommand(String[] args) {
 		if (args.length != 3) {
 			infoPnl.print("Incorrect syntax: expected /name color newName.", MessageType.ERROR);
 			return;
@@ -378,12 +572,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		
 		String color = args[1].toLowerCase();
 		String playerName = args[2];
-		if (color.equals("white")) {
-			game.getBottomPlayerPanel().setPlayerName(bottomPlayer, playerName);
-			infoPnl.print("Player with white checkers is now " + "\"" + playerName + "\".");
-		} else if (color.equals("black")) {
-			game.getTopPlayerPanel().setPlayerName(topPlayer, playerName);
-			infoPnl.print("Player with black checkers is now " + "\"" + playerName + "\".");
+		if (parseColor(color).equals(Settings.getTopPerspectiveColor())) {
+			game.getPlayerPanel(parseColor(color)).setPlayerName(topPlayer, playerName);
+			infoPnl.print("Player with " + parseColor(topPlayer.getColor()) + " checkers is now " + "\"" + playerName + "\".");
+		} else if (parseColor(color).equals(Settings.getBottomPerspectiveColor())) {
+			game.getPlayerPanel(parseColor(color)).setPlayerName(bottomPlayer, playerName);
+			infoPnl.print("Player with " + parseColor(bottomPlayer.getColor()) + " checkers is now " + "\"" + playerName + "\".");
 		} else {
 			infoPnl.print("Incorrect syntax: expected white or black color in /name color newName.", MessageType.ERROR);
 		}
@@ -393,7 +587,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /clear
 	 * Appends newlines to infoPnl to "clear" it out.
 	 */
-	public void runClearCommand() {
+	private void runClearCommand() {
 		infoPnl.print("Clearing panel...");
 		infoPnl.clear();
 	}
@@ -411,7 +605,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /reset
 	 * Resets everything including player info.
 	 */
-	public void runResetCommand() {
+	private void runResetCommand() {
 		root.resetApplication();
 	}	
 	
@@ -419,7 +613,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /restart
 	 * Starts a new instance of the game.
 	 */
-	public void runRestartCommand() {
+	private void runRestartCommand() {
 		root.restartGame();
 	}
 	
@@ -427,7 +621,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /quit
 	 * Saves game log and prompts player to quit before quitting application.
 	 */
-	public void runQuitCommand() {
+	private void runQuitCommand() {
 		stage.fireEvent(new WindowEvent(infoPnl.getScene().getWindow(), WindowEvent.WINDOW_CLOSE_REQUEST));
 	}
 	
@@ -465,7 +659,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Command: /cheat
 	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
 	 */
-	public void runCheatCommand() {
+	private void runCheatCommand() {
 		game.getBoard().removeCheckers();
 		initCheatCheckers();
 		if (gameplay.isStarted()) gameplay.recalculateMoves();
@@ -512,7 +706,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private int checkerPos = 24;
 	private int step = 1;
 	private Timeline hitTl, bearOnTL, bearOffTL, traversalTl;
-	public void runTestCommand() {
+	private void runTestCommand() {
 		game.reset();
 		
 		// test hit.

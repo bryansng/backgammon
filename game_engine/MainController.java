@@ -107,6 +107,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	}
 	
 	public void resetGame() {
+		bottomPlayer.setHasCube(false);
+		topPlayer.setHasCube(false);
 		game.reset();
 		gameplay.reset();
 		cmd.reset();

@@ -13,12 +13,12 @@ import javafx.event.EventType;
  *
  */
 @SuppressWarnings("serial")
-public abstract class CheckersStorerEvent extends Event {
-	public static final EventType<CheckersStorerEvent> STORER = new EventType<>(ANY);
+public abstract class TouchableEvent extends Event {
+	public static final EventType<TouchableEvent> TOUCHABLE = new EventType<>(ANY, "TOUCHABLE");
 
-	public CheckersStorerEvent(EventType<? extends Event> eventType) {
+	public TouchableEvent(EventType<? extends Event> eventType) {
 		super(eventType);
 	}
 	
-	public abstract void invokeHandler(CheckersStorerHandler handle);
+	public abstract void invokeHandler(TouchableHandler handle);
 }

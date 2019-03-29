@@ -1,6 +1,6 @@
 package events;
 
-import game.CheckersStorer;
+import game.Touchable;
 import javafx.event.EventHandler;
 
 /**
@@ -12,11 +12,11 @@ import javafx.event.EventHandler;
  * @author Braddy Yeoh, 17357376
  *
  */
-public abstract class CheckersStorerHandler implements EventHandler<CheckersStorerEvent> {
-	public abstract void onClicked(CheckersStorer checkersStorerSelected);
+public abstract class TouchableHandler implements EventHandler<TouchableEvent> {
+	public abstract void onClicked(Touchable touchableSelected);
 	
 	@Override
-	public void handle(CheckersStorerEvent event) {
+	public void handle(TouchableEvent event) {
 		event.invokeHandler(this);
 	}
 }

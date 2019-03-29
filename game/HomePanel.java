@@ -22,27 +22,35 @@ import javafx.scene.paint.Color;
  *
  */
 public class HomePanel extends BorderPane {
+	private boolean isMainHome;
 	private Home top;
 	private Home bottom;
+	private DoublingCubeHome cubeHome;
 	
 	public HomePanel() {
 		super();
+		// set as main home by default,
+		// so doubling cube doesn't occur at main home.
+		isMainHome = true;
+		
 		double halfBoardHeight = GameConstants.getHalfBoardSize().getHeight();
 		double pointWidth = GameConstants.getPipSize().getWidth();
-		
 		setMinSize(pointWidth, halfBoardHeight);
 		setStyle("-fx-background-color: transparent");
 		initHomes();
+		drawHomes();
 	}
 
 	/**
 	 * Initializes the individual homes and add them to HomePanel.
 	 */
-	public void initHomes() {
+	private void initHomes() {
 		top = new Home(Settings.getTopPerspectiveColor());
 		bottom = new Home(Settings.getBottomPerspectiveColor());
+	}
+	
+	private void drawHomes() {
 		top.setRotate(180);
-		
 		double margin = GameConstants.getHomeMargin();
 		
 		setMargin(top, new Insets(margin));
@@ -52,6 +60,26 @@ public class HomePanel extends BorderPane {
 		
 		setTop(top);
 		setBottom(bottom);
+	}
+	
+	private void initDoubleCube() {
+		// if not main home, we add a box to store the doubling cube.
+		if (!isMainHome) {
+			cubeHome = new DoublingCubeHome();
+			drawDoubleCubeHome();
+		}
+	}
+	
+	private void drawDoubleCubeHome() {
+		double margin = GameConstants.getHomeMargin();
+		setMargin(cubeHome, new Insets(margin));
+		setAlignment(cubeHome, Pos.CENTER);
+		
+		setCenter(cubeHome);
+	}
+	
+	public DoublingCubeHome getCubeHome() {
+		return cubeHome;
 	}
 
 	/**
@@ -91,13 +119,32 @@ public class HomePanel extends BorderPane {
 		getHome(color).highlight();
 	}
 	
+	public void highlight() {
+		top.highlight();
+		bottom.highlight();
+		if (!isMainHome) cubeHome.highlight();
+	}
+	
 	public void unhighlight() {
 		top.unhighlight();
 		bottom.unhighlight();
+		if (!isMainHome) cubeHome.unhighlight();
+	}
+	
+	public void setAsMainHome(boolean isMainHome) {
+		this.isMainHome = isMainHome;
+		initDoubleCube();
+	}
+	
+	public boolean isMainHome() {
+		return isMainHome;
 	}
 	
 	public void reset() {
 		top.reset();
 		bottom.reset();
+		if (!isMainHome) {
+			cubeHome.reset();
+		}
 	}
 }

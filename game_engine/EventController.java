@@ -3,10 +3,11 @@ package game_engine;
 import java.util.Optional;
 import constants.GameConstants;
 import constants.MessageType;
-import events.CheckersStorerHandler;
-import events.CheckersStorerSelectedEvent;
+import events.TouchablesStorerHandler;
+import events.TouchablesStorerSelectedEvent;
 import game.Bar;
-import game.CheckersStorer;
+import game.DoublingCubeHome;
+import game.TouchablesStorer;
 import game.Home;
 import game.Pip;
 import interfaces.ColorParser;
@@ -59,39 +60,97 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	}
 
 	private void initGameListeners() {
-		// Exit pip and bar selection mode when any part of the game board is clicked.
+		// Exit selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
+			// reshow the dices on the board.
+			if (gameplay.isStarted() && !gameplay.isRolled() && !game.isCubeInHome()) {
+				// if box or player's home clicked, 
+				if (isCubeHomeSelectionMode || isHomeSelectionMode) {
+					game.getBoard().redrawDices(gameplay.getCurrent().getColor());
+				}
+			} else {
+				game.getBoard().redrawDices();
+			}
+			
 			game.unhighlightAll();
 			isPipSelectionMode = false;
 			isBarSelectionMode = false;
-
-			// highlight the possible moves if player hasn't move.
-			if (gameplay.isStarted() && !gameplay.isMoved()) {
-				game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
+			isHomeSelectionMode = false;
+			isCubeHomeSelectionMode = false;
+			
+			if (gameplay.isStarted()) {
+				if (!gameplay.isRolled()) {
+					if (!gameplay.isMaxDoubling() || gameplay.isDoubling()) {
+						game.highlightCube();
+					}
+				// highlight the possible moves if player hasn't move.
+				} else if (!gameplay.isMoved()) {
+					game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
+				}
 			}
 		});
-
-		initCheckersStorersListeners();
+		
+		initTouchableListeners();
+		initTouchablesStorersListeners();
 	}
+	
+	private void initTouchableListeners() {
+		//root.addEventHandler(TouchableSelectedEvent.TOUCHABLE_SELECTED, touchableHandler);
+	}
+	
+	/*
+	TouchableHandler touchableHandler = new TouchableHandler() {
+		@Override
+		public void onClicked(Touchable object) {
+			if (object instanceof DoublingCube) {
+				infoPnl.print("Doubling Cube selected.", MessageType.DEBUG);
 
-	private void initCheckersStorersListeners() {
-		root.addEventHandler(CheckersStorerSelectedEvent.STORER_SELECTED, checkersStorerHandler);
+				// if cube at its box.
+				if (!game.getOtherHome().getCubeHome().isEmpty()) {
+					
+				} else if (!game) {
+					
+				}
+				
+				if (gameplay.isStarted()) {
+					//  
+					if (!gameplay.isDoubling()) {
+						// highlight cube box.
+						game.getOtherHome().getCubeHome().highlight();
+					}
+					
+					game.getOtherHome().getHome(gameplay.getCurrent().getColor()).highlight();
+				} else {
+					// highlight player's other homes.
+					game.getOtherHome().getHome(Settings.getBottomPerspectiveColor()).highlight();
+					game.getOtherHome().getHome(Settings.getTopPerspectiveColor()).highlight();
+				}
+				isCubeSelectionMode = true;
+			}
+		}
+	};
+	*/
+	
+	private void initTouchablesStorersListeners() {
+		root.addEventHandler(TouchablesStorerSelectedEvent.STORER_SELECTED, touchablesStorerHandler);
 	}
 
 	/**
 	 * Event handler for all checker storers (pips, bars, homes).
-	 * Separated from initCheckersStorersListeners() for easier removal.
+	 * Separated from initTouchablesStorersListeners() for easier removal.
 	 */
 	private boolean isPipSelectionMode = false;
 	private boolean isBarSelectionMode = false;
-	private CheckersStorer storerSelected;
-	CheckersStorerHandler checkersStorerHandler = new CheckersStorerHandler() {
+	private boolean isHomeSelectionMode = false;
+	private boolean isCubeHomeSelectionMode = false;
+	private TouchablesStorer storerSelected;
+	TouchablesStorerHandler touchablesStorerHandler = new TouchablesStorerHandler() {
 		@Override
-		public void onClicked(CheckersStorer object) {
+		public void onClicked(TouchablesStorer object) {
 			// pip selected, basis for fromPip or toPip selection.
 			if (object instanceof Pip) {
-				// neither pip nor bar selected, basis for fromPip selection.
-				if (!isPipSelectionMode && !isBarSelectionMode) {
+				// nothing selected, basis for fromPip selection.
+				if (!isInSelectionMode()) {
 					storerSelected = object;
 					int fromPip = ((Pip) storerSelected).getPipNumber();
 					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
@@ -99,25 +158,20 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 						gameplay.highlightPips(fromPip);
 						isPipSelectionMode = true;
 						infoPnl.print("Pip clicked is: " + gameplay.correct(fromPip) + ".", MessageType.DEBUG);
-
 					} else {
 						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
 					}
-				// either pip or bar selected, basis for toPip or toBar selection.
-				} else {
-					// prevent moving checkers from pip to bar.
-					// i.e select pip, to bar.
+				// either pip or bar selected, basis for toPip selection.
+				} else if (isPipSelectionMode || isBarSelectionMode) {
 					int toPip = ((Pip) object).getPipNumber();
-
+					
 					if (isPipSelectionMode) {
 						int fromPip = ((Pip) storerSelected).getPipNumber();
-						
 						cmd.runCommand("/move " + fromPip + " " + toPip);
 					} else if (isBarSelectionMode) {
 						String fromBar = parseColor(((Bar) storerSelected).getColor());
 						cmd.runCommand("/move " + fromBar + " " + toPip);
 					}
-					
 					gameplay.unhighlightPips();
 					isPipSelectionMode = false;
 					isBarSelectionMode = false;
@@ -125,7 +179,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			// bar selected, basis for fromBar selection.
 			} else if (object instanceof Bar) {
 				// prevent entering into both pip and bar selection mode.
-				if (!isPipSelectionMode) {
+				if (!isInSelectionMode()) {
 					storerSelected = object;
 					String fromBar = parseColor(((Bar) storerSelected).getColor());
 					int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(parseColor(fromBar)));
@@ -138,9 +192,10 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
 					}
 				}
-			// home selected, basis for toHome selection.
+			// home selected, basis for fromHome or toHome selection.
 			} else if (object instanceof Home) {
-				if (isPipSelectionMode || isBarSelectionMode) {
+				// some storer selected, basis for toHome selection.
+				if (isPipSelectionMode || isBarSelectionMode || isCubeHomeSelectionMode) {
 					String toHome = parseColor(((Home) object).getColor());
 					if (isPipSelectionMode) {
 						int fromPip = ((Pip) storerSelected).getPipNumber();
@@ -148,20 +203,103 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					} else if (isBarSelectionMode) {
 						String fromBar = parseColor(((Bar) storerSelected).getColor());
 						cmd.runCommand("/move " + fromBar + " " + toHome);
+					} else if (isCubeHomeSelectionMode) {
+						if (gameplay.isStarted()) {
+							cmd.runCommand("/accept");
+						} else {
+							DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
+							cmd.runCommand("/movecube " + parseColor(fromCubeHome.getColor()) + " " + toHome);
+						}
 					}
-					
 					gameplay.unhighlightPips();
+					game.unhighlightAllPlayersCubeHomes();
 					isPipSelectionMode = false;
 					isBarSelectionMode = false;
+					isCubeHomeSelectionMode = false;
+				// home not selected, basis for fromHome selection.
+				// used to select the doubling cube.
+				} else {
+					if (!isInSelectionMode()) {
+						if (!gameplay.isMaxDoubling() && !gameplay.isRolled()) {
+							// fromHome consideration only if its a doubling cube.
+							storerSelected = object;
+							Home fromHome = (Home) storerSelected;
+							if (fromHome.getTopCube() != null) {
+								gameplay.highlightBoardCubeZones();
+								isHomeSelectionMode = true;
+							}
+						}
+					}
 				}
-				infoPnl.print("Home clicked.", MessageType.DEBUG);
+			// doubling cube home selected, basis for (from box to Board) or (from Board to box/home) selection.
+			} else if (object instanceof DoublingCubeHome) {
+				// player's home selected, basis for toBoard selection. 
+				if (isHomeSelectionMode) {
+					DoublingCubeHome toCubeHome = (DoublingCubeHome) object;
+					if (toCubeHome.isOnBoard()) {
+						Home fromHome = (Home) storerSelected;
+						if (gameplay.isStarted()) {
+							cmd.runCommand("/double");
+						} else {
+							cmd.runCommand("/movecube " + parseColor(fromHome.getColor()) + " " + parseColor(toCubeHome.getColor()));
+						}
+					}
+					//gameplay.unhighlightCubeZones();
+					game.getBoard().unhighlightAllCubeHome();
+					isHomeSelectionMode = false;
+				// no cube home selected, basis for fromCubeHome selection.
+				} else if (!isInSelectionMode()) {
+					if (!gameplay.isRolled()) {
+						storerSelected = object;
+						DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
+						
+						// check if the doubling cube home has the doubling cube.
+						if (!fromCubeHome.isEmpty()) {
+							// cube home selected is on board.
+							if (fromCubeHome.isOnBoard()) {
+								gameplay.highlightOtherHomeCubeZones();
+							// cube home selected is in its box.
+							} else {
+								// highlight board.
+								gameplay.highlightBoardCubeZones();
+							}
+							isCubeHomeSelectionMode = true;
+						}
+					}
+				// cube home selected, basis for toCubeHome selection.
+				// i.e. cube box to board's cube home, or vice versa.
+				} else if (isCubeHomeSelectionMode) {
+					DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
+					DoublingCubeHome toCubeHome = (DoublingCubeHome) object;
+					
+					// cube box to board.
+					if (!fromCubeHome.isOnBoard() && toCubeHome.isOnBoard()) {
+						if (gameplay.isStarted()) {
+							cmd.runCommand("/double");
+						} else {
+							cmd.runCommand("/movecube box " + parseColor(toCubeHome.getColor()));
+						}
+					// board to cube box.
+					} else if (fromCubeHome.isOnBoard() && !toCubeHome.isOnBoard()) {
+						if (gameplay.isStarted()) {
+							cmd.runCommand("/decline");
+						} else {
+							cmd.runCommand("/movecube " + parseColor(fromCubeHome.getColor()) + " box");
+						}
+					}
+					game.unhighlightAllPlayersCubeHomes();
+					game.getBoard().unhighlightAllCubeHome();
+					isCubeHomeSelectionMode = false;
+				}
 			} else {
 				infoPnl.print("Other instances of checkersStorer were clicked.", MessageType.DEBUG);
 			}
 		}
-		
-		//animateMove(value1, value2);
 	};
+	
+	public boolean isInSelectionMode() {
+		return isPipSelectionMode || isBarSelectionMode || isCubeHomeSelectionMode || isHomeSelectionMode;
+	}
 
 	/**
 	 * Manages all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
@@ -192,14 +330,20 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand("/move " + text, true);
 			} else if (gameplay.isMapped() && gameplay.isKey(text.toUpperCase().trim())) {
 				cmd.runCommand(gameplay.getMapping(text.toUpperCase().trim()));
-			} else if (text.equals("quit")) {
-				cmd.runCommand("/quit");
-			} else if (text.equals("save")) {
-				cmd.runCommand("/save");
+			} else if (text.equals("double")) {
+				cmd.runCommand("/double");
+			} else if (text.equals("yes") && gameplay.isDoubling()) {
+				cmd.runCommand("/accept");
+			} else if (text.equals("no") && gameplay.isDoubling()) {
+				cmd.runCommand("/decline");
 			} else if (text.equals("next")) {
 				cmd.runCommand("/next");
 			} else if (text.equals("cheat")) {
 				cmd.runCommand("/cheat");
+			} else if (text.equals("save")) {
+				cmd.runCommand("/save");
+			} else if (text.equals("quit")) {
+				cmd.runCommand("/quit");
 			} else if (text.trim().isEmpty()) {
 				// ignores if string empty or whitespace only.
 			} else {
@@ -249,6 +393,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 		dieState = 2;
 		isPipSelectionMode = false;
 		isBarSelectionMode = false;
+		isHomeSelectionMode = false;
+		isCubeHomeSelectionMode = false;
 		storerSelected = null;
 	}
 }

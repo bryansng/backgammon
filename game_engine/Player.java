@@ -17,13 +17,19 @@ public class Player implements ColorPerspectiveParser {
 	private String name;
 	private int score;
 	private Color color;
+	private boolean hasCube;
 	private PlayerPerspectiveFrom pov;
 	
 	public Player(PlayerPerspectiveFrom pov) {
-		this.name = Settings.getDefaultPlayerName(pov);
-		this.score = 0;
-		this.color = getColor(pov);
 		this.pov = pov;
+		this.color = getColor(pov);
+		reset();
+	}
+	
+	public void reset() {
+		name = Settings.getDefaultPlayerName(pov);
+		hasCube = false;
+		score = 0;
 	}
 	
 	public String getName() {
@@ -42,6 +48,10 @@ public class Player implements ColorPerspectiveParser {
 		return pov;
 	}
 	
+	public boolean getHasCube() {
+		return hasCube;
+	}
+	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -54,8 +64,7 @@ public class Player implements ColorPerspectiveParser {
 		this.color = color;
 	}
 	
-	public void reset() {
-		name = Settings.getDefaultPlayerName(pov);
-		score = 0;
+	public void setHasCube(boolean hasCube) {
+		this.hasCube = hasCube;
 	}
 } 

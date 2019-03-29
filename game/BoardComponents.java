@@ -6,7 +6,6 @@ import constants.PlayerPerspectiveFrom;
 import constants.Quadrant;
 import game_engine.Player;
 import game_engine.Settings;
-import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 
@@ -24,7 +23,8 @@ import javafx.scene.paint.Color;
 public class BoardComponents extends HBox {
 	protected final int MAXPIPS = GameConstants.NUMBER_OF_PIPS;
 	protected Pip[] pips;
-	protected BorderPane leftBoard, rightBoard;
+	protected HalfBoard leftBoard, rightBoard;
+	protected DoublingCubeHome leftCubeHome, rightCubeHome;
 	protected BoardQuadrant quad1, quad2, quad3, quad4, whiteQuad, blackQuad;
 	protected LinkedList<BoardQuadrant> quads;
 	protected Dices leftDices, rightDices, dices;
@@ -43,8 +43,16 @@ public class BoardComponents extends HBox {
 		leftBoard = new HalfBoard();
 		rightBoard = new HalfBoard();
 		getChildren().addAll(leftBoard, rightBoard);
+		initCubeHomes();
 		initDices();
 		initPips();
+	}
+	
+	private void initCubeHomes() {
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			rightCubeHome = new DoublingCubeHome(false, Color.WHITE);
+			leftCubeHome = new DoublingCubeHome(false, Color.BLACK);
+		}
 	}
 	
 	/**
@@ -462,12 +470,53 @@ public class BoardComponents extends HBox {
 	// get home quad of the player, based on player's color.
 	private BoardQuadrant getHomeQuadOfPlayer(Player player) {
 		BoardQuadrant pQuad = null;
-		if (player.getColor().equals(Color.WHITE)) {
-			pQuad = whiteQuad;
-		} else if (player.getColor().equals(Color.BLACK)) {
-			pQuad = blackQuad;
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			if (player.getColor().equals(Color.WHITE)) {
+				pQuad = whiteQuad;
+			} else if (player.getColor().equals(Color.BLACK)) {
+				pQuad = blackQuad;
+			}
 		}
 		return pQuad;
+	}
+
+	// get dices of the player, based on player's color.
+	public Dices getDicesOfPlayer(Color color) {
+		Dices theDices = null;
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			if (color.equals(Color.WHITE)) {
+				theDices = rightDices;
+			} else if (color.equals(Color.BLACK)) {
+				theDices = leftDices;
+			}
+		}
+		return theDices;
+	}
+	
+	// get half board of the player, based on player's color.
+	public HalfBoard getHalfBoardOfPlayer(Color color) {
+		HalfBoard hBoard = null;
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			if (color.equals(Color.WHITE)) {
+				hBoard = rightBoard;
+			} else if (color.equals(Color.BLACK)) {
+				hBoard = leftBoard;
+			}
+		}
+		return hBoard;
+	}
+
+	// get cube home of the player, based on player's color.
+	public DoublingCubeHome getCubeHomeOfPlayer(Color color) {
+		DoublingCubeHome cubeHome = null;
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			if (color.equals(Color.WHITE)) {
+				cubeHome = rightCubeHome;
+			} else if (color.equals(Color.BLACK)) {
+				cubeHome = leftCubeHome;
+			}
+		}
+		return cubeHome;
 	}
 	
 	/**
@@ -524,5 +573,7 @@ public class BoardComponents extends HBox {
 		if (isLabelsFlipped) swapPipLabels();
 		
 		dices.reset();
+		leftCubeHome.reset();
+		rightCubeHome.reset();;
 	}
 }

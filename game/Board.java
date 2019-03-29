@@ -30,6 +30,54 @@ public class Board extends BoardMoves {
 		this.game = game;
 	}
 	
+	// unhighlight both the cube homes that will be in the middle of the two half boards.
+	public void unhighlightAllCubeHome() {
+		leftCubeHome.unhighlight();
+		rightCubeHome.unhighlight();
+	}
+	
+	// display and highlight both cube homes that will be in the middle of the two half boards.
+	public void highlightAllCubeHome() {
+		game.unhighlightCube();
+		leftBoard.setCenter(leftCubeHome);
+		rightBoard.setCenter(rightCubeHome);
+		leftCubeHome.highlight();
+		rightCubeHome.highlight();
+	}
+	
+	// display and highlight a specific cube home. 
+	public void highlightCubeHome(Color pColor) {
+		game.unhighlightCube();
+		game.unhighlightAllCubeZones();
+		
+		DoublingCubeHome cubeHome = getCubeHomeOfPlayer(pColor);
+		getHalfBoardOfPlayer(pColor).setCenter(cubeHome);
+		cubeHome.highlight();
+	}
+	
+	// display the cube home that the cube is in.
+	public void drawCubeHome() {
+		DoublingCubeHome cubeHome = getHomeCubeIsIn();
+		getHalfBoardOfPlayer(cubeHome.getColor()).setCenter(cubeHome);
+	}
+	
+	// returns boolean value indicating if cube is in the board.
+	// i.e. in one of the two cube homes, leftCubeHome or rightCubeHome.
+	public boolean isCubeInBoard() {
+		return getHomeCubeIsIn() != null;
+	}
+
+	// returns the cube home where the cube is in.
+	public DoublingCubeHome getHomeCubeIsIn() {
+		DoublingCubeHome theCubeHome = null;
+		if (!getCubeHomeOfPlayer(Settings.getBottomPerspectiveColor()).isEmpty()) {
+			theCubeHome = getCubeHomeOfPlayer(Settings.getBottomPerspectiveColor());
+		} else if (!getCubeHomeOfPlayer(Settings.getTopPerspectiveColor()).isEmpty()) {
+			theCubeHome = getCubeHomeOfPlayer(Settings.getTopPerspectiveColor());
+		}
+		return theCubeHome;
+	}
+	
 	/**
 	 * Un-highlight the pips and checkers.
 	 */
@@ -38,7 +86,7 @@ public class Board extends BoardMoves {
 			pips[i].setNormalImage();
 			
 			if (!pips[i].isEmpty()) {
-				pips[i].top().setNormalImage();
+				pips[i].getTopChecker().setNormalImage();
 			}
 		}
 	}
@@ -55,8 +103,7 @@ public class Board extends BoardMoves {
 				pips[i].setHighlightImage();
 			}
 		}
-		game.getMainHome().highlight(Settings.getTopPerspectiveColor());
-		game.getMainHome().highlight(Settings.getBottomPerspectiveColor());
+		game.getMainHome().highlight();
 	}
 	
 	/**
@@ -70,10 +117,10 @@ public class Board extends BoardMoves {
 			for (Move aMove : rollMoves.getMoves()) {
 				if (aMove instanceof PipToPip) {
 					PipToPip move = (PipToPip) aMove;
-					pips[move.getFromPip()].top().setHighlightImage();
+					pips[move.getFromPip()].getTopChecker().setHighlightImage();
 				} else if (aMove instanceof PipToHome) {
 					PipToHome move = (PipToHome) aMove;
-					pips[move.getFromPip()].top().setHighlightImage();
+					pips[move.getFromPip()].getTopChecker().setHighlightImage();
 				} else if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					game.getBars().highlight(move.getFromBar());
@@ -104,7 +151,7 @@ public class Board extends BoardMoves {
 					PipToHome move = (PipToHome) aMove;
 					if (move.getFromPip() == fromPip) {
 						isFromPipInMoves = true;
-						game.getMainHome().getHome(pips[move.getFromPip()].top().getColor()).highlight();
+						game.getMainHome().getHome(pips[move.getFromPip()].getTopChecker().getColor()).highlight();
 					}
 				}
 			}
@@ -112,7 +159,7 @@ public class Board extends BoardMoves {
 		
 		// Highlight the selected pip's top checker.
 		// Provided the fromPip is part of the moves.
-		if (isFromPipInMoves) pips[fromPip].top().setHighlightImage();
+		if (isFromPipInMoves) pips[fromPip].getTopChecker().setHighlightImage();
 	}
 	public void highlightToPipsAndToHome(Moves moves, String fromBar) {
 		game.unhighlightAll();
@@ -137,8 +184,8 @@ public class Board extends BoardMoves {
 	
 	/**
 	 * Execute the roll dice methods of dices object.
-	 * BOTTOM is the player with the perspective from the bottom, dices will be on the left.
-	 * TOP is the player with the perspective from the top, dices will be on the right.
+	 * BOTTOM is the player with the perspective from the bottom, dices will be on the right.
+	 * TOP is the player with the perspective from the top, dices will be on the left.
 	 * @param pov - player's point of view. (i.e. TOP or BOTTOM).
 	 * @return result of each dice roll in terms of an array of integers.
 	 */
@@ -149,15 +196,17 @@ public class Board extends BoardMoves {
 		
 		switch (pov) {
 			case BOTTOM:
-				leftDices = dices;
-				leftBoard.setCenter(leftDices);
-				rightBoard.setCenter(null);
-				res = dices.getTotalRoll(DieInstance.DEFAULT);
-				break;
-			case TOP:
+				leftDices = null;
 				rightDices = dices;
 				rightBoard.setCenter(rightDices);
 				leftBoard.setCenter(null);
+				res = dices.getTotalRoll(DieInstance.DEFAULT);
+				break;
+			case TOP:
+				rightDices = null;
+				leftDices = dices;
+				leftBoard.setCenter(leftDices);
+				rightBoard.setCenter(null);
 				res = dices.getTotalRoll(DieInstance.DEFAULT);
 				break;
 			case NONE:
@@ -182,6 +231,8 @@ public class Board extends BoardMoves {
 		
 		switch (instance) {
 			case SINGLE:
+				leftDices = null;
+				rightDices = null;
 				leftDices = new Dices(Color.RED);
 				rightDices = new Dices(Color.RED);
 				res.add(((Dices)leftDices).getTotalRoll(instance).getFirst());
@@ -199,6 +250,16 @@ public class Board extends BoardMoves {
 			res = rollDices(instance);
 		}
 		return res;
+	}
+	
+	// Used by game listener to redraw dices.
+	public void redrawDices(Color pColor) {
+		HalfBoard pBoard = getHalfBoardOfPlayer(pColor);
+		pBoard.setCenter(getDicesOfPlayer(pColor));
+	}
+	public void redrawDices() {
+		leftBoard.setCenter(leftDices);
+		rightBoard.setCenter(rightDices);
 	}
 	
 	/**
@@ -224,5 +285,10 @@ public class Board extends BoardMoves {
 		}
 		
 		return moveResult;
+	}
+	
+	// TODO calculate the game score at game end based on rules.
+	public int getGameScore() {
+		return 1;
 	}
 }

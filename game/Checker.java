@@ -17,7 +17,7 @@ import javafx.scene.paint.Color;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class Checker extends ImageView implements ColorParser {
+public class Checker extends ImageView implements ColorParser, Touchable {
 	private Image img;
 	private Image imgHighlighted;
 	private Color color;
