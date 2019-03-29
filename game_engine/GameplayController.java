@@ -53,9 +53,9 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private InfoPanel infoPnl;
 	
 	private Stage stage;
-	private MainController root;
+	private MatchController root;
 	
-	public GameplayController(Stage stage, MainController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public GameplayController(Stage stage, MatchController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.stage = stage;
@@ -157,9 +157,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public void move() {
 		stalemateCount = 0;
 		
-		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
-			handleGameOver();
+			handleRoundOver();
 		// else, proceed to gameplay.
 		} else {
 			updateMovesAfterMoving();
@@ -595,46 +594,59 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	/**
-	 * Announces game over on infoPnl and dialog prompt, then ask if player wants another game.
+	 * If either player's score is not equal to the max score per match, announces game over on infoPnl and dialog prompt, then ask if player wants another game.
+	 * Else announce the winner and ask if the players want to play another match.
+	 * 
 	 */
-	private void handleGameOver() {
-		// Create dialog prompt.
-		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-		dialog.setTitle("Congratulations! Play again?");
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(stage);
-		dialog.setGraphic(null);
-		dialog.setContentText("Play again?");
-		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+	private void handleRoundOver() {
 		
-		// Output to infoPnl.
-		String winningMsg = "";
-		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
 		Home filledHome = game.getMainHome().getFilledHome();
-		if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor()))) {
-			winningMsg = "Congratulations, " + topPlayer.getName() + " won.";
-			infoPnl.print(winningMsg);
-		}
-		else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor()))) {
-			winningMsg = "Congratulations, " + bottomPlayer.getName() + " won.";
-			infoPnl.print(winningMsg);
-		}		
 		
-		// Auto save game log.
-		infoPnl.saveToFile();
+		if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor())))
+			topPlayer.setScore(topPlayer.getScore() + 1);
+		else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor())))
+			bottomPlayer.setScore(topPlayer.getScore() + 1);
 		
-		// Output to dialog prompt.
-		dialog.setHeaderText(winningMsg);
-		Optional<ButtonType> result = dialog.showAndWait();
-		
-		// Restart game if player wishes,
-		// else exit gameplay mode and enter free-for-all mode.
-		if (ButtonType.OK.equals(result.get())) {
-			infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
-			root.restartGame();
-		} else {
-			infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
-			reset();
+		if (root.isMatchOver())
+			root.handleMatchOver();
+		else {
+			// Create dialog prompt.
+			Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+			dialog.setTitle("Congratulations! Play again?");
+			dialog.initModality(Modality.APPLICATION_MODAL);
+			dialog.initOwner(stage);
+			dialog.setGraphic(null);
+			dialog.setContentText("Play again?");
+			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+			
+			// Output to infoPnl.
+			String winningMsg = "";
+			infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
+			if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor()))) {
+				winningMsg = "Congratulations, " + topPlayer.getName() + " won.";
+				infoPnl.print(winningMsg);
+			}
+			else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor()))) {
+				winningMsg = "Congratulations, " + bottomPlayer.getName() + " won.";
+				infoPnl.print(winningMsg);
+			}		
+			
+			// Auto save game log.
+			infoPnl.saveToFile();
+			
+			// Output to dialog prompt.
+			dialog.setHeaderText(winningMsg);
+			Optional<ButtonType> result = dialog.showAndWait();
+			
+			// Restart game if player wishes,
+			// else exit gameplay mode and enter free-for-all mode.
+			if (ButtonType.OK.equals(result.get())) {
+				infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
+				root.restartGame();
+			} else {
+				infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
+				reset();
+			}
 		}
 	}
 	

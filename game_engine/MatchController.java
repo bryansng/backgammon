@@ -9,6 +9,7 @@ import musicplayer.MusicPlayer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -226,6 +227,51 @@ public class MatchController extends GridPane implements ColorPerspectiveParser 
 	 */
 	private boolean isDefault(String rounds) {
 		return rounds.length() == 0;
+	}
+	
+	/**
+	 * 
+	 * If a player has a score equal to the maximum score, it will return true
+	 * 
+	 * @return boolean value of whether either player has a score equal to the maximum score
+	 */
+	public boolean isMatchOver() {
+		return (topPlayer.getScore() == maxRoundPerGame) || (bottomPlayer.getScore() == maxRoundPerGame);
+	}
+	
+	/**
+	 * If a player has a score equal to the maximum score, then announce the winner and ask if they want to play again
+	 */
+	public void handleMatchOver() {
+		
+		String winner = null;
+		
+		if (topPlayer.getScore() < bottomPlayer.getScore())
+			winner = bottomPlayer.getName();
+		else 
+			winner = topPlayer.getName();
+		
+		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+		dialog.setTitle("Congratulations!");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		dialog.setGraphic(null);
+		dialog.setContentText("Play again?");
+		dialog.setHeaderText("The winner of this match is " + winner);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+		
+		Optional<ButtonType> result = dialog.showAndWait();
+		
+		// Restart game if player wishes,
+		// else exit gameplay mode and enter free-for-all mode.
+		if (ButtonType.OK.equals(result.get())) {
+			infoPnl.print("Starting a new match...", MessageType.ANNOUNCEMENT);
+			resetApplication();
+			cmd.runCommand("/start");
+		} else {
+			infoPnl.print("Enter /start if you wish to play again.", MessageType.ANNOUNCEMENT);
+			infoPnl.print("Enter /quit if you wish to quit.", MessageType.ANNOUNCEMENT);
+		}
 	}
 	
 	/**
