@@ -629,7 +629,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor()))) {
 				winningMsg = "Congratulations, " + bottomPlayer.getName() + " won.";
 				infoPnl.print(winningMsg);
-			}		
+			}
+			
+			infoPnl.print(topPlayer.getName() + " Score: " + topPlayer.getScore(), MessageType.ANNOUNCEMENT);
+			infoPnl.print(bottomPlayer.getName() + " Score: " + bottomPlayer.getScore(), MessageType.ANNOUNCEMENT);
 			
 			// Auto save game log.
 			infoPnl.saveToFile();
