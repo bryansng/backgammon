@@ -392,7 +392,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					if (!game.getCubeHome().isEmpty()) {
 						runCommand("/movecube box " + parseColor(gameplay.getCurrent().getColor()));
 					// move cube from player's home to player's board.
-					} else if (gameplay.getCurrent().getHasCube()) {
+					} else if (gameplay.getCurrent().hasCube()) {
 						String pColorString = parseColor(gameplay.getCurrent().getColor());
 						runCommand("/movecube " + pColorString + " " + pColorString);
 						DoublingCube cube = game.getCube();
@@ -462,9 +462,8 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			
 			// round end, allocate points as required.
 			Player winner = gameplay.getOpponent();
-			DoublingCube cube = game.getBoard().getHomeCubeIsIn().getTopCube();
 			PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
-			winnerPnl.setPlayerScore(winner, winner.getScore() + game.getBoard().getGameScore()*cube.getIntermediateGameMultiplier());
+			winnerPnl.setPlayerScore(winner, gameplay.getIntermediateScore());
 			infoPnl.print("Starting new game...", MessageType.ANNOUNCEMENT);
 			root.restartGame();
 		}

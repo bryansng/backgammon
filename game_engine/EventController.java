@@ -80,7 +80,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			
 			if (gameplay.isStarted()) {
 				if (!gameplay.isRolled()) {
-					if (!gameplay.isMaxDoubling() || gameplay.isDoubling()) {
+					if (gameplay.mustHighlightCube()) {
 						game.highlightCube();
 					}
 				// highlight the possible moves if player hasn't move.
@@ -220,13 +220,15 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				// used to select the doubling cube.
 				} else {
 					if (!isInSelectionMode()) {
-						if (!gameplay.isMaxDoubling() && !gameplay.isRolled()) {
-							// fromHome consideration only if its a doubling cube.
-							storerSelected = object;
-							Home fromHome = (Home) storerSelected;
-							if (fromHome.getTopCube() != null) {
-								gameplay.highlightBoardCubeZones();
-								isHomeSelectionMode = true;
+						if (!gameplay.isRolled()) {
+							if (gameplay.mustHighlightCube()) {
+								// fromHome consideration only if its a doubling cube.
+								storerSelected = object;
+								Home fromHome = (Home) storerSelected;
+								if (fromHome.getTopCube() != null) {
+									gameplay.highlightBoardCubeZones();
+									isHomeSelectionMode = true;
+								}
 							}
 						}
 					}
@@ -244,7 +246,6 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 							cmd.runCommand("/movecube " + parseColor(fromHome.getColor()) + " " + parseColor(toCubeHome.getColor()));
 						}
 					}
-					//gameplay.unhighlightCubeZones();
 					game.getBoard().unhighlightAllCubeHome();
 					isHomeSelectionMode = false;
 				// no cube home selected, basis for fromCubeHome selection.

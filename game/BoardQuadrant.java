@@ -24,7 +24,7 @@ public class BoardQuadrant extends VBox {
 	private HBox setOfLabels, setOfPoints;
 	private PlayerPerspectiveFrom pov;
 	private Pip[] pips;
-	private boolean isWhiteHome, isBlackHome;
+	private boolean isWhiteInner, isBlackInner;
 	
 	public BoardQuadrant(int startRange, int endRange, PlayerPerspectiveFrom pov, Quadrant quadrant, Pip[] pips) {
 		this.startRange = startRange-1;
@@ -56,7 +56,7 @@ public class BoardQuadrant extends VBox {
 		boolean hasBetter = false;
 		
 		// loop range, pips further away from home (inclusive) - fromPip (exclusive).
-		if (isWhiteHome) {
+		if (isWhiteInner) {
 			for (int pipNum = endRange; pipNum > fromPip; pipNum--) {
 				if (!pips[pipNum].isEmpty() && pips[pipNum].topCheckerColorEquals(pCurrent.getColor())) {
 					hasBetter = true;
@@ -66,7 +66,7 @@ public class BoardQuadrant extends VBox {
 				if (!pips[pipNum].isEmpty() && pipNum == (diceResult-1)) {
 				*/
 			}
-		} else if (isBlackHome) {
+		} else if (isBlackInner) {
 			for (int pipNum = startRange; pipNum < fromPip; pipNum++) {
 				if (!pips[pipNum].isEmpty() && pips[pipNum].topCheckerColorEquals(pCurrent.getColor())) {
 					hasBetter = true;
@@ -87,11 +87,11 @@ public class BoardQuadrant extends VBox {
 	
 	private void specifyHomes(Quadrant quadrant) {
 		if (quadrant == Settings.getWhiteHomeQuadrant()) {
-			isWhiteHome = true;
-			isBlackHome = false;
+			isWhiteInner = true;
+			isBlackInner = false;
 		} else if (quadrant == Settings.getBlackHomeQuadrant()) {
-			isBlackHome = true;
-			isWhiteHome = false;
+			isBlackInner = true;
+			isWhiteInner = false;
 		}
 	}
 

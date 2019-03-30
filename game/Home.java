@@ -26,16 +26,6 @@ public class Home extends CheckersStorer {
 		setMaxSize(pointWidth, pointHeight);
 		setAlignment(Pos.BOTTOM_CENTER);
 		unhighlight();
-		
-		initHome();
-	}
-	
-	public void initHome() {
-		if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
-			initCheckers(13, checkerColorsToStore);
-		} else {
-			super.removeCheckers();
-		}
 	}
 	
 	/**
@@ -62,9 +52,5 @@ public class Home extends CheckersStorer {
 	public void unhighlight() {
 		setBackground(GameConstants.getBoardImage());
 		setStyle("-fx-border-color: transparent; -fx-border-width: 3; -fx-border-style: solid;");
-	}
-	
-	public void reset() {
-		initHome();
 	}
 }

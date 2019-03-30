@@ -5,11 +5,14 @@ import java.util.LinkedList;
 import java.util.Optional;
 import constants.DieInstance;
 import constants.GameConstants;
+import constants.GameEndScore;
 import constants.MessageType;
 import game.Bar;
 import game.DieResults;
+import game.DoublingCube;
 import game.Home;
 import game.Pip;
+import game.PlayerPanel;
 import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
 import interfaces.IndexOffset;
@@ -338,7 +341,21 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			topPlayerFlag = false;
 		}
 		game.getBoard().swapPipLabels();
-		if (!isMaxDoubling() || isDoubling()) game.highlightCube();
+		if (mustHighlightCube()) game.highlightCube();
+	}
+	
+	public boolean mustHighlightCube() {
+		boolean mustHighlightCube = false;
+		if (!isMaxDoubling() || isDoubling()) {
+			// if cube in player's home,
+			// then highlight only when it is that player's turn.
+			if (game.isCubeInHome() && !pCurrent.hasCube()) {
+				mustHighlightCube = false;
+			} else {
+				mustHighlightCube = true;
+			}
+		}
+		return mustHighlightCube;
 	}
 	
 	/**
@@ -395,24 +412,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			game.getBoard().highlightAllCubeHome();
 		}
 	}
-	
-	/*
-	public void unhighlightCubeZones() {
-		// gameplay mode.
-		if (isStarted()) {
-			if (!isRolled() && !isDoubling()) {
-				game.highlightCube();
-			} else if (isDoubling()) {
-				game.highlightCubeZones(pCurrent.getColor());
-			} else if (isDoubled()) {
-				game.unhighlightAllCubeZones();
-			}
-		// free for all mode, i.e. before /start.
-		} else {
-			game.unhighlightAllPlayersCubeHomes();
-		}
-	}
-	*/
 	
 	// prints possible moves, with an useless letter beside the moves.
 	private void printMoves() {
@@ -661,14 +660,12 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		String winningMsg = "";
 		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
 		Home filledHome = game.getMainHome().getFilledHome();
-		if (filledHome.equals(game.getMainHome().getHome(topPlayer.getColor()))) {
-			winningMsg = "Congratulations, " + topPlayer.getName() + " won.";
+		if (filledHome.getColor().equals(pCurrent.getColor())) {
+			winningMsg = "Congratulations, " + pCurrent.getName() + " won.";
+			PlayerPanel winnerPnl = game.getPlayerPanel(pCurrent.getColor());
+			winnerPnl.setPlayerScore(pCurrent, getGameOverScore());
 			infoPnl.print(winningMsg);
 		}
-		else if (filledHome.equals(game.getMainHome().getHome(bottomPlayer.getColor()))) {
-			winningMsg = "Congratulations, " + bottomPlayer.getName() + " won.";
-			infoPnl.print(winningMsg);
-		}		
 		
 		// Auto save game log.
 		infoPnl.saveToFile();
@@ -695,6 +692,29 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 */
 	private boolean isGameOver() {
 		return game.getMainHome().getFilledHome() != null;
+	}
+	
+	// score if a player wins, i.e. 15 checkers in their home.
+	public int getGameOverScore() {
+		int score;
+		// since current player is the one that made the winning move,
+		// the opponent the loser.
+		Player winner = pCurrent;
+		Player loser = pOpponent;
+		DoublingCube cube = game.getCube();
+		score = winner.getScore() + game.getBoard().getGameScore(loser.getColor())*cube.getIntermediateGameMultiplier();
+		return score;
+	}
+	
+	// score if a player rejects/declines a doubling of stakes.
+	public int getIntermediateScore() {
+		int score;
+		// since current player rejects the cube,
+		// the opponent would be the proposer and hence the winner.
+		Player winner = getOpponent();
+		DoublingCube cube = game.getBoard().getHomeCubeIsIn().getTopCube();
+		score = winner.getScore() + GameEndScore.SINGLE.ordinal()+1*cube.getIntermediateGameMultiplier();
+		return score;
 	}
 	
 	public String correct(int pipNum) {

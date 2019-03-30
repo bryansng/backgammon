@@ -48,7 +48,7 @@ public class Player implements ColorPerspectiveParser {
 		return pov;
 	}
 	
-	public boolean getHasCube() {
+	public boolean hasCube() {
 		return hasCube;
 	}
 	

@@ -1,8 +1,10 @@
 package game;
 
 import constants.DieInstance;
+import constants.GameEndScore;
 import constants.MoveResult;
 import constants.PlayerPerspectiveFrom;
+import constants.Quadrant;
 import game_engine.GameComponentsController;
 import game_engine.Settings;
 import javafx.scene.paint.Color;
@@ -288,7 +290,20 @@ public class Board extends BoardMoves {
 	}
 	
 	// TODO calculate the game score at game end based on rules.
-	public int getGameScore() {
-		return 1;
+	public int getGameScore(Color loserColor) {
+		// single.
+		GameEndScore score = GameEndScore.SINGLE;
+
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
+			// backgammon
+			if (quad4.hasCheckerColor(loserColor)) {
+				score = GameEndScore.BACKGAMMON;
+			// gammon.
+			} else if (quad3.hasCheckerColor(loserColor) || quad2.hasCheckerColor(loserColor)) {
+				score = GameEndScore.GAMMON;
+			}
+		}
+		
+		return score.ordinal()+1;
 	}
 }

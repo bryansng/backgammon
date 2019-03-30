@@ -35,6 +35,11 @@ public class GameConstants {
 	// for checkers at home.
 	public static final boolean FORCE_13_CHECKERS_AT_HOME = false;
 	
+	/* Debug getGameOverScore */
+	public static final boolean FORCE_LOSER_CHECKER_AT_LOSER_INNER = false;		// single
+	public static final boolean FORCE_LOSER_CHECKER_AT_OUTER = false;			// gammon
+	public static final boolean FORCE_LOSER_CHECKER_AT_WINNER_INNER = false;	// backgammon
+	
 	/* Debug BarToPip */
 	// for checkers at bars.
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;

@@ -40,13 +40,28 @@ public class HomePanel extends BorderPane {
 		initHomes();
 		drawHomes();
 	}
-
+	
 	/**
 	 * Initializes the individual homes and add them to HomePanel.
 	 */
 	private void initHomes() {
 		top = new Home(Settings.getTopPerspectiveColor());
 		bottom = new Home(Settings.getBottomPerspectiveColor());
+	}
+	
+	private void initCheckersInHomes() {
+		if (isMainHome) {
+			if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
+				top.initCheckers(13, top.getColor());
+				bottom.initCheckers(13, bottom.getColor());
+			} else {
+				top.removeCheckers();
+				bottom.removeCheckers();
+			}
+		} else {
+			top.removeCheckers();
+			bottom.removeCheckers();
+		}
 	}
 	
 	private void drawHomes() {
@@ -133,6 +148,7 @@ public class HomePanel extends BorderPane {
 	
 	public void setAsMainHome(boolean isMainHome) {
 		this.isMainHome = isMainHome;
+		initCheckersInHomes();
 		initDoubleCube();
 	}
 	
@@ -141,8 +157,7 @@ public class HomePanel extends BorderPane {
 	}
 	
 	public void reset() {
-		top.reset();
-		bottom.reset();
+		initCheckersInHomes();
 		if (!isMainHome) {
 			cubeHome.reset();
 		}
