@@ -18,6 +18,7 @@ import exceptions.PlayerNoPerspectiveException;
  *
  */
 public class Settings {
+	public static int MATCH_POINT = 0;
 	public static final boolean ENABLE_NEXT_PAUSE = true;
 	
 	// by default, 1 starts at bottom right of screen, i.e. quadrant 4.

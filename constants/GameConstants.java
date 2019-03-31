@@ -86,9 +86,11 @@ public class GameConstants {
 	 * Used by InfoPanel.
 	 * @return the font.
 	 */
-	public static Font getFont(boolean isBold) {
+	public static Font getFont(boolean isBold, boolean isDigital) {
 		InputStream input;
-		if (isBold) input = GameConstants.class.getResourceAsStream("Inconsolata-Bold.ttf");
+		if (isBold && isDigital) input = GameConstants.class.getResourceAsStream("DS-DIGIB.TTF");
+		else if (isDigital) input = GameConstants.class.getResourceAsStream("DS-DIGI.TTF");
+		else if (isBold) input = GameConstants.class.getResourceAsStream("Inconsolata-Bold.ttf");
 		else input = GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
 		Font font = Font.loadFont(input, FONT_SIZE);
 		try {
@@ -99,7 +101,7 @@ public class GameConstants {
 		return font;
 	}
 	public static Font getFont() {
-		return getFont(false);
+		return getFont(false, false);
 	}
 	
 	/**
@@ -108,8 +110,14 @@ public class GameConstants {
 	 * provides flexibility as we can specify a specific font size.
 	 * @return
 	 */
+	public static InputStream getFontInputStream(boolean isBold, boolean isDigital) {
+		if (isBold && isDigital) return GameConstants.class.getResourceAsStream("DS-DIGIB.TTF");
+		else if (isDigital) return GameConstants.class.getResourceAsStream("DS-DIGI.TTF");
+		else if (isBold) return GameConstants.class.getResourceAsStream("Inconsolata-Bold.ttf");
+		else return GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+	}
 	public static InputStream getFontInputStream() {
-		return GameConstants.class.getResourceAsStream("Inconsolata-Regular.ttf");
+		return getFontInputStream(false, false);
 	}
 	
 	/**
@@ -257,7 +265,8 @@ public class GameConstants {
 	public static double getPlayerPanelHeight() {
 		// V gap between terminal and roll die button taken into consideration.
 		// there's only 1 vgap, but two player panel, so we divide by 2.
-		return 40.0 + getUIVGap()/2.0;
+		//return 40.0 + getUIVGap()/2.0;
+		return 50.0 + getUIVGap()/2.0;	// around 50 + 2.5 = 52.5
 	}
 	
 	/**

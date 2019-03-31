@@ -2,7 +2,6 @@ package game;
 
 import java.io.IOException;
 import java.io.InputStream;
-
 import interfaces.ColorParser;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -28,17 +27,21 @@ public class Checker extends ImageView implements ColorParser, Touchable {
 	 * @param color of checker.
 	 */
 	public Checker(Color color) {
+		this(color, false);
+	}
+	public Checker(Color color, boolean isIcon) {
 		super();
 		this.color = color;
-		initImg();
+		initImg(isIcon);
 	}
 	
 	/**
 	 * - Get the image of the checker.
 	 * - Initialize img and img_highlighted instance variable.
 	 */
-	private void initImg() {
+	private void initImg(boolean isIcon) {
 		String colorString = parseColor(color);
+		if (isIcon) colorString += "_icon";
 		InputStream input1 = getClass().getResourceAsStream("img/checkers/" + colorString + "_checkers.png");
 		InputStream input2 = getClass().getResourceAsStream("img/checkers/" + colorString + "_checkers_highlighted.png");
 		img = new Image(input1);

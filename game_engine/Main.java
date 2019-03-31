@@ -26,7 +26,7 @@ public class Main extends Application {
 		MainController root = new MainController(stage);
 		
 		Scene scene = new Scene(root);
-
+		
 		stage.setScene(scene);
 		stage.setTitle("Backgammon");
 		stage.show();

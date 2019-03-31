@@ -105,7 +105,7 @@ public class InfoPanel extends ScrollPane {
 		switch (mtype) {
 			case ANNOUNCEMENT:
 				prefix = "\n" + prefix;
-				text.setFont(GameConstants.getFont(true));
+				text.setFont(GameConstants.getFont(true, false));
 			case SYSTEM:
 				type = "[System]";
 				text.setFill(Color.GREEN);

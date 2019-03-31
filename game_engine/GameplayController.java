@@ -92,6 +92,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public void start() {
 		startedFlag = true;
 		roll();
+		
+		// facial expressions.
+		game.getEmojiOfPlayer(pCurrent.getColor()).setThinkingFace();
+		game.getEmojiOfPlayer(pOpponent.getColor()).setThinkingFace();
 	}
 	
 	/**
@@ -108,6 +112,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			pOpponent = getSecondPlayerToRoll(pCurrent);
 			infoPnl.print("First player to move is: " + pCurrent.getName() + ".");
 			firstRollFlag = false;
+			handleNecessitiesOfEachTurn();	// highlight the current player's checker in his player panel.
 			
 			// if first player is top player, then we swap the pip number labels.
 			if (pCurrent.equals(topPlayer)) {
@@ -189,9 +194,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	public void recalculateMoves() {
-		infoPnl.print("Recalculating moves.", MessageType.DEBUG);
-		moves = game.getBoard().recalculateMoves(moves, pCurrent);
-		handleEndOfMovesCalculation(moves);
+		if (isRolled()) {
+			infoPnl.print("Recalculating moves.", MessageType.DEBUG);
+			moves = game.getBoard().recalculateMoves(moves, pCurrent);
+			handleEndOfMovesCalculation(moves);
+		}
 	}
 	
 	// placed after calculation and recalculation of moves,
@@ -204,6 +211,14 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			recalculateMoves();
 		} else if (moves.isEmpty()) {
 			infoPnl.print("No moves available, turn forfeited.", MessageType.WARNING);
+			
+			// if rolled, but no available moves,
+			// we unhighlight the cube.
+			game.getCube().setNormalImage();
+			
+			// facial expression.
+			game.getEmojiOfPlayer(pCurrent.getColor()).setLoseFace(true);
+			
 			next();
 		} else {
 			handleCharacterMapping();
@@ -341,7 +356,16 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			topPlayerFlag = false;
 		}
 		game.getBoard().swapPipLabels();
+		
+		handleNecessitiesOfEachTurn();
 		if (mustHighlightCube()) game.highlightCube();
+	}
+	
+	private void handleNecessitiesOfEachTurn() {
+		// highlight the current player's checker in his player panel,
+		// and unhighlight opponent's.
+		game.getPlayerPanel(pCurrent.getColor()).highlightChecker();
+		game.getPlayerPanel(pOpponent.getColor()).unhighlightChecker();
 	}
 	
 	public boolean mustHighlightCube() {
@@ -665,6 +689,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			PlayerPanel winnerPnl = game.getPlayerPanel(pCurrent.getColor());
 			winnerPnl.setPlayerScore(pCurrent, getGameOverScore());
 			infoPnl.print(winningMsg);
+			
+			// facial expressions.
+			game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
+			game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
 		}
 		
 		// Auto save game log.
@@ -713,7 +741,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		// the opponent would be the proposer and hence the winner.
 		Player winner = getOpponent();
 		DoublingCube cube = game.getBoard().getHomeCubeIsIn().getTopCube();
-		score = winner.getScore() + GameEndScore.SINGLE.ordinal()+1*cube.getIntermediateGameMultiplier();
+		score = winner.getScore() + GameEndScore.SINGLE.ordinal()*cube.getIntermediateGameMultiplier();
 		return score;
 	}
 	

@@ -212,6 +212,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
+					if (gameplay.isStarted()) game.getEmojiOfPlayer(gameplay.getCurrent().getColor()).setHitFace();
 					soundFXPlayer.playCheckerHitSound();
 					game.moveFromBar(fromBar, toPip);
 					soundFXPlayer.playBearOnSound();
@@ -237,6 +238,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					break;
 				case MOVE_TO_BAR:
 					game.moveToBar(toPip);
+					if (gameplay.isStarted()) game.getEmojiOfPlayer(gameplay.getCurrent().getColor()).setHitFace();
 					soundFXPlayer.playCheckerHitSound();
 					game.getBoard().moveCheckers(fromPip, toPip);
 					soundFXPlayer.playCheckerSound();
@@ -309,6 +311,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 				pov = PlayerPerspectiveFrom.BOTTOM;
 			} else {
 				pov = parsePlayerPerspective(args[1]);
+			}
+			
+			// check if cube on board.
+			// if so, move it back to cube's box.
+			if (game.getBoard().isCubeInBoard()) {
+				runCommand("/movecube " + parseColor(game.getBoard().getHomeCubeIsIn().getColor()) + " box");
 			}
 			
 			// rollDices returns null if playerNum is invalid.
@@ -426,7 +434,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		infoPnl.print("Game will not proceed until you accept or decline the doubling cube.", MessageType.ERROR);
 	}
 	
-	private void handleInTransitionError() {
+	public void handleInTransitionError() {
 		infoPnl.print("Hold on cowboy, wait out the delay.", MessageType.ERROR);
 	}
 	
@@ -490,12 +498,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					toCubeHome.addThisCube(cube);
 					cube.resetRotation();
 					infoPnl.print("(Cube Move) Is valid board to box.", MessageType.DEBUG);
+					soundFXPlayer.playCheckerSound();
 				// move cube from board to player's home.
 				} else if (equalGameColors(to)) {
 					Home toHome = game.getOtherHome().getHome(parseColor(to));
 					toHome.addThisCube(cube);
 					cube.resetRotation();
 					infoPnl.print("(Cube Move) Is valid board to player's home.", MessageType.DEBUG);
+					soundFXPlayer.playCheckerSound();
 				}
 			} else if (game.isCubeInHome()) {
 				Home fromHome = game.getOtherHome().getHome(parseColor(fro));
@@ -507,6 +517,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					cube.rotateOnBoard();
 					game.getBoard().drawCubeHome();
 					infoPnl.print("(Cube Move) Is valid player's home to board.", MessageType.DEBUG);
+					soundFXPlayer.playCheckerSound();
 				// NOT TESTED SINCE NOT IN USE.
 				// move cube from player's home to box.
 				} else if (to.equals("box")) {
@@ -514,6 +525,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					toCubeHome.addThisCube(cube);
 					cube.resetRotation();
 					infoPnl.print("(Cube Move) Is valid player's home to box", MessageType.DEBUG);
+					soundFXPlayer.playCheckerSound();
 				}
 			}
 		} else if (fro.equals("box")) {
@@ -527,6 +539,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 					cube.rotateOnBoard();
 					game.getBoard().drawCubeHome();
 					infoPnl.print("(Cube Move) Is valid box to board.", MessageType.DEBUG);
+					soundFXPlayer.playCheckerSound();
 				}
 				// NOT WRITTEN SINCE NOT IN USE,
 				// plus finding a hard time to differentiate board/player's home's Color.

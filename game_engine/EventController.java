@@ -62,14 +62,18 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	private void initGameListeners() {
 		// Exit selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
-			// reshow the dices on the board.
-			if (gameplay.isStarted() && !gameplay.isRolled() && !game.isCubeInHome()) {
-				// if box or player's home clicked, 
-				if (isCubeHomeSelectionMode || isHomeSelectionMode) {
-					game.getBoard().redrawDices(gameplay.getCurrent().getColor());
+			// reshow the dices on the board,
+			// if player selected cube in its box or player's home
+			// but unselected it.
+			if (gameplay.isStarted()) {
+				if (!gameplay.isRolled() && !game.getBoard().isCubeInBoard()) {
+					// if box or player's home clicked, 
+					if (isCubeHomeSelectionMode || isHomeSelectionMode) {
+						game.getBoard().redrawDices(gameplay.getCurrent().getColor());
+					}
 				}
 			} else {
-				game.getBoard().redrawDices();
+				if (!game.getBoard().isCubeInBoard()) game.getBoard().redrawDices();
 			}
 			
 			game.unhighlightAll();
@@ -220,15 +224,13 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				// used to select the doubling cube.
 				} else {
 					if (!isInSelectionMode()) {
-						if (!gameplay.isRolled()) {
-							if (gameplay.mustHighlightCube()) {
-								// fromHome consideration only if its a doubling cube.
-								storerSelected = object;
-								Home fromHome = (Home) storerSelected;
-								if (fromHome.getTopCube() != null) {
-									gameplay.highlightBoardCubeZones();
-									isHomeSelectionMode = true;
-								}
+						if (!gameplay.isStarted() || (!gameplay.isRolled() && !gameplay.isInTransition() && gameplay.mustHighlightCube())) {
+							// fromHome consideration only if its a doubling cube.
+							storerSelected = object;
+							Home fromHome = (Home) storerSelected;
+							if (fromHome.getTopCube() != null) {
+								gameplay.highlightBoardCubeZones();
+								isHomeSelectionMode = true;
 							}
 						}
 					}
@@ -250,7 +252,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					isHomeSelectionMode = false;
 				// no cube home selected, basis for fromCubeHome selection.
 				} else if (!isInSelectionMode()) {
-					if (!gameplay.isRolled()) {
+					if (!gameplay.isRolled() && !gameplay.isInTransition()) {
 						storerSelected = object;
 						DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
 						
@@ -272,25 +274,32 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				} else if (isCubeHomeSelectionMode) {
 					DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
 					DoublingCubeHome toCubeHome = (DoublingCubeHome) object;
-					
-					// cube box to board.
-					if (!fromCubeHome.isOnBoard() && toCubeHome.isOnBoard()) {
-						if (gameplay.isStarted()) {
-							cmd.runCommand("/double");
-						} else {
-							cmd.runCommand("/movecube box " + parseColor(toCubeHome.getColor()));
+
+					// check if it clicked on the same cube home,
+					// if so, we ignore the selection.
+					//
+					// NOTE: if we don't check this, the code below will execute
+					// and the cube will be unhighlighted when it should be.
+					if (!fromCubeHome.equals(toCubeHome)) {
+						// cube box to board.
+						if (!fromCubeHome.isOnBoard() && toCubeHome.isOnBoard()) {
+							if (gameplay.isStarted()) {
+								cmd.runCommand("/double");
+							} else {
+								cmd.runCommand("/movecube box " + parseColor(toCubeHome.getColor()));
+							}
+						// board to cube box.
+						} else if (fromCubeHome.isOnBoard() && !toCubeHome.isOnBoard()) {
+							if (gameplay.isStarted()) {
+								cmd.runCommand("/decline");
+							} else {
+								cmd.runCommand("/movecube " + parseColor(fromCubeHome.getColor()) + " box");
+							}
 						}
-					// board to cube box.
-					} else if (fromCubeHome.isOnBoard() && !toCubeHome.isOnBoard()) {
-						if (gameplay.isStarted()) {
-							cmd.runCommand("/decline");
-						} else {
-							cmd.runCommand("/movecube " + parseColor(fromCubeHome.getColor()) + " box");
-						}
+						game.unhighlightAllPlayersCubeHomes();
+						game.getBoard().unhighlightAllCubeHome();
+						isCubeHomeSelectionMode = false;
 					}
-					game.unhighlightAllPlayersCubeHomes();
-					game.getBoard().unhighlightAllCubeHome();
-					isCubeHomeSelectionMode = false;
 				}
 			} else {
 				infoPnl.print("Other instances of checkersStorer were clicked.", MessageType.DEBUG);

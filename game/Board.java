@@ -68,7 +68,7 @@ public class Board extends BoardMoves {
 	public boolean isCubeInBoard() {
 		return getHomeCubeIsIn() != null;
 	}
-
+	
 	// returns the cube home where the cube is in.
 	public DoublingCubeHome getHomeCubeIsIn() {
 		DoublingCubeHome theCubeHome = null;
@@ -117,15 +117,12 @@ public class Board extends BoardMoves {
 		
 		for (RollMoves rollMoves : moves) {
 			for (Move aMove : rollMoves.getMoves()) {
-				if (aMove instanceof PipToPip) {
-					PipToPip move = (PipToPip) aMove;
-					pips[move.getFromPip()].getTopChecker().setHighlightImage();
-				} else if (aMove instanceof PipToHome) {
-					PipToHome move = (PipToHome) aMove;
-					pips[move.getFromPip()].getTopChecker().setHighlightImage();
-				} else if (aMove instanceof BarToPip) {
+				if (aMove instanceof BarToPip) {
 					BarToPip move = (BarToPip) aMove;
 					game.getBars().highlight(move.getFromBar());
+				// pip to home or pip to pip.
+				} else {
+					pips[aMove.getFro()].getTopChecker().setHighlightImage();
 				}
 			}
 		}
@@ -289,21 +286,18 @@ public class Board extends BoardMoves {
 		return moveResult;
 	}
 	
-	// TODO calculate the game score at game end based on rules.
+	// calculate the game score at game end based on rules.
 	public int getGameScore(Color loserColor) {
-		// single.
 		GameEndScore score = GameEndScore.SINGLE;
-
+		
 		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
-			// backgammon
 			if (quad4.hasCheckerColor(loserColor)) {
 				score = GameEndScore.BACKGAMMON;
-			// gammon.
 			} else if (quad3.hasCheckerColor(loserColor) || quad2.hasCheckerColor(loserColor)) {
 				score = GameEndScore.GAMMON;
 			}
 		}
 		
-		return score.ordinal()+1;
+		return score.ordinal();
 	}
 }

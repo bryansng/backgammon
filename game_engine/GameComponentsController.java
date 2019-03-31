@@ -7,6 +7,7 @@ import game.Bars;
 import game.Board;
 import game.DoublingCube;
 import game.DoublingCubeHome;
+import game.Emoji;
 import game.Home;
 import game.HomePanel;
 import game.Pip;
@@ -231,6 +232,9 @@ public class GameComponentsController extends VBox {
 			playerPnl = btmPlayerPnl;
 		}
 		return playerPnl;
+	}
+	public Emoji getEmojiOfPlayer(Color pColor) {
+		return getPlayerPanel(pColor).getEmoji();
 	}
 	public Board getBoard() {
 		return board;

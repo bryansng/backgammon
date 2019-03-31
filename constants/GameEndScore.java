@@ -3,6 +3,7 @@ package constants;
 /**
  * This enum represents the game end score in the Backgammon game.
  * Opponent's furthest checker:
+ * - Nada - represents nothing in the game, used to represent 0.
  * - Single - in his inner board.
  * - Gammon - in outer boards.
  * - Backgammon - in winner's inner board.
@@ -14,5 +15,5 @@ package constants;
  *
  */
 public enum GameEndScore {
-	SINGLE, GAMMON, BACKGAMMON;
+	NADA, SINGLE, GAMMON, BACKGAMMON;
 }

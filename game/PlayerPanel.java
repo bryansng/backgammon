@@ -2,9 +2,12 @@ package game;
 
 import constants.GameConstants;
 import game_engine.Player;
+import game_engine.Settings;
 import interfaces.ColorParser;
 import javafx.geometry.Pos;
+import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -23,8 +26,8 @@ public class PlayerPanel extends HBox implements ColorParser {
 	 * This class represents labels that stores player info.
 	 */
 	private static class PlayerInfo extends Label {
-		public PlayerInfo(String string) {
-			super(string);
+		public PlayerInfo(String string, ImageView icon) {
+			super(string, icon);
 			initStyle();
 		}
 		
@@ -33,12 +36,22 @@ public class PlayerPanel extends HBox implements ColorParser {
 			setTextFill(Color.WHITE);
 			setWrapText(true);
 		}
+		
+		// used by instance variable playerColor.
+		public Checker getChecker() {
+			return (getGraphic() instanceof Checker) ? (Checker) getGraphic() : null;
+		}
+		
+		// used by instance variable playerName.
+		public Emoji getEmoji() {
+			return (getGraphic() instanceof Emoji) ? (Emoji) getGraphic() : null;
+		}
 	}
 	
 	private Player player;
 	private PlayerInfo playerName;
-	private PlayerInfo playerScore;
 	private PlayerInfo playerColor;
+	private PlayerInfo playerScore;
 	
 	public PlayerPanel(double width, Player player) {
 		super();
@@ -55,11 +68,12 @@ public class PlayerPanel extends HBox implements ColorParser {
 	}
 	
 	private void initComponents() {
-		playerName = new PlayerInfo("Name: " + player.getName());
-		playerScore = new PlayerInfo("Score: " + player.getScore());
-		
-		// TODO put a checker color beside instead of text, makes things more intuitive.
-		playerColor = new PlayerInfo("Color: " + parseColor(player.getColor()));
+		playerName = new PlayerInfo(player.getName(), new Emoji());
+		playerName.setContentDisplay(ContentDisplay.LEFT);
+		playerName.setGraphicTextGap(10);
+		playerColor = new PlayerInfo("", new Checker(player.getColor(), true));
+		playerScore = new PlayerInfo(player.getScore() + " / " + Settings.MATCH_POINT, null);
+		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 20));
 	}
 	
 	private void initLayout() {
@@ -76,9 +90,21 @@ public class PlayerPanel extends HBox implements ColorParser {
 		playerScore.setText("Score: " + player.getScore());
 	}
 	
+	public void highlightChecker() {
+		playerColor.getChecker().setHighlightImage();
+	}
+	public void unhighlightChecker() {
+		playerColor.getChecker().setNormalImage();
+	}
+	
+	public Emoji getEmoji() {
+		return playerName.getEmoji();
+	}
+	
 	public void reset() {
-		playerName.setText("Name: " + player.getName());
-		playerScore.setText("Score: " + player.getScore());
-		playerColor.setText("Color: " + parseColor(player.getColor()));
+		playerName.setText(player.getName());
+		playerName.getEmoji().reset();
+		unhighlightChecker();
+		playerScore.setText(player.getScore() + " / " + Settings.MATCH_POINT);
 	}
 }
