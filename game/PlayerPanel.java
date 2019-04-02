@@ -68,11 +68,13 @@ public class PlayerPanel extends HBox implements ColorParser {
 	}
 	
 	private void initComponents() {
-		playerName = new PlayerInfo(player.getName(), new Emoji());
+		playerName = new PlayerInfo("", new Emoji());
+		setPlayerName(player, player.getName());
 		playerName.setContentDisplay(ContentDisplay.LEFT);
 		playerName.setGraphicTextGap(10);
 		playerColor = new PlayerInfo("", new Checker(player.getColor(), true));
-		playerScore = new PlayerInfo(player.getScore() + " / " + Settings.MATCH_POINT, null);
+		playerScore = new PlayerInfo("", null);
+		setPlayerScore(player, player.getScore());
 		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 20));
 	}
 	
@@ -82,12 +84,12 @@ public class PlayerPanel extends HBox implements ColorParser {
 	
 	public void setPlayerName(Player player, String name) {
 		player.setName(name);
-		playerName.setText("Name: " + player.getName());
+		playerName.setText(player.getName());
 	}
 	
 	public void setPlayerScore(Player player, int score) {
 		player.setScore(score);
-		playerScore.setText("Score: " + player.getScore());
+		playerScore.setText(player.getScore() + " / " + Settings.TOTAL_GAMES_IN_A_MATCH);
 	}
 	
 	public void highlightChecker() {
@@ -102,9 +104,9 @@ public class PlayerPanel extends HBox implements ColorParser {
 	}
 	
 	public void reset() {
-		playerName.setText(player.getName());
+		setPlayerName(player, player.getName());
 		playerName.getEmoji().reset();
 		unhighlightChecker();
-		playerScore.setText(player.getScore() + " / " + Settings.MATCH_POINT);
+		setPlayerScore(player, player.getScore());
 	}
 }

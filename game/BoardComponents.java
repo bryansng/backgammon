@@ -154,37 +154,38 @@ public class BoardComponents extends HBox {
 				default:
 					pips[i].removeCheckers();
 			}
-		} else if (GameConstants.FORCE_LOSER_CHECKER_AT_LOSER_INNER) {
+		} else if (GameConstants.FORCE_TEST_SINGLE) {
 			switch (i) {
 				case 0:
 				case 1:
-					pips[i].initCheckers(1, Color.WHITE);
+					pips[i].initCheckers(3, Color.WHITE);
 					break;
 				case 22:
 				case 23:
-					pips[i].initCheckers(1, Color.BLACK);
+					pips[i].initCheckers(2, Color.BLACK);
 					break;
 				default:
 					pips[i].removeCheckers();
 			}
-		} else if (GameConstants.FORCE_LOSER_CHECKER_AT_OUTER) {
+		} else if (GameConstants.FORCE_TEST_GAMMON) {
 			switch (i) {
 				case 0:
 				case 1:
-					pips[i].initCheckers(1, Color.WHITE);
+					pips[i].initCheckers(3, Color.WHITE);
 					break;
 				case 10:
 				case 15:
+				case 22:
 					pips[i].initCheckers(1, Color.BLACK);
 					break;
 				default:
 					pips[i].removeCheckers();
 			}
-		} else if (GameConstants.FORCE_LOSER_CHECKER_AT_WINNER_INNER) {
+		} else if (GameConstants.FORCE_TEST_BACKGAMMON) {
 			switch (i) {
 				case 0:
 				case 1:
-					pips[i].initCheckers(1, Color.WHITE);
+					pips[i].initCheckers(3, Color.WHITE);
 					break;
 				case 3:
 				case 4:
@@ -485,7 +486,7 @@ public class BoardComponents extends HBox {
 	// It checks all quadrants for any pCurrent's checkers,
 	// if there is, then all of player's checkers are not in home board.
 	public boolean isAllCheckersInHomeBoard(Player pCurrent) {
-		BoardQuadrant pQuad = getHomeQuadOfPlayer(pCurrent);
+		BoardQuadrant pQuad = getHomeQuadOfPlayer(pCurrent.getColor());
 		boolean hasAllCheckers = true;
 		
 		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
@@ -503,16 +504,16 @@ public class BoardComponents extends HBox {
 	// if it is able to bear off, but there are better pips to bear off, then we bear off those first.
 	// better pips to bear off = pips of the diceResult.
 	protected boolean hasBetterPipsToBearOff(Player pCurrent, int fromPip, int diceResult) {
-		return getHomeQuadOfPlayer(pCurrent).hasBetterPipsToBearOff(pCurrent, fromPip, diceResult);
+		return getHomeQuadOfPlayer(pCurrent.getColor()).hasBetterPipsToBearOff(pCurrent, fromPip, diceResult);
 	}
 	
 	// get home quad of the player, based on player's color.
-	private BoardQuadrant getHomeQuadOfPlayer(Player player) {
+	public BoardQuadrant getHomeQuadOfPlayer(Color pColor) {
 		BoardQuadrant pQuad = null;
 		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
-			if (player.getColor().equals(Color.WHITE)) {
+			if (pColor.equals(Color.WHITE)) {
 				pQuad = whiteQuad;
-			} else if (player.getColor().equals(Color.BLACK)) {
+			} else if (pColor.equals(Color.BLACK)) {
 				pQuad = blackQuad;
 			}
 		}

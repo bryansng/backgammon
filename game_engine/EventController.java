@@ -62,40 +62,43 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	private void initGameListeners() {
 		// Exit selection mode when any part of the game board is clicked.
 		game.setOnMouseClicked((MouseEvent event) -> {
-			// reshow the dices on the board,
-			// if player selected cube in its box or player's home
-			// but unselected it.
-			if (gameplay.isStarted()) {
-				if (!gameplay.isRolled() && !game.getBoard().isCubeInBoard()) {
-					// if box or player's home clicked, 
-					if (isCubeHomeSelectionMode || isHomeSelectionMode) {
-						game.getBoard().redrawDices(gameplay.getCurrent().getColor());
-					}
-				}
-			} else {
-				if (!game.getBoard().isCubeInBoard()) game.getBoard().redrawDices();
-			}
-			
-			game.unhighlightAll();
-			isPipSelectionMode = false;
-			isBarSelectionMode = false;
-			isHomeSelectionMode = false;
-			isCubeHomeSelectionMode = false;
-			
-			if (gameplay.isStarted()) {
-				if (!gameplay.isRolled()) {
-					if (gameplay.mustHighlightCube()) {
-						game.highlightCube();
-					}
-				// highlight the possible moves if player hasn't move.
-				} else if (!gameplay.isMoved()) {
-					game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
-				}
-			}
+			resetSelections();
 		});
 		
 		initTouchableListeners();
 		initTouchablesStorersListeners();
+	}
+	public void resetSelections() {
+		// reshow the dices on the board,
+		// if player selected cube in its box or player's home
+		// but unselected it.
+		if (gameplay.isStarted()) {
+			if (!gameplay.isRolled() && !game.getBoard().isCubeInBoard()) {
+				// if box or player's home clicked, 
+				if (isCubeHomeSelectionMode || isHomeSelectionMode) {
+					game.getBoard().redrawDices(gameplay.getCurrent().getColor());
+				}
+			}
+		} else {
+			if (!game.getBoard().isCubeInBoard()) game.getBoard().redrawDices();
+		}
+		
+		game.unhighlightAll();
+		isPipSelectionMode = false;
+		isBarSelectionMode = false;
+		isHomeSelectionMode = false;
+		isCubeHomeSelectionMode = false;
+		
+		if (gameplay.isStarted()) {
+			if (!gameplay.isRolled()) {
+				if (gameplay.mustHighlightCube()) {
+					game.highlightCube();
+				}
+			// highlight the possible moves if player hasn't move.
+			} else if (!gameplay.isMoved()) {
+				game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
+			}
+		}
 	}
 	
 	private void initTouchableListeners() {
@@ -224,7 +227,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				// used to select the doubling cube.
 				} else {
 					if (!isInSelectionMode()) {
-						if (!gameplay.isStarted() || (!gameplay.isRolled() && !gameplay.isInTransition() && gameplay.mustHighlightCube())) {
+						if (!gameplay.isStarted() || (!gameplay.isRolled() && !gameplay.isInTransition() && !root.isCrawfordGame() && gameplay.mustHighlightCube())) {
 							// fromHome consideration only if its a doubling cube.
 							storerSelected = object;
 							Home fromHome = (Home) storerSelected;
@@ -252,7 +255,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					isHomeSelectionMode = false;
 				// no cube home selected, basis for fromCubeHome selection.
 				} else if (!isInSelectionMode()) {
-					if (!gameplay.isRolled() && !gameplay.isInTransition()) {
+					if (!gameplay.isStarted() || (!root.isCrawfordGame() && gameplay.mustHighlightCube())) {
 						storerSelected = object;
 						DoublingCubeHome fromCubeHome = (DoublingCubeHome) storerSelected;
 						
@@ -401,10 +404,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 
 	public void reset() {
 		dieState = 2;
-		isPipSelectionMode = false;
-		isBarSelectionMode = false;
-		isHomeSelectionMode = false;
-		isCubeHomeSelectionMode = false;
 		storerSelected = null;
+		resetSelections();
 	}
 }

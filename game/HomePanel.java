@@ -54,6 +54,13 @@ public class HomePanel extends BorderPane {
 			if (GameConstants.FORCE_13_CHECKERS_AT_HOME) {
 				top.initCheckers(13, top.getColor());
 				bottom.initCheckers(13, bottom.getColor());
+			} else if (GameConstants.FORCE_TEST_SINGLE) {
+				top.initCheckers(11, top.getColor());
+				bottom.initCheckers(9, bottom.getColor());
+			} else if (GameConstants.FORCE_TEST_GAMMON) {
+				bottom.initCheckers(9, bottom.getColor());
+			} else if (GameConstants.FORCE_TEST_BACKGAMMON) {
+				bottom.initCheckers(9, bottom.getColor());
 			} else {
 				top.removeCheckers();
 				bottom.removeCheckers();

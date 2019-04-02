@@ -40,6 +40,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private Stage stage;
 	private GameComponentsController game;
 	private GameplayController gameplay;
+	private EventController event;
 	private InfoPanel infoPnl;
 	private Player bottomPlayer, topPlayer;
 	private MainController root;
@@ -57,6 +58,9 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		this.infoPnl = infoPnl;
 		this.musicPlayer = musicPlayer;
 		soundFXPlayer = new SoundEffectsPlayer();
+	}
+	public void setEventController(EventController event) {
+		this.event = event;
 	}
 	
 	/**
@@ -301,11 +305,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			if (!gameplay.isRolled()) {
 				infoPnl.print("Rolling...", MessageType.ANNOUNCEMENT);
 				gameplay.roll();
+				event.resetSelections();
 				soundFXPlayer.playDiceSound();
 			} else {
 				infoPnl.print("Die has already been rolled.", MessageType.ERROR);
 			}
 		} else {
+			event.resetSelections();
+			
 			PlayerPerspectiveFrom pov;
 			if (args.length == 1) {
 				pov = PlayerPerspectiveFrom.BOTTOM;
@@ -396,29 +403,38 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		if (gameplay.isStarted()) {
 			if (!gameplay.isRolled()) {
 				if (!gameplay.isMaxDoubling()) {
-					// move cube from its box to player's board.
-					if (!game.getCubeHome().isEmpty()) {
-						runCommand("/movecube box " + parseColor(gameplay.getCurrent().getColor()));
-					// move cube from player's home to player's board.
-					} else if (gameplay.getCurrent().hasCube()) {
-						String pColorString = parseColor(gameplay.getCurrent().getColor());
-						runCommand("/movecube " + pColorString + " " + pColorString);
-						DoublingCube cube = game.getCube();
-						cube.doubleDoublingCube();
-						gameplay.setIsMaxDoubling(cube.isMaxDoubling());
+					if (!root.isCrawfordGame()) {
+						if (!gameplay.isCurrentPlayerScoreCapped()) {
+							// move cube from its box to player's board.
+							if (!game.getCubeHome().isEmpty()) {
+								game.getCube().setUsed(true);
+								runCommand("/movecube box " + parseColor(gameplay.getCurrent().getColor()));
+							// move cube from player's home to player's board.
+							} else if (gameplay.getCurrent().hasCube()) {
+								String pColorString = parseColor(gameplay.getCurrent().getColor());
+								runCommand("/movecube " + pColorString + " " + pColorString);
+								DoublingCube cube = game.getCube();
+								cube.doubleDoublingCube();
+								gameplay.setIsMaxDoubling(cube.isMaxDoubling());
+							} else {
+								infoPnl.print("Unable to propose doubling the stakes, you do not possess the doubling cube.", MessageType.ERROR);
+								return;
+							}
+							gameplay.doubling();
+							
+							// swap turns.
+							infoPnl.print(gameplay.getCurrent().getName() + " has proposed doubling the stakes.", MessageType.ANNOUNCEMENT);
+							gameplay.nextFunction();
+			
+							// Opponent player can either choose to accept or decline doubling cube.
+							infoPnl.print("Your mission " + gameplay.getCurrent().getName() + ", should you choose to accept it. Is to accept this doubling cube and defeat your enemies.");
+							infoPnl.print("Enter yes/no");
+						} else {
+							infoPnl.print("Unable to propose doubling the stakes, you have no reason to propose.", MessageType.ERROR);
+						}
 					} else {
-						infoPnl.print("Unable to propose doubling the stakes, you do not possess the doubling cube.", MessageType.ERROR);
-						return;
+						infoPnl.print("Unable to propose doubling the stakes, in the middle of a Crawford game.", MessageType.ERROR);
 					}
-					gameplay.doubling();
-					
-					// swap turns.
-					infoPnl.print(gameplay.getCurrent().getName() + " has proposed doubling the stakes.", MessageType.ANNOUNCEMENT);
-					gameplay.nextFunction();
-	
-					// Opponent player can either choose to accept or decline doubling cube.
-					infoPnl.print("Your mission " + gameplay.getCurrent().getName() + ", should you choose to accept it. Is to accept this doubling cube and defeat your enemies.");
-					infoPnl.print("Enter yes/no");
 				} else {
 					infoPnl.print("Unable to propose doubling the stakes, stakes is maxed.", MessageType.ERROR);
 				}
@@ -454,6 +470,13 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			gameplay.getOpponent().setHasCube(true);
 			gameplay.doubling();
 			gameplay.roll();
+			
+			// check if dead cube.
+			// dead cube if currentPlayer.score + 1*cubeMultiplier >= totalGames.
+			if (!gameplay.isMaxDoubling() && gameplay.isCurrentPlayerScoreCapped()) {
+				infoPnl.print("Dead cube in play.", MessageType.DEBUG);
+				gameplay.setIsMaxDoubling(true);
+			}
 		}
 	}
 	
@@ -719,80 +742,84 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private int step = 1;
 	private Timeline hitTl, bearOnTL, bearOffTL, traversalTl;
 	private void runTestCommand() {
-		game.reset();
-		
-		// test hit.
-		hitTl = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
-			switch (step) {
-				case 1:
-					infoPnl.print("Testing hit.");
-					runCommand("/move 1 2", true);
-					break;
-				case 2:
-					runCommand("/move 6 2", true);
-					break;
-				default:
-					infoPnl.print("Hit testing done.");
+		if (!gameplay.isStarted()) {
+			game.reset();
+			
+			// test hit.
+			hitTl = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
+				switch (step) {
+					case 1:
+						infoPnl.print("Testing hit.");
+						runCommand("/move 1 2", true);
+						break;
+					case 2:
+						runCommand("/move 6 2", true);
+						break;
+					default:
+						infoPnl.print("Hit testing done.");
+						infoPnl.printNewlines(2);
+						step = 1;
+						bearOnTL.play();
+						return;
+				}
+				step++;
+			}));
+			
+			// test bear-on.
+			bearOnTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
+				switch (step) {
+					case 1:
+						infoPnl.print("Testing bear-on.");
+						runCommand("/move black 2", true);
+						break;
+					default:
+						infoPnl.print("Bear-on testing done.");
+						infoPnl.printNewlines(2);
+						step = 1;
+						bearOffTL.play();
+						return;
+				}
+				step++;
+			}));
+			
+			// test bear-off.
+			bearOffTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
+				switch (step) {
+					case 1:
+						infoPnl.print("Testing bear-off.");
+						runCommand("/move 6 white", true);
+						break;
+					default:
+						infoPnl.print("Bear-off testing done.");
+						infoPnl.printNewlines(2);
+						infoPnl.print("Testing checkers traversal.");
+						step = 1;
+						traversalTl.play();
+						return;
+				}
+				step++;
+			}));
+			
+			// start from 24, go all the way until 1, white board.
+			traversalTl = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
+				if (checkerPos < 2) {
+					infoPnl.print("Checkers traversal done.");
 					infoPnl.printNewlines(2);
-					step = 1;
-					bearOnTL.play();
 					return;
-			}
-			step++;
-		}));
-		
-		// test bear-on.
-		bearOnTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
-			switch (step) {
-				case 1:
-					infoPnl.print("Testing bear-on.");
-					runCommand("/move black 2", true);
-					break;
-				default:
-					infoPnl.print("Bear-on testing done.");
-					infoPnl.printNewlines(2);
-					step = 1;
-					bearOffTL.play();
-					return;
-			}
-			step++;
-		}));
-		
-		// test bear-off.
-		bearOffTL = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
-			switch (step) {
-				case 1:
-					infoPnl.print("Testing bear-off.");
-					runCommand("/move 6 white", true);
-					break;
-				default:
-					infoPnl.print("Bear-off testing done.");
-					infoPnl.printNewlines(2);
-					infoPnl.print("Testing checkers traversal.");
-					step = 1;
-					traversalTl.play();
-					return;
-			}
-			step++;
-		}));
-		
-		// start from 24, go all the way until 1, white board.
-		traversalTl = new Timeline(new KeyFrame(Duration.seconds(1), ev -> {
-			if (checkerPos < 2) {
-				infoPnl.print("Checkers traversal done.");
-				infoPnl.printNewlines(2);
-				return;
-			}
-			runCommand("/move " + checkerPos + " " + (checkerPos-1), true);
-			checkerPos--;
-		}));
-		hitTl.setCycleCount(3);
-		bearOnTL.setCycleCount(2);
-		bearOffTL.setCycleCount(2);
-		traversalTl.setCycleCount(GameConstants.NUMBER_OF_PIPS);
-
-		infoPnl.printNewlines(2);
-		hitTl.play();
+				}
+				runCommand("/move " + checkerPos + " " + (checkerPos-1), true);
+				checkerPos--;
+			}));
+			hitTl.setCycleCount(3);
+			bearOnTL.setCycleCount(2);
+			bearOffTL.setCycleCount(2);
+			traversalTl.setCycleCount(GameConstants.NUMBER_OF_PIPS);
+	
+			infoPnl.printNewlines(2);
+			hitTl.play();
+		} else {
+			infoPnl.print("Cannot test when game is started.", MessageType.ERROR);
+		}
 	}
 	
 	public void reset() {

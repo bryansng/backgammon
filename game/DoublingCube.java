@@ -21,7 +21,7 @@ public class DoublingCube extends ImageView implements ColorPerspectiveParser, T
 	private Image[] cubeSides;
 	private Image[] cubeHighlightedSides;
 	private int currentSide;
-	private boolean isMaxDoubling;
+	private boolean isMaxDoubling, isUsed;
 	
 	/**
 	 * Constructors
@@ -111,16 +111,29 @@ public class DoublingCube extends ImageView implements ColorPerspectiveParser, T
 	
 	// for declined doubling cube multiplier.
 	public int getIntermediateGameMultiplier() {
-		return (int) Math.pow(2.0, currentSide);
+		if (isUsed)
+			return (int) Math.pow(2.0, currentSide);
+		return 1;
 	}
 	
 	// for game end multiplier.
 	public int getEndGameMultiplier() {
-		return (int) Math.pow(2.0, currentSide+1);
+		if (isUsed)
+			return (int) Math.pow(2.0, currentSide+1);
+		return 1;
 	}
 	
 	public boolean isMaxDoubling() {
 		return isMaxDoubling;
+	}
+	
+	public boolean isUsed() {
+		return isUsed;
+	}
+	public void setUsed(boolean isUsed) {
+		this.isUsed = isUsed;
+		currentSide = 0;
+		setNormalImage();
 	}
 	
 	public void resetRotation() {
@@ -128,8 +141,9 @@ public class DoublingCube extends ImageView implements ColorPerspectiveParser, T
 	}
 	
 	public void reset() {
-		currentSide = 0;
+		currentSide = MAX_DICE_SIZE-1;
 		isMaxDoubling = false;
+		isUsed = false;
 		setNormalImage();
 		resetRotation();
 	}

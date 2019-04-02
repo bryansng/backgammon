@@ -18,8 +18,12 @@ import exceptions.PlayerNoPerspectiveException;
  *
  */
 public class Settings {
-	public static int MATCH_POINT = 0;
+	public static int TOTAL_GAMES_IN_A_MATCH = 11;
 	public static final boolean ENABLE_NEXT_PAUSE = true;
+	
+	public static void setTotalGames(int totalGames) {
+		TOTAL_GAMES_IN_A_MATCH = totalGames;
+	}
 	
 	// by default, 1 starts at bottom right of screen, i.e. quadrant 4.
 	public static Quadrant getMainQuadrant() {

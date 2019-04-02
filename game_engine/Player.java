@@ -1,5 +1,6 @@
 package game_engine;
 
+import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
 import javafx.scene.paint.Color;
@@ -29,7 +30,16 @@ public class Player implements ColorPerspectiveParser {
 	public void reset() {
 		name = Settings.getDefaultPlayerName(pov);
 		hasCube = false;
-		score = 0;
+		if (GameConstants.FORCE_TEST_DEAD_CUBE)
+			score = Settings.TOTAL_GAMES_IN_A_MATCH-3;
+		else if (color.equals(Settings.getTopPerspectiveColor()) && (GameConstants.FORCE_TEST_CRAWFORD_RULE || GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE))
+			score = Settings.TOTAL_GAMES_IN_A_MATCH-7;
+		else if (color.equals(Settings.getBottomPerspectiveColor()) && GameConstants.FORCE_TEST_CRAWFORD_RULE)
+			score = Settings.TOTAL_GAMES_IN_A_MATCH-3;
+		else if (color.equals(Settings.getBottomPerspectiveColor()) && GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE)
+			score = Settings.TOTAL_GAMES_IN_A_MATCH-1;
+		else
+			score = 0;
 	}
 	
 	public String getName() {

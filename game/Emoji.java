@@ -103,6 +103,7 @@ public class Emoji extends ImageView {
 		setImage(winImgs.get(rand.nextInt(winImgs.size())));
 	}
 	
+	// hasPause used to induce a temporary sad face.
 	public void setLoseFace() {
 		setLoseFace(false);
 	}

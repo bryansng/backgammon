@@ -30,15 +30,26 @@ public class GameConstants {
 	// force ways to init pips and checkers.
 	public static final boolean FORCE_ONE_CHECKER = false;
 	public static final boolean FORCE_TWO_CHECKER = false;
+	
+	/* Debug Crawford Rule */
+	// first game is crawford game, /restart to get to the game after crawford game.
+	public static final boolean FORCE_TEST_AFTER_CRAWFORD_RULE = false;
+	// this only sets the players score.
+	// Set FORCE_TEST_SINGLE to true, and you test if you can get a crawford game.
+	// by make WHITE 8 -> 10.
+	public static final boolean FORCE_TEST_CRAWFORD_RULE = false;
+	
+	/* Debug Dead Cube */
+	public static final boolean FORCE_TEST_DEAD_CUBE = false;
 
 	/* Debug isGameOver */
 	// for checkers at home.
 	public static final boolean FORCE_13_CHECKERS_AT_HOME = false;
 	
 	/* Debug getGameOverScore */
-	public static final boolean FORCE_LOSER_CHECKER_AT_LOSER_INNER = false;		// single
-	public static final boolean FORCE_LOSER_CHECKER_AT_OUTER = false;			// gammon
-	public static final boolean FORCE_LOSER_CHECKER_AT_WINNER_INNER = false;	// backgammon
+	public static final boolean FORCE_TEST_SINGLE = false;		// single
+	public static final boolean FORCE_TEST_GAMMON = false;		// gammon
+	public static final boolean FORCE_TEST_BACKGAMMON = false;	// backgammon
 	
 	/* Debug BarToPip */
 	// for checkers at bars.

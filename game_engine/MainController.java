@@ -2,6 +2,7 @@ package game_engine;
 
 import java.util.Optional;
 import constants.GameConstants;
+import constants.MessageType;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
 import musicplayer.MusicPlayer;
@@ -53,7 +54,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	private EventController event;
 	private MusicPlayer musicPlayer;
 	private Stage stage;
-	private boolean playerInfosEnteredFirstTimeFlag, promptCancelFlag;
+	private boolean isPlayerInfosEnteredFirstTime, isPromptCancel, hadCrawfordGame, isCrawfordGame;
 	
 	/**
 	 * Default Constructor
@@ -80,8 +81,8 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		rollDieBtn = new RollDieButton();
 		cmdPnl = new CommandPanel();
 		musicPlayer = new MusicPlayer();
-		playerInfosEnteredFirstTimeFlag = true;
-		promptCancelFlag = false;
+		isPlayerInfosEnteredFirstTime = true;
+		isPromptCancel = false;
 	}
 	
 	/**
@@ -91,7 +92,9 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(stage, this, game, infoPnl, bottomPlayer, topPlayer);
 		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
+		gameplay.setCommandController(cmd);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
+		cmd.setEventController(event);
 		initLayout();
 	}
 	
@@ -102,8 +105,12 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		topPlayer.reset();
 		infoPnl.reset();
 		resetGame();
-		playerInfosEnteredFirstTimeFlag = true;
-		promptCancelFlag = false;
+		isPlayerInfosEnteredFirstTime = true;
+		isPromptCancel = false;
+		hadCrawfordGame = false;
+		isCrawfordGame = false;
+		
+		// TODO reset TOTAL_GAMES_IN_A_MATCH here.
 	}
 	
 	public void resetGame() {
@@ -113,8 +120,37 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		gameplay.reset();
 		cmd.reset();
 		event.reset();
+		
+		/* Handle Crawford Game */
+		// if did not have a crawford game,
+		// we check if next game is crawford game.
+		if (!hadCrawfordGame && checkIsCrawfordGame()) {
+			isCrawfordGame = true;
+			hadCrawfordGame = true;
+			infoPnl.print("New game is a Crawford game.", MessageType.DEBUG);
+		// if had crawford game,
+		// we check if the current game is a crawford game,
+		// if it is, we reset.
+		// giving us:
+		// isCrawfordGame = false, hadCrawfordGame = true.
+		} else if (isCrawfordGame) {
+			isCrawfordGame = false;
+			infoPnl.print("New game is not a Crawford game.", MessageType.DEBUG);
+		}
+		
+		if (!hadCrawfordGame && GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE) {
+			isCrawfordGame = true;
+			hadCrawfordGame = true;
+			infoPnl.print("New game is a Crawford game.", MessageType.DEBUG);
+		}
 	}
-
+	
+	// Checks if next game is crawford game.
+	// is crawford game either winner match score, i.e. TOTAL_GAMES_IN_A_MATCH-1.
+	private boolean checkIsCrawfordGame() {
+		return topPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1 || bottomPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1;
+	}
+	
 	/**
 	 * Remove previous event listeners and start game.
 	 * Called every /start.
@@ -129,12 +165,12 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 */
 	private void startGame() {
 		// prompt players for their infos only if it is their first time.
-		if (playerInfosEnteredFirstTimeFlag) {
+		if (isPlayerInfosEnteredFirstTime) {
 			promptPlayerInfos();
-			playerInfosEnteredFirstTimeFlag = false;
+			isPlayerInfosEnteredFirstTime = false;
 		}
 		
-		if (!promptCancelFlag) gameplay.start();
+		if (!isPromptCancel) gameplay.start();
 	}
 	
 	/**
@@ -208,7 +244,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 			if (wName.getText().length() != 0)
 				cmd.runCommand("/name white " + wName.getText());
 		} else {
-			promptCancelFlag = true;
+			isPromptCancel = true;
 			infoPnl.print("Game not started.");
 		}
 	}
@@ -263,5 +299,9 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 				}
 			}
 		);
+	}
+	
+	public boolean isCrawfordGame() {
+		return isCrawfordGame;
 	}
 }

@@ -289,15 +289,52 @@ public class Board extends BoardMoves {
 	// calculate the game score at game end based on rules.
 	public int getGameScore(Color loserColor) {
 		GameEndScore score = GameEndScore.SINGLE;
-		
-		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT) {
-			if (quad4.hasCheckerColor(loserColor)) {
-				score = GameEndScore.BACKGAMMON;
-			} else if (quad3.hasCheckerColor(loserColor) || quad2.hasCheckerColor(loserColor)) {
-				score = GameEndScore.GAMMON;
-			}
-		}
+
+		// if loser has checkers bore off.
+		if (isCheckersInHome(loserColor))
+			score = GameEndScore.SINGLE;
+		// if loser has no checkers bore off, and
+		// furthest checker is in opponent's inner board or bar.
+		else if (isCheckersInBar(loserColor) || isCheckersInWinnerInnerBoard(loserColor))
+			score = GameEndScore.BACKGAMMON;
+		// if loser has no checkers bore off, and
+		// furthest checker is in outer board or their inner board.
+		else if (isCheckersInOuterBoard(loserColor) || isCheckersInInnerBoard(loserColor))
+			score = GameEndScore.GAMMON;
 		
 		return score.ordinal();
+	}
+	
+	// checks if loser's checkers are in the outer board.
+	private boolean isCheckersInOuterBoard(Color loserColor) {
+		if (Settings.getWhiteHomeQuadrant() == Quadrant.BOTTOM_RIGHT || Settings.getWhiteHomeQuadrant() == Quadrant.TOP_RIGHT) {
+			return quad2.hasCheckerColor(loserColor) || quad3.hasCheckerColor(loserColor);
+		} else {
+			return quad1.hasCheckerColor(loserColor) || quad4.hasCheckerColor(loserColor);
+		}
+	}
+	
+	// checks if loser's checkers are in their inner board.
+	private boolean isCheckersInInnerBoard(Color loserColor) {
+		return getHomeQuadOfPlayer(loserColor).hasCheckerColor(loserColor);
+	}
+	
+	// checks if loser's checkers are in their home.
+	private boolean isCheckersInHome(Color loserColor) {
+		return !game.getMainHome().getHome(loserColor).isEmpty();
+	}
+	
+	// checks if loser's checkers are in winner's inner board.
+	private boolean isCheckersInWinnerInnerBoard(Color loserColor) {
+		if (loserColor == Settings.getBottomPerspectiveColor()) {
+			return getHomeQuadOfPlayer(Settings.getTopPerspectiveColor()).hasCheckerColor(loserColor);
+		} else {
+			return getHomeQuadOfPlayer(Settings.getBottomPerspectiveColor()).hasCheckerColor(loserColor);
+		}
+	}
+	
+	// checks if loser has checkers in his bar.
+	private boolean isCheckersInBar(Color loserColor) {
+		return !game.getBars().getBar(loserColor).isEmpty();
 	}
 }

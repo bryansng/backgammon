@@ -48,7 +48,7 @@ import ui.InfoPanel;
 public class GameplayController implements ColorParser, ColorPerspectiveParser, InputValidator, IndexOffset, IntegerLettersParser {
 	private Moves moves, noDuplicateRollMoves;
 	private HashMap<String, Move> map;
-	private boolean startedFlag, rolledFlag, movedFlag, firstRollFlag, topPlayerFlag, doublingFlag, doubledFlag, maxDoublingFlag, isInTransition, movesMapped;
+	private boolean isStarted, isRolled, isMoved, isFirstRoll, isTopPlayer, isDoubling, isDoubled, isMaxDoubling, isInTransition, isMovesMapped;
 	private Player bottomPlayer, topPlayer, pCurrent, pOpponent;
 	private int stalemateCount;
 	
@@ -57,6 +57,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	private Stage stage;
 	private MainController root;
+	private CommandController cmd;
 	
 	public GameplayController(Stage stage, MainController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
@@ -72,17 +73,23 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public void reset() {
 		moves = null;
 		noDuplicateRollMoves = null;
-		startedFlag = false;
-		rolledFlag = false;
-		movedFlag = false;
-		firstRollFlag = true;
-		topPlayerFlag = false;
-		doublingFlag = false;
-		doubledFlag = false;
-		maxDoublingFlag = false;
-		movesMapped = false;
+		isStarted = false;
+		isRolled = false;
+		isMoved = false;
+		isFirstRoll = true;
+		isTopPlayer = false;
+		isDoubling = false;
+		isDoubled = false;
+		isMaxDoubling = false;
+		isInTransition = false;
+		isMovesMapped = false;
+		if (nextPause != null) nextPause.stop();
 		stalemateCount = 0;
 		map.clear();
+	}
+	
+	public void setCommandController(CommandController cmd) {
+		this.cmd = cmd;
 	}
 	
 	/**
@@ -90,8 +97,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /start.
 	 */
 	public void start() {
-		startedFlag = true;
-		roll();
+		isStarted = true;
+		cmd.runCommand("/roll");
 		
 		// facial expressions.
 		game.getEmojiOfPlayer(pCurrent.getColor()).setThinkingFace();
@@ -106,24 +113,24 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		// start() calls this method(),
 		// we only get the first player once.
 		DieResults rollResult;
-		if (firstRollFlag) {
+		if (isFirstRoll) {
 			rollResult = game.getBoard().rollDices(DieInstance.SINGLE);
 			pCurrent = getFirstPlayerToRoll(rollResult);
 			pOpponent = getSecondPlayerToRoll(pCurrent);
 			infoPnl.print("First player to move is: " + pCurrent.getName() + ".");
-			firstRollFlag = false;
+			isFirstRoll = false;
 			handleNecessitiesOfEachTurn();	// highlight the current player's checker in his player panel.
 			
 			// if first player is top player, then we swap the pip number labels.
 			if (pCurrent.equals(topPlayer)) {
 				game.getBoard().swapPipLabels();
-				topPlayerFlag = true;
+				isTopPlayer = true;
 			}
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
 		infoPnl.print("Roll dice result: " + rollResult + ".");
-		rolledFlag = true;
+		isRolled = true;
 		
 		// calculate possible moves.
 		moves = null;
@@ -179,7 +186,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			if (moveMadeCausedPlayerAbleBearOff || moves.hasDiceResultsLeft()) {
 				recalculateMoves();
 			} else if (moves.isEmpty()) {
-				movedFlag = true;
+				isMoved = true;
 				infoPnl.print("Move over.");
 				next();
 			} else {
@@ -322,17 +329,18 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Called at /next.
 	 * @return the next player to roll.
 	 */
+	private Timeline nextPause;
 	public Player next() {
 		// this needs to be set first,
 		// if not during wait, players can /next more than once.
-		rolledFlag = false;
-		movedFlag = false;
+		isRolled = false;
+		isMoved = false;
 		
 		infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
 		
 		// pause for 2 seconds before "next-ing".
 		if (Settings.ENABLE_NEXT_PAUSE) {
-			Timeline nextPause = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
+			nextPause = new Timeline(new KeyFrame(Duration.seconds(2), ev -> {
 				nextFunction();
 				isInTransition = false;
 			}));
@@ -349,16 +357,24 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
 		pOpponent = temp;
-
 		if (pCurrent.equals(topPlayer)) {
-			topPlayerFlag = true;
+			isTopPlayer = true;
 		} else {
-			topPlayerFlag = false;
+			isTopPlayer = false;
 		}
 		game.getBoard().swapPipLabels();
 		
 		handleNecessitiesOfEachTurn();
-		if (mustHighlightCube()) game.highlightCube();
+		// if doubling cube can be highlighted,
+		// then player can choose to roll or play double,
+		// else we auto roll.
+		if (mustHighlightCube()) {
+			game.highlightCube();
+			infoPnl.print("You may now roll the dice or play the double.");
+		} else {
+			infoPnl.print("Cannot play double, auto rolling...");
+			roll();
+		}
 	}
 	
 	private void handleNecessitiesOfEachTurn() {
@@ -370,7 +386,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public boolean mustHighlightCube() {
 		boolean mustHighlightCube = false;
-		if (!isMaxDoubling() || isDoubling()) {
+		if (!root.isCrawfordGame() && !isMaxDoubling() || isDoubling()) {
 			// if cube in player's home,
 			// then highlight only when it is that player's turn.
 			if (game.isCubeInHome() && !pCurrent.hasCube()) {
@@ -378,8 +394,25 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			} else {
 				mustHighlightCube = true;
 			}
+			
+			// dont highlight cube if player's score
+			// is already capped with current stakes.
+			//
+			// only if doubling stakes hasn't been proposed.
+			if (isCurrentPlayerScoreCapped() && !isDoubling()) {
+				mustHighlightCube = false;
+				infoPnl.print("Cube not highlighted, player's score is capped.", MessageType.DEBUG);
+			}
 		}
 		return mustHighlightCube;
+	}
+	
+	// checks if current player's score added with current cube multiplier
+	// causes player to reach total matches,
+	// i.e. player wins the match if player wins this game.
+	// i.e. currentPlayer.score + 1*cubeMultiplier >= totalGames.
+	public boolean isCurrentPlayerScoreCapped() {
+		return pCurrent.getScore() + game.getCube().getEndGameMultiplier() >= Settings.TOTAL_GAMES_IN_A_MATCH;
 	}
 	
 	/**
@@ -510,11 +543,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	public void doubling() {
 		if (isDoubling()) {
-			doublingFlag = false;
-			doubledFlag = true;
+			isDoubling = false;
+			isDoubled = true;
 		} else {
-			doublingFlag = true;
-			doubledFlag = false;
+			isDoubling = true;
+			isDoubled = false;
 		}
 	}
 	
@@ -551,7 +584,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				letterValue++;
 			}
 		}
-		movesMapped = true;
+		isMovesMapped = true;
 	}
 	
 	/**
@@ -604,7 +637,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	public boolean isMapped() {
-		return movesMapped;
+		return isMovesMapped;
 	}
 	
 	/**
@@ -730,7 +763,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		Player winner = pCurrent;
 		Player loser = pOpponent;
 		DoublingCube cube = game.getCube();
-		score = winner.getScore() + game.getBoard().getGameScore(loser.getColor())*cube.getIntermediateGameMultiplier();
+		score = winner.getScore() + game.getBoard().getGameScore(loser.getColor())*cube.getEndGameMultiplier();
 		return score;
 	}
 	
@@ -746,29 +779,29 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	public String correct(int pipNum) {
-		return getOutputPipNumber(pipNum, topPlayerFlag);
+		return getOutputPipNumber(pipNum, isTopPlayer);
 	}
 	
 	public boolean isStarted() {
-		return startedFlag;
+		return isStarted;
 	}
 	public boolean isRolled() {
-		return rolledFlag;
+		return isRolled;
 	}
 	public boolean isMoved() {
-		return movedFlag;
+		return isMoved;
 	}
 	public boolean isDoubling() {
-		return doublingFlag;
+		return isDoubling;
 	}
 	public boolean isDoubled() {
-		return doubledFlag;
+		return isDoubled;
 	}
 	public boolean isMaxDoubling() {
-		return maxDoublingFlag;
+		return isMaxDoubling;
 	}
 	public boolean isTopPlayer() {
-		return topPlayerFlag;
+		return isTopPlayer;
 	}
 	public boolean isInTransition() {
 		return isInTransition;
@@ -783,7 +816,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		return pOpponent;
 	}
 	public void setIsMaxDoubling(boolean isMaxDoubling) {
-		maxDoublingFlag = isMaxDoubling;
+		this.isMaxDoubling = isMaxDoubling;
 	}
 	
 	/**
