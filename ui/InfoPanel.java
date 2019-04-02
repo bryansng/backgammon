@@ -2,6 +2,7 @@ package ui;
 
 import constants.GameConstants;
 import constants.MessageType;
+import game_engine.Settings;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
@@ -46,9 +47,11 @@ public class InfoPanel extends ScrollPane {
 		setFitToWidth(true);									// text fits into width.
 		setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);		// no horizontal scroll bar.
 		vvalueProperty().bind(textContainer.heightProperty());	// auto scroll down with texts.
-		//setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
-		//setPadding(new Insets(0));
 		setFocusTraversable(false);
+		drawScrollPane();
+	}
+	private void drawScrollPane() {
+		if (Settings.DARK_THEME) setStyle("-fx-background-color: #60544c;");
 	}
 	
 	private void styleTextContainer() {
@@ -56,11 +59,13 @@ public class InfoPanel extends ScrollPane {
 		textPadding = 3;
 		textContainer.setPadding(new Insets(textPadding, textPadding*3, textPadding, textPadding*3));
 		textContainer.setLineSpacing(textPadding / 2.0);
-		//textContainer.setStyle("-fx-background-color: rgb(255, 255, 255, 0.5)");
-		//textContainer.setStyle("-fx-background-color: rgb(245, 255, 250, 1);"); //minty color
-		//textContainer.setStyle("-fx-background-color: rgb(139, 69, 19, 0.5);"); //brownish
-		textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
-		//textContainer.setLineSpacing(textPadding);
+		//textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
+		textContainer.setMinHeight(height);
+		textContainer.setLineSpacing(textPadding);
+		drawTextContainer();
+	}
+	private void drawTextContainer() {
+		if (Settings.DARK_THEME) textContainer.setBackground(GameConstants.getPanelImage());
 	}
 	
 	private void initLayout() {
@@ -102,7 +107,33 @@ public class InfoPanel extends ScrollPane {
 		text.setFont(GameConstants.getFont());
 		String prefix = ">";
 		String type = "";
-		switch (mtype) {
+		
+		if (Settings.DARK_THEME) {
+			switch (mtype) {
+				case ANNOUNCEMENT:
+					prefix = "\n" + prefix;
+					text.setFont(GameConstants.getFont(true, false));
+				case SYSTEM:
+					type = "[System]";
+					text.setFill(Color.CHARTREUSE);
+					break;
+				case ERROR:
+					type = "[Error]";
+					text.setFill(Color.rgb(254, 168, 117));
+					break;
+				case DEBUG:
+					type = "[Debug]";
+					text.setFill(Color.SILVER);
+					break;
+				case WARNING:
+					type = "[Warning]";
+					text.setFill(Color.GOLD);
+				case CHAT:
+					text.setFill(Color.rgb(247, 220, 111));
+					break;
+			}
+		} else {
+			switch (mtype) {
 			case ANNOUNCEMENT:
 				prefix = "\n" + prefix;
 				text.setFont(GameConstants.getFont(true, false));
@@ -124,6 +155,7 @@ public class InfoPanel extends ScrollPane {
 			case CHAT:
 				text.setFill(Color.ORANGE);
 				break;
+			}
 		}
 		text.setText(prefix + " " + type + " " + msg + "\n");
 		
@@ -218,8 +250,14 @@ public class InfoPanel extends ScrollPane {
 		return textContainer.getChildren().size() > GameConstants.TEXT_CONTAINER_THRESHOLD;
 	}
 	
+	public void redraw() {
+		drawScrollPane();
+		drawTextContainer();
+	}
+	
 	public void reset() {
 		textContainer.getChildren().clear();
 		welcome();
+		redraw();
 	}
 }

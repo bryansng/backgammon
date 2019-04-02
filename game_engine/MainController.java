@@ -91,7 +91,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	private void initGame() {
 		game = new GameComponentsController(bottomPlayer, topPlayer);
 		gameplay = new GameplayController(stage, this, game, infoPnl, bottomPlayer, topPlayer);
-		cmd = new CommandController(stage, this, game, gameplay, infoPnl, bottomPlayer, topPlayer, musicPlayer);
+		cmd = new CommandController(stage, this, game, gameplay, infoPnl, cmdPnl, bottomPlayer, topPlayer, musicPlayer);
 		gameplay.setCommandController(cmd);
 		event = new EventController(stage, this, game, gameplay, cmdPnl, cmd, infoPnl, rollDieBtn);
 		cmd.setEventController(event);

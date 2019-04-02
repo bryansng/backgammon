@@ -1,6 +1,7 @@
 package ui;
 
 import constants.GameConstants;
+import game_engine.Settings;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
@@ -23,9 +24,9 @@ public class CommandPanel extends TextField {
 		
 		setPromptText("Player inputs text here, then hit Enter\n");
 		setMinHeight(GameConstants.getUIHeight());
-		//setEffect(new DropShadow(20, 0, 0, Color.BLACK));
 		setFont(GameConstants.getFont());
 		initListeners();
+		redraw();
 	}
 	
 	public void addHistory(String cmd) {
@@ -65,7 +66,15 @@ public class CommandPanel extends TextField {
 		return isCommand;
 	}
 	
+	public void redraw() {
+		if (Settings.DARK_THEME) {
+			setBackground(GameConstants.getPanelImage());
+			setStyle("-fx-text-inner-color: floralwhite;");
+		}
+	}
+	
 	public void reset() {
 		history.reset();
+		redraw();
 	}
 }

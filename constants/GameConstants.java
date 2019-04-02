@@ -207,7 +207,7 @@ public class GameConstants {
 	}
 
 	/**
-	 * Returns the image of the table (Window background).
+	 * Returns table (window) background.
 	 * @return image of the table.
 	 */
 	public static Background getTableImage() {
@@ -220,14 +220,29 @@ public class GameConstants {
 		}
 		return bg;
 	}
-	
+
 	
 	/**
-	 * Returns the image of the game.
+	 * Returns board (game) background.
 	 * @return image of the game.
 	 */
 	public static Background getGameImage() {
 		InputStream input = getFile("img/board/brown.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bg;
+	}
+	
+	/**
+	 * Returns info panel background.
+	 * @return image of info panel.
+	 */
+	public static Background getPanelImage() {
+		InputStream input = getFile("img/board/panel.png");
 		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
 		try {
 			input.close();
