@@ -20,7 +20,7 @@ import javafx.scene.text.Font;
  *
  */
 public class GameConstants {
-	public static final boolean DEBUG_MODE = false;
+	public static final boolean DEBUG_MODE = true;
 	public static final boolean VERBOSE_MODE = false;
 	public static final boolean VERY_VERBOSE_MODE = false;
 
@@ -75,6 +75,9 @@ public class GameConstants {
 	public static final int FONT_SIZE = 15;
 	public static final int FONT_SIZE_PLAYER_PANEL = 16;
 	public static final int FONT_SIZE_PIP_NUMBER_LABEL = 14;
+	
+	public static final boolean DARK_THEME = false;
+	public static final boolean LIGHT_THEME = true;
 	
 	/**
 	 * Loads font from file and returns a font object with that font.
@@ -183,7 +186,7 @@ public class GameConstants {
 	}
 
 	/**
-	 * Returns the image of the table (Window background).
+	 * Returns table (window) background.
 	 * @return image of the table.
 	 */
 	public static Background getTableImage() {
@@ -196,10 +199,10 @@ public class GameConstants {
 		}
 		return bg;
 	}
-	
+
 	
 	/**
-	 * Returns the image of the game.
+	 * Returns board (game) background.
 	 * @return image of the game.
 	 */
 	public static Background getGameImage() {
@@ -212,6 +215,23 @@ public class GameConstants {
 		}
 		return bg;
 	}
+	
+	/**
+	 * Returns info panel background.
+	 * @return image of info panel.
+	 */
+	public static Background getPanelImage() {
+		InputStream input = getFile("img/board/panel.png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bg;
+	}
+	
+	
 	
 	/**
 	 * Returns the height of the point labels.

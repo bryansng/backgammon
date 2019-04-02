@@ -46,8 +46,7 @@ public class InfoPanel extends ScrollPane {
 		setFitToWidth(true);									// text fits into width.
 		setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);		// no horizontal scroll bar.
 		vvalueProperty().bind(textContainer.heightProperty());	// auto scroll down with texts.
-		//setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
-		//setPadding(new Insets(0));
+		if (GameConstants.DARK_THEME) setStyle("-fx-background-color: #60544c;");
 		setFocusTraversable(false);
 	}
 	
@@ -59,8 +58,10 @@ public class InfoPanel extends ScrollPane {
 		//textContainer.setStyle("-fx-background-color: rgb(255, 255, 255, 0.5)");
 		//textContainer.setStyle("-fx-background-color: rgb(245, 255, 250, 1);"); //minty color
 		//textContainer.setStyle("-fx-background-color: rgb(139, 69, 19, 0.5);"); //brownish
-		textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
-		//textContainer.setLineSpacing(textPadding);
+		//textContainer.setMinHeight(height - textPadding * 2);	// needs to be set, if not the white background uneven at start.
+		textContainer.setMinHeight(height);
+		textContainer.setLineSpacing(textPadding);
+		if (GameConstants.DARK_THEME) textContainer.setBackground(GameConstants.getPanelImage());
 	}
 	
 	private void initLayout() {
@@ -102,7 +103,33 @@ public class InfoPanel extends ScrollPane {
 		text.setFont(GameConstants.getFont());
 		String prefix = ">";
 		String type = "";
-		switch (mtype) {
+		
+		if (GameConstants.DARK_THEME)
+			switch (mtype) {
+				case ANNOUNCEMENT:
+					prefix = "\n" + prefix;
+					text.setFont(GameConstants.getFont(true));
+				case SYSTEM:
+					type = "[System]";
+					text.setFill(Color.CHARTREUSE);
+					break;
+				case ERROR:
+					type = "[Error]";
+					text.setFill(Color.rgb(254, 168, 117));
+					break;
+				case DEBUG:
+					type = "[Debug]";
+					text.setFill(Color.SILVER);
+					break;
+				case WARNING:
+					type = "[Warning]";
+					text.setFill(Color.GOLD);
+				case CHAT:
+					text.setFill(Color.rgb(247, 220, 111));
+					break;
+			}
+		else if (GameConstants.LIGHT_THEME)
+			switch (mtype) {
 			case ANNOUNCEMENT:
 				prefix = "\n" + prefix;
 				text.setFont(GameConstants.getFont(true));
@@ -124,8 +151,9 @@ public class InfoPanel extends ScrollPane {
 			case CHAT:
 				text.setFill(Color.ORANGE);
 				break;
-		}
+			}
 		text.setText(prefix + " " + type + " " + msg + "\n");
+		
 		
 		// same as
 		// (debugMode || (!debugMode && mtype != MessageType.DEBUG))
