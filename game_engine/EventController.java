@@ -36,7 +36,7 @@ import ui.RollDieButton;
  */
 public class EventController implements ColorParser, ColorPerspectiveParser, InputValidator {
 	private Stage stage;
-	private MainController root;
+	private MatchController root;
 	private GameComponentsController game;
 	private GameplayController gameplay;
 	private InfoPanel infoPnl;
@@ -44,7 +44,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 	private CommandPanel cmdPnl;
 	private CommandController cmd;
 
-	public EventController(Stage stage, MainController root, GameComponentsController game, GameplayController gameplay,
+	public EventController(Stage stage, MatchController root, GameComponentsController game, GameplayController gameplay,
 			CommandPanel cmdPnl, CommandController cmd, InfoPanel infoPnl, RollDieButton rollDieBtn) {
 		this.stage = stage;
 		this.root = root;
@@ -242,6 +242,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			if (!ButtonType.OK.equals(closeResponse.get())) {
 				event.consume();
 			}
+			
+			GameConstants.exit = true;
 		});
 	}
 

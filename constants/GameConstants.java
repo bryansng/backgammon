@@ -34,6 +34,7 @@ public class GameConstants {
 	/* Debug isGameOver */
 	// for checkers at home.
 	public static final boolean FORCE_13_CHECKERS_AT_HOME = false;
+	public static final boolean FORCE_EASY_GAME_OVER = false;
 	
 	/* Debug BarToPip */
 	// for checkers at bars.
@@ -75,6 +76,8 @@ public class GameConstants {
 	public static final int FONT_SIZE = 15;
 	public static final int FONT_SIZE_PLAYER_PANEL = 16;
 	public static final int FONT_SIZE_PIP_NUMBER_LABEL = 14;
+	
+	public static boolean exit = false;
 	
 	/**
 	 * Loads font from file and returns a font object with that font.

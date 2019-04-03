@@ -3,9 +3,11 @@ package game_engine;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Optional;
+
 import constants.DieInstance;
 import constants.GameConstants;
 import constants.MessageType;
+import constants.PlayerPerspectiveFrom;
 import game.Bar;
 import game.DieResults;
 import game.Home;
@@ -108,9 +110,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				game.getBoard().swapPipLabels();
 				topPlayerFlag = true;
 			}
+			startTimer();
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
+		
 		infoPnl.print("Roll dice result: " + rollResult + ".");
 		rolledFlag = true;
 		
@@ -201,10 +205,32 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else {
 			handleCharacterMapping();
 			printMoves();
-			
 			// highlight top checkers.
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		}
+	}
+	
+	/**
+	 * Starts the timer for the respective player's turn
+	 * if the safe timer runs out (15 secs), it will start decrementing the player's individual timer per sec
+	 */
+	private void startTimer() {
+		if (pCurrent.getPOV() == PlayerPerspectiveFrom.TOP)
+			game.getTopPlayerPanel().startMoveTimer();
+		else 
+			game.getBottomPlayerPanel().startMoveTimer();
+	}
+	
+	/**
+	 * Stops the timer for the respective player's turn
+	 * If timer is stopped within the safe timer's limit, then nothing is decremented
+	 * Else, update the player's individual timer
+	 */
+	private void stopTimer() {
+		if (pCurrent.getPOV() == PlayerPerspectiveFrom.TOP)
+			game.getTopPlayerPanel().stopMoveTimer();
+		else
+			game.getBottomPlayerPanel().stopMoveTimer();
 	}
 	
 	/**
@@ -301,6 +327,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @return the next player to roll.
 	 */
 	public Player next() {
+		stopTimer();
 		// this needs to be set first,
 		// if not during wait, players can /next more than once.
 		movedFlag = false;
@@ -319,6 +346,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		return pCurrent;
 	}
 	private void nextFunction() {
+		 // HERE--
 		// swap players.
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
@@ -330,7 +358,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			topPlayerFlag = false;
 		}
 		game.getBoard().swapPipLabels();
-		
+		startTimer(); // HERE--
 		roll(); // auto roll.
 	}
 	

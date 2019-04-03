@@ -38,11 +38,11 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private GameplayController gameplay;
 	private InfoPanel infoPnl;
 	private Player bottomPlayer, topPlayer;
-	private MainController root;
+	private MatchController root;
 	private MusicPlayer musicPlayer;
 	private SoundEffectsPlayer soundFXPlayer;
 	
-	public CommandController(Stage stage, MainController root, GameComponentsController game,
+	public CommandController(Stage stage, MatchController root, GameComponentsController game,
 			GameplayController gameplay, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer, MusicPlayer musicPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
