@@ -23,7 +23,7 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage stage) throws Exception {
-		MainController root = new MainController(stage);
+		MatchController root = new MatchController(stage);
 		
 		Scene scene = new Scene(root);
 		

@@ -5,10 +5,12 @@ import constants.GameConstants;
 import constants.MessageType;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
+import interfaces.InputValidator;
 import musicplayer.MusicPlayer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.control.Dialog;
 import javafx.scene.control.Label;
@@ -42,7 +44,7 @@ import ui.RollDieButton;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class MainController extends GridPane implements ColorPerspectiveParser {
+public class MatchController extends GridPane implements ColorPerspectiveParser, InputValidator {
 	private Player bottomPlayer;
 	private Player topPlayer;
 	private GameComponentsController game;
@@ -63,7 +65,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	 * 		- Initialize the layout of the components.
 	 * 		- Style the application.
 	 */
-	public MainController(Stage stage) {
+	public MatchController(Stage stage) {
 		super();
 		this.stage = stage;
 		initApplication();
@@ -109,8 +111,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 		isPromptCancel = false;
 		hadCrawfordGame = false;
 		isCrawfordGame = false;
-		
-		// TODO reset TOTAL_GAMES_IN_A_MATCH here.
+		Settings.setTotalGames(Settings.DEFAULT_TOTAL_GAMES);
 	}
 	
 	public void resetGame() {
@@ -144,7 +145,6 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 			infoPnl.print("New game is a Crawford game.", MessageType.DEBUG);
 		}
 	}
-	
 	// Checks if next game is crawford game.
 	// is crawford game either winner match score, i.e. TOTAL_GAMES_IN_A_MATCH-1.
 	private boolean checkIsCrawfordGame() {
@@ -166,11 +166,126 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 	private void startGame() {
 		// prompt players for their infos only if it is their first time.
 		if (isPlayerInfosEnteredFirstTime) {
-			promptPlayerInfos();
-			isPlayerInfosEnteredFirstTime = false;
+			promptTotalGames();
+			if (!isPromptCancel) promptPlayerInfos();
 		}
 		
-		if (!isPromptCancel) gameplay.start();
+		if (!isPromptCancel) {
+			isPlayerInfosEnteredFirstTime = false;
+			gameplay.start();
+		}
+	}
+	
+	/**
+	 * Displays a dialog that prompts players to input names and choose a score limit
+	 * 
+	 *  NOTE:
+	 * 		- Players can start the game with or without changing default round by clicking start.
+	 * 		- Players can cancel the game by clicking cancel.
+	 * 		- Players can NOT have negative, even totalGames.
+	 * 
+	 */
+	private void promptTotalGames() {
+		Dialog<Pair<String, String>> dialog = new Dialog<>();
+		dialog.setTitle("Please enter the Total Number of Games");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		
+		ButtonType button = new ButtonType("Next", ButtonData.OK_DONE);
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
+		
+		GridPane pane = new GridPane();
+		pane.setAlignment(Pos.CENTER);
+		pane.setPadding(new Insets(35, 55, 10, 55));
+		pane.setHgap(20);
+		pane.setVgap(10);
+		
+		TextField totalGames = new TextField();
+		totalGames.setPromptText("Default: 11");
+		totalGames.setMinHeight(GameConstants.getUIHeight()*0.85);
+		totalGames.setPadding(new Insets(5));
+		
+		pane.add(totalGames, 0, 0);
+		
+		dialog.getDialogPane().setContent(pane);
+		
+		dialog.setResultConverter(click -> {
+			if (click == button)
+				return new Pair<>(totalGames.getText(), totalGames.getText());
+			return null;
+		});
+		
+		Optional<Pair<String, String>> result = dialog.showAndWait();
+		
+		if (result.isPresent()) {
+			String userInput = totalGames.getText();
+			if (userInput.length() == 0 || isValidInput(userInput)) {
+				if (userInput.length() != 0) Settings.setTotalGames(Integer.parseInt(userInput));
+				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
+			} else {
+				infoPnl.print("Input must be a positive odd number. Please try again.", MessageType.ERROR);
+				promptTotalGames();
+			}
+			isPromptCancel = false;
+		} else {
+			isPromptCancel = true;
+			infoPnl.print("Game not started.");
+		}
+	}
+	// valid input if:
+	// - is a number.
+	// - positive.
+	// - odd.
+	private boolean isValidInput(String userInput) {
+		boolean isValidInput = false;
+		// is a number.
+		if (isNumber(userInput)) {
+			int num = Integer.parseInt(userInput);
+			
+			// positive and odd.
+			if (num > 0 && num % 2 != 0) {
+				isValidInput = true;
+			}
+		}
+		return isValidInput;
+	}
+	
+	/**
+	 * Returns true if match over.
+	 * Match over if player score greater or equal than total games.
+	 * @return boolean value indicating if match is over.
+	 */
+	public boolean isMatchOver() {
+		return (topPlayer.getScore() >= Settings.TOTAL_GAMES_IN_A_MATCH) || (bottomPlayer.getScore() >= Settings.TOTAL_GAMES_IN_A_MATCH);
+	}
+	
+	/**
+	 * If a player has a score equal to the maximum score,
+	 * then announce the winner and ask if they want to play again.
+	 */
+	public void handleMatchOver() {
+		Player winner = gameplay.getCurrent();
+		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+		dialog.setTitle("Congratulations!");
+		dialog.initModality(Modality.APPLICATION_MODAL);
+		dialog.initOwner(stage);
+		dialog.setGraphic(null);
+		dialog.setContentText("Play again?");
+		dialog.setHeaderText("The winner of the match is " + winner.getName());
+		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+		
+		Optional<ButtonType> result = dialog.showAndWait();
+		
+		// Restart game if player wishes,
+		// else exit gameplay mode and enter free-for-all mode.
+		if (ButtonType.OK.equals(result.get())) {
+			resetApplication();
+			cmd.runCommand("/start");
+		} else {
+			resetApplication();
+			infoPnl.print("Enter /start if you wish to play again.", MessageType.ANNOUNCEMENT);
+			infoPnl.print("Enter /quit if you wish to quit.", MessageType.ANNOUNCEMENT);
+		}
 	}
 	
 	/**
@@ -243,6 +358,7 @@ public class MainController extends GridPane implements ColorPerspectiveParser {
 				cmd.runCommand("/name black " + bName.getText());
 			if (wName.getText().length() != 0)
 				cmd.runCommand("/name white " + wName.getText());
+			isPromptCancel = false;
 		} else {
 			isPromptCancel = true;
 			infoPnl.print("Game not started.");

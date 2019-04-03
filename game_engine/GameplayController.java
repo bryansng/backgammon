@@ -56,10 +56,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	private InfoPanel infoPnl;
 	
 	private Stage stage;
-	private MainController root;
+	private MatchController root;
 	private CommandController cmd;
 	
-	public GameplayController(Stage stage, MainController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
+	public GameplayController(Stage stage, MatchController root, GameComponentsController game, InfoPanel infoPnl, Player bottomPlayer, Player topPlayer) {
 		this.bottomPlayer = bottomPlayer;
 		this.topPlayer = topPlayer;
 		this.stage = stage;
@@ -126,9 +126,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				game.getBoard().swapPipLabels();
 				isTopPlayer = true;
 			}
+			startTimer();
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
+		
 		infoPnl.print("Roll dice result: " + rollResult + ".");
 		isRolled = true;
 		
@@ -175,7 +177,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	public void move() {
 		stalemateCount = 0;
 		
-		// if game over, then announce winner and reset gameplay.
 		if (isGameOver()) {
 			handleGameOver();
 		// else, proceed to gameplay.
@@ -230,10 +231,27 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else {
 			handleCharacterMapping();
 			printMoves();
-			
 			// highlight top checkers.
 			game.getBoard().highlightFromPipsAndFromBarChecker(moves);
 		}
+	}
+	
+	/**
+	 * Starts the timer for the respective player's turn.
+	 * If the safe timer runs out (15 secs),
+	 * it will start decrementing the player's individual timer per sec.
+	 */
+	private void startTimer() {
+		game.getPlayerPanel(pCurrent.getColor()).startMoveTimer();
+	}
+	
+	/**
+	 * Stops the timer for the respective player's turn.
+	 * If timer is stopped within the safe timer's limit, then nothing is decremented,
+	 * else, update the player's individual timer
+	 */
+	private void stopTimer() {
+		game.getPlayerPanel(pCurrent.getColor()).stopMoveTimer();
 	}
 	
 	/**
@@ -331,6 +349,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 */
 	private Timeline nextPause;
 	public Player next() {
+		stopTimer();
 		// this needs to be set first,
 		// if not during wait, players can /next more than once.
 		isRolled = false;
@@ -352,7 +371,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	public void nextFunction() {
 		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
-		
 		// swap players.
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
@@ -373,6 +391,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			infoPnl.print("You may now roll the dice or play the double.");
 		} else {
 			infoPnl.print("Cannot play double, auto rolling...");
+			startTimer();
 			roll();
 		}
 	}
@@ -701,48 +720,60 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	}
 	
 	/**
-	 * Announces game over on infoPnl and dialog prompt, then ask if player wants another game.
+	 * If either player's score is not equal to the max score per match,
+	 * announces game over on infoPnl and dialog prompt,
+	 * then ask if player wants another game.
+	 * 
+	 * Else announce the winner and ask if the players want to play another match.
 	 */
 	private void handleGameOver() {
-		// Create dialog prompt.
-		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-		dialog.setTitle("Congratulations! Play again?");
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(stage);
-		dialog.setGraphic(null);
-		dialog.setContentText("Play again?");
-		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+		handleGameOverScore();
 		
+		if (root.isMatchOver())
+			root.handleMatchOver();
+		else {
+			// Create dialog prompt.
+			Alert dialog = new Alert(Alert.AlertType.INFORMATION);
+			int remainingScore = Settings.TOTAL_GAMES_IN_A_MATCH - pCurrent.getScore();
+			dialog.setTitle("Winner winner chicken dinner!");
+			dialog.initModality(Modality.APPLICATION_MODAL);
+			dialog.initOwner(stage);
+			dialog.setGraphic(null);
+			dialog.setContentText("Continue to next game?");
+			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+			
+			// Auto save game log.
+			infoPnl.saveToFile();
+			
+			// Output to dialog prompt.
+			String playerResult = pCurrent.getScore() + " down, " + remainingScore + " to go.";
+			dialog.setHeaderText("Congratulations, " + pCurrent.getName() + " " + playerResult);
+			Optional<ButtonType> result = dialog.showAndWait();
+			
+			// Restart game if player wishes,
+			// else exit gameplay mode and enter free-for-all mode.
+			if (ButtonType.OK.equals(result.get())) {
+				infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
+				root.restartGame();
+			} else {
+				infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
+				reset();
+			}
+		}
+	}
+	
+	private void handleGameOverScore() {
 		// Output to infoPnl.
-		String winningMsg = "";
 		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
 		Home filledHome = game.getMainHome().getFilledHome();
 		if (filledHome.getColor().equals(pCurrent.getColor())) {
-			winningMsg = "Congratulations, " + pCurrent.getName() + " won.";
 			PlayerPanel winnerPnl = game.getPlayerPanel(pCurrent.getColor());
 			winnerPnl.setPlayerScore(pCurrent, getGameOverScore());
-			infoPnl.print(winningMsg);
+			infoPnl.print("Congratulations, " + pCurrent.getName() + " won.");
 			
 			// facial expressions.
 			game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
 			game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
-		}
-		
-		// Auto save game log.
-		infoPnl.saveToFile();
-		
-		// Output to dialog prompt.
-		dialog.setHeaderText(winningMsg);
-		Optional<ButtonType> result = dialog.showAndWait();
-		
-		// Restart game if player wishes,
-		// else exit gameplay mode and enter free-for-all mode.
-		if (ButtonType.OK.equals(result.get())) {
-			infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
-			root.restartGame();
-		} else {
-			infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
-			reset();
 		}
 	}
 	
