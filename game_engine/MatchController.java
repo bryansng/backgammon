@@ -295,7 +295,11 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 
 			String userInput = results.totalGames;
 			if (userInput.length() == 0 || isValidInput(userInput)) {
-				if (userInput.length() != 0) Settings.setTotalGames(Integer.parseInt(userInput));
+				if (userInput.length() != 0) {
+					Settings.setTotalGames(Integer.parseInt(userInput));
+					game.getPlayerPanel(Settings.getTopPerspectiveColor()).updateTotalGames();
+					game.getPlayerPanel(Settings.getBottomPerspectiveColor()).updateTotalGames();
+				}
 				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
 			} else {
 				infoPnl.print("You must play to a positive odd number. Please try again.", MessageType.ERROR);

@@ -100,6 +100,10 @@ public class PlayerPanel extends HBox implements ColorParser {
 		playerScore.setText(player.getScore() + " / " + Settings.TOTAL_GAMES_IN_A_MATCH);
 	}
 	
+	public void updateTotalGames() {
+		setPlayerScore(player, player.getScore());
+	}
+	
 	public void highlightChecker() {
 		playerColor.getChecker().setHighlightImage();
 	}
