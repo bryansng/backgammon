@@ -1,6 +1,5 @@
 package game_engine;
 
-import java.util.concurrent.TimeUnit;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
@@ -21,7 +20,6 @@ public class Player implements ColorPerspectiveParser {
 	private Color color;
 	private boolean hasCube;
 	private PlayerPerspectiveFrom pov;
-	private long time; // in seconds
 	
 	public Player(PlayerPerspectiveFrom pov) {
 		this.pov = pov;
@@ -42,7 +40,6 @@ public class Player implements ColorPerspectiveParser {
 			score = Settings.TOTAL_GAMES_IN_A_MATCH-1;
 		else
 			score = 0;
-		time = 2280;
 	}
 	
 	public String getName() {
@@ -65,16 +62,6 @@ public class Player implements ColorPerspectiveParser {
 		return hasCube;
 	}
 	
-	public long getTime() {
-		return time;
-	}
-	
-	public String formatTime() {
-		long minutes = TimeUnit.SECONDS.toMinutes(time);
-		long seconds = time - TimeUnit.MINUTES.toSeconds(TimeUnit.SECONDS.toMinutes(time));
-		return String.format("%02d:%02d", minutes, seconds); // Print 2 decimal places
-	}
-	
 	public void setName(String name) {
 		this.name = name;
 	}
@@ -89,9 +76,5 @@ public class Player implements ColorPerspectiveParser {
 	
 	public void setHasCube(boolean hasCube) {
 		this.hasCube = hasCube;
-	}
-	
-	public void setTime(long time) {
-		this.time = time;
 	}
 } 

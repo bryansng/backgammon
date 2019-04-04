@@ -126,7 +126,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 				game.getBoard().swapPipLabels();
 				isTopPlayer = true;
 			}
-			startTimer();
 		} else {
 			rollResult = game.getBoard().rollDices(pCurrent.getPOV());
 		}
@@ -241,8 +240,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * If the safe timer runs out (15 secs),
 	 * it will start decrementing the player's individual timer per sec.
 	 */
-	private void startTimer() {
-		game.getPlayerPanel(pCurrent.getColor()).startMoveTimer();
+	private void startCurrentPlayerTimer() {
+		game.getPlayerPanel(pCurrent.getColor()).getTimer().start();
 	}
 	
 	/**
@@ -250,8 +249,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * If timer is stopped within the safe timer's limit, then nothing is decremented,
 	 * else, update the player's individual timer
 	 */
-	private void stopTimer() {
-		game.getPlayerPanel(pCurrent.getColor()).stopMoveTimer();
+	private void stopCurrentPlayerTimer() {
+		game.getPlayerPanel(pCurrent.getColor()).getTimer().stop();
 	}
 	
 	/**
@@ -349,11 +348,11 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 */
 	private Timeline nextPause;
 	public Player next() {
-		stopTimer();
 		// this needs to be set first,
 		// if not during wait, players can /next more than once.
 		isRolled = false;
 		isMoved = false;
+		stopCurrentPlayerTimer();
 		
 		infoPnl.print("Swapping turns...", MessageType.ANNOUNCEMENT);
 		
@@ -370,8 +369,28 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		return pCurrent;
 	}
 	public void nextFunction() {
+		if (isDoubling()) stopCurrentPlayerTimer();
+		
 		infoPnl.print("It is now " + pOpponent.getName() + "'s (" + parseColor(pOpponent.getColor()) + ") move.");
-		// swap players.
+		swapPlayers();
+		game.getBoard().swapPipLabels();
+		
+		handleNecessitiesOfEachTurn();
+		
+		// if doubling cube can be highlighted,
+		// then player can choose to roll or play double.
+		if (mustHighlightCube()) {
+			game.highlightCube();
+			infoPnl.print("You may now roll the dice or play the double.");
+		} else {
+			infoPnl.print("You can only roll the dice.");
+			/*
+			infoPnl.print("Cannot play double, auto rolling...");
+			roll();
+			*/
+		}
+	}
+	private void swapPlayers() {
 		Player temp = pCurrent;
 		pCurrent = pOpponent;
 		pOpponent = temp;
@@ -380,23 +399,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		} else {
 			isTopPlayer = false;
 		}
-		game.getBoard().swapPipLabels();
-		
-		handleNecessitiesOfEachTurn();
-		// if doubling cube can be highlighted,
-		// then player can choose to roll or play double,
-		// else we auto roll.
-		if (mustHighlightCube()) {
-			game.highlightCube();
-			infoPnl.print("You may now roll the dice or play the double.");
-		} else {
-			infoPnl.print("Cannot play double, auto rolling...");
-			startTimer();
-			roll();
-		}
 	}
 	
 	private void handleNecessitiesOfEachTurn() {
+		startCurrentPlayerTimer();
 		// highlight the current player's checker in his player panel,
 		// and unhighlight opponent's.
 		game.getPlayerPanel(pCurrent.getColor()).highlightChecker();
@@ -417,7 +423,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			// dont highlight cube if player's score
 			// is already capped with current stakes.
 			//
-			// only if doubling stakes hasn't been proposed.
+			// highlight only if doubling stakes hasn't been proposed.
 			if (isCurrentPlayerScoreCapped() && !isDoubling()) {
 				mustHighlightCube = false;
 				infoPnl.print("Cube not highlighted, player's score is capped.", MessageType.DEBUG);
@@ -727,6 +733,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * Else announce the winner and ask if the players want to play another match.
 	 */
 	private void handleGameOver() {
+		stopCurrentPlayerTimer();
 		handleGameOverScore();
 		
 		if (root.isMatchOver())
@@ -735,7 +742,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			// Create dialog prompt.
 			Alert dialog = new Alert(Alert.AlertType.INFORMATION);
 			int remainingScore = Settings.TOTAL_GAMES_IN_A_MATCH - pCurrent.getScore();
-			dialog.setTitle("Winner winner chicken dinner!");
+			dialog.setTitle("Winner Winner Chicken Dinner!");
 			dialog.initModality(Modality.APPLICATION_MODAL);
 			dialog.initOwner(stage);
 			dialog.setGraphic(null);
@@ -747,7 +754,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			
 			// Output to dialog prompt.
 			String playerResult = pCurrent.getScore() + " down, " + remainingScore + " to go.";
-			dialog.setHeaderText("Congratulations, " + pCurrent.getName() + " " + playerResult);
+			dialog.setHeaderText("Congratulations, " + pCurrent.getName() + ".  " + playerResult);
 			Optional<ButtonType> result = dialog.showAndWait();
 			
 			// Restart game if player wishes,

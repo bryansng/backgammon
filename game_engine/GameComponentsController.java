@@ -288,4 +288,9 @@ public class GameComponentsController extends VBox {
 		topPlayerPnl.reset();
 		btmPlayerPnl.reset();
 	}
+	// used exclusively to reset after each match, not each game.
+	public void resetTimers() {
+		topPlayerPnl.resetTimer();
+		btmPlayerPnl.resetTimer();
+	}
 }

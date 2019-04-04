@@ -3,6 +3,8 @@ package game_engine;
 import java.util.Optional;
 import constants.GameConstants;
 import constants.MessageType;
+import events.OutOfTimeHandler;
+import events.OutOfTimeSelectedEvent;
 import events.TouchablesStorerHandler;
 import events.TouchablesStorerSelectedEvent;
 import game.Bar;
@@ -67,6 +69,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 		
 		initTouchableListeners();
 		initTouchablesStorersListeners();
+		initOutOfTimeListener();
 	}
 	public void resetSelections() {
 		// reshow the dices on the board,
@@ -309,10 +312,20 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			}
 		}
 	};
-	
 	public boolean isInSelectionMode() {
 		return isPipSelectionMode || isBarSelectionMode || isCubeHomeSelectionMode || isHomeSelectionMode;
 	}
+	
+	private void initOutOfTimeListener() {
+		root.addEventHandler(OutOfTimeSelectedEvent.OUTOFTIME, outOfTimeHandler);
+	}
+	OutOfTimeHandler outOfTimeHandler = new OutOfTimeHandler() {
+		@Override
+		public void onOutOfTime() {
+			infoPnl.print("You ran out of time.");
+			root.handleMatchOver(true);
+		}
+	};
 
 	/**
 	 * Manages all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
@@ -399,9 +412,6 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			if (!ButtonType.OK.equals(closeResponse.get())) {
 				event.consume();
 			}
-			
-			// TODO check if there is a way to not use this to stop threads.
-			GameConstants.exit = true;
 		});
 	}
 
