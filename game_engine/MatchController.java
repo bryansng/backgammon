@@ -12,12 +12,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.scene.control.Dialog;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.effect.DropShadow;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyCodeCombination;
 import javafx.scene.input.KeyCombination;
@@ -29,6 +24,8 @@ import javafx.stage.Stage;
 import ui.CommandPanel;
 import ui.InfoPanel;
 import ui.RollDieButton;
+import ui.ScoreboardPrompt;
+import ui.Dialogs;
 
 /**
  * This class represents the entire component of the application,
@@ -224,61 +221,20 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	 * 		- Players can NOT have negative or even totalGames.
 	 */
 	private void promptStartGame() {
-		// Dialog to prompt player.
-		Dialog<promptResults> dialog = new Dialog<>();
-		dialog.setTitle("Please enter player names and number of games to play");
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(stage);
+		// Create dialog.
+		Dialogs<promptResults> dialog = new Dialogs<promptResults>("Please enter player names and number of games to play", stage, "Start");
 		
-		// Start and cancel buttons for dialog.
-		ButtonType button = new ButtonType("Start", ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
+		// Create dialog contents.
+		ScoreboardPrompt contents = new ScoreboardPrompt();
 		
-		// Layout for player name fields.
-		GridPane pane = new GridPane();
-		pane.setAlignment(Pos.CENTER);
-		pane.setPadding(new Insets(35, 55, 10, 55));
-		pane.setHgap(20);
-		pane.setVgap(10);
-		
-		// Player color + total games labels.
-		ImageView black = new ImageView(this.getClass().getResource("/game/img/checkers/black_checkers.png").toString());
-		ImageView white = new ImageView(this.getClass().getResource("/game/img/checkers/white_checkers.png").toString());
-		Label bLabel = new Label("", black);
-		Label wLabel = new Label("", white);
-		Label totalGamesLabel = new Label("Total number of games");
-		
-		// Player name + total games fields.
-		Insets inset = new Insets(5);
-		TextField bName = new TextField();
-		bName.setPromptText("Default: Tea");
-		bName.setMinHeight(GameConstants.getUIHeight()*0.85);
-		bName.setPadding(inset);
-		TextField wName =  new TextField();
-		wName.setPromptText("Default: Cup");
-		wName.setMinHeight(GameConstants.getUIHeight()*0.85);
-		wName.setPadding(inset);
-		TextField totalGames = new TextField();
-		totalGames.setPromptText("Default: 11");
-		totalGames.setMinHeight(GameConstants.getUIHeight()*0.85);
-		totalGames.setPadding(inset);
-		
-		// Add labels and name fields to pane.
-		pane.add(bLabel, 0, 0);
-		pane.add(bName, 1, 0);
-		pane.add(wLabel, 0, 1);
-		pane.add(wName, 1, 1);
-		pane.add(totalGamesLabel, 0, 2);
-		pane.add(totalGames, 1, 2);
-		
-		// Add pane to dialog.
-		dialog.getDialogPane().setContent(pane);
+		// Add contents to dialog.
+		dialog.getDialogPane().setContent(contents);
 		
 		// On click start button, return player names as result.
 		// Else result is null, cancel the game.
 		dialog.setResultConverter(click -> {
-			if (click == button)
-				return new promptResults(bName.getText(), wName.getText(), totalGames.getText());
+			if (click == dialog.getButton())
+				return new promptResults(contents.getPlayerInput("black"), contents.getPlayerInput("white"), contents.getPlayerInput("score"));
 			return null;
 		});
 		
@@ -289,9 +245,9 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		// If result is null, cancel starting the game.
 		result.ifPresent((promptResults results) -> {
 			if (results.bName.length() != 0)
-				cmd.runCommand("/name black " + bName.getText());
+				cmd.runCommand("/name black " + results.bName);
 			if (results.wName.length() != 0)
-				cmd.runCommand("/name white " + wName.getText());			
+				cmd.runCommand("/name white " + results.wName);			
 
 			String userInput = results.totalGames;
 			if (userInput.length() == 0 || isValidInput(userInput)) {
@@ -301,12 +257,12 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 					game.getPlayerPanel(Settings.getBottomPerspectiveColor()).updateTotalGames();
 				}
 				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
+				isPromptCancel = false;
 			} else {
-				infoPnl.print("You must play to a positive odd number. Please try again.", MessageType.ERROR);
+				infoPnl.print("You must play to a positive odd number less than 100. Please try again.", MessageType.ERROR);
+				isPromptCancel = true;
 				promptStartGame();
 			}
-			
-			isPromptCancel = false;
         });
 		if (!result.isPresent()) {
 			isPromptCancel = true;
@@ -340,7 +296,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 			int num = Integer.parseInt(userInput);
 			
 			// positive and odd.
-			if (num > 0 && num % 2 != 0) {
+			if (num > 0 && num % 2 != 0 && num < 100) {
 				isValidInput = true;
 			}
 		}

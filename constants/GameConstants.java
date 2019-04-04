@@ -256,6 +256,21 @@ public class GameConstants {
 	}
 	
 	/**
+	 * Returns score board prompt background.
+	 * @return image of score board.
+	 */
+	public static Background getScoreboardImage(String color) {
+		InputStream input = getFile("img/board/scoreboard_" + color + ".png");
+		Background bg = new Background(new BackgroundImage(new Image(input), null, null, null, null));
+		try {
+			input.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return bg;
+	}
+	
+	/**
 	 * Returns the height of the point labels.
 	 * @return height of point label.
 	 */
