@@ -26,7 +26,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.Pair;
 import ui.CommandPanel;
 import ui.InfoPanel;
 import ui.RollDieButton;
@@ -166,8 +165,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	private void startGame() {
 		// prompt players for their infos only if it is their first time.
 		if (isPlayerInfosEnteredFirstTime) {
-			promptTotalGames();
-			if (!isPromptCancel) promptPlayerInfos();
+			promptStartGame();
 		}
 		
 		if (!isPromptCancel) {
@@ -175,81 +173,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 			gameplay.start();
 		}
 	}
-	
-	/**
-	 * Displays a dialog that prompts players to input names and choose a score limit
-	 * 
-	 *  NOTE:
-	 * 		- Players can start the game with or without changing default round by clicking start.
-	 * 		- Players can cancel the game by clicking cancel.
-	 * 		- Players can NOT have negative, even totalGames.
-	 * 
-	 */
-	private void promptTotalGames() {
-		Dialog<Pair<String, String>> dialog = new Dialog<>();
-		dialog.setTitle("Please enter the Total Number of Games");
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(stage);
 		
-		ButtonType button = new ButtonType("Next", ButtonData.OK_DONE);
-		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
-		
-		GridPane pane = new GridPane();
-		pane.setAlignment(Pos.CENTER);
-		pane.setPadding(new Insets(35, 55, 10, 55));
-		pane.setHgap(20);
-		pane.setVgap(10);
-		
-		TextField totalGames = new TextField();
-		totalGames.setPromptText("Default: 11");
-		totalGames.setMinHeight(GameConstants.getUIHeight()*0.85);
-		totalGames.setPadding(new Insets(5));
-		
-		pane.add(totalGames, 0, 0);
-		
-		dialog.getDialogPane().setContent(pane);
-		
-		dialog.setResultConverter(click -> {
-			if (click == button)
-				return new Pair<>(totalGames.getText(), totalGames.getText());
-			return null;
-		});
-		
-		Optional<Pair<String, String>> result = dialog.showAndWait();
-		
-		if (result.isPresent()) {
-			String userInput = totalGames.getText();
-			if (userInput.length() == 0 || isValidInput(userInput)) {
-				if (userInput.length() != 0) Settings.setTotalGames(Integer.parseInt(userInput));
-				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
-			} else {
-				infoPnl.print("Input must be a positive odd number. Please try again.", MessageType.ERROR);
-				promptTotalGames();
-			}
-			isPromptCancel = false;
-		} else {
-			isPromptCancel = true;
-			infoPnl.print("Game not started.");
-		}
-	}
-	// valid input if:
-	// - is a number.
-	// - positive.
-	// - odd.
-	private boolean isValidInput(String userInput) {
-		boolean isValidInput = false;
-		// is a number.
-		if (isNumber(userInput)) {
-			int num = Integer.parseInt(userInput);
-			
-			// positive and odd.
-			if (num > 0 && num % 2 != 0) {
-				isValidInput = true;
-			}
-		}
-		return isValidInput;
-	}
-	
 	/**
 	 * Returns true if match over.
 	 * Match over if player score greater or equal than total games.
@@ -289,17 +213,20 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	}
 	
 	/**
-	 * Displays a dialog that prompts players to input names and choose checker colors.
+	 * Displays a dialog that prompts players to input
+	 * 		- Player names and colors.
+	 * 		- Score limit for this match.
 	 * 
-	 * NOTE:
-	 * 		- Players can start the game with or without changing default names by clicking start.
-	 * 		- Players can cancel the game by clicking cancel.
+	 * NOTE: 
+	 * 		- Players can start the game with or without changing default round by clicking start.
+	 * 		- Players can cancel starting the game by clicking cancel.
 	 * 		- Players can NOT have empty names.
+	 * 		- Players can NOT have negative or even totalGames.
 	 */
-	private void promptPlayerInfos() {
+	private void promptStartGame() {
 		// Dialog to prompt player.
-		Dialog<Pair<String, String>> dialog =  new Dialog<>();
-		dialog.setTitle("Please enter players' names");
+		Dialog<promptResults> dialog = new Dialog<>();
+		dialog.setTitle("Please enter player names and number of games to play");
 		dialog.initModality(Modality.APPLICATION_MODAL);
 		dialog.initOwner(stage);
 		
@@ -314,13 +241,14 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		pane.setHgap(20);
 		pane.setVgap(10);
 		
-		// Player color labels.
+		// Player color + total games labels.
 		ImageView black = new ImageView(this.getClass().getResource("/game/img/checkers/black_checkers.png").toString());
 		ImageView white = new ImageView(this.getClass().getResource("/game/img/checkers/white_checkers.png").toString());
 		Label bLabel = new Label("", black);
 		Label wLabel = new Label("", white);
+		Label totalGamesLabel = new Label("Total number of games");
 		
-		// Player name fields.
+		// Player name + total games fields.
 		Insets inset = new Insets(5);
 		TextField bName = new TextField();
 		bName.setPromptText("Default: Tea");
@@ -330,12 +258,18 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		wName.setPromptText("Default: Cup");
 		wName.setMinHeight(GameConstants.getUIHeight()*0.85);
 		wName.setPadding(inset);
+		TextField totalGames = new TextField();
+		totalGames.setPromptText("Default: 11");
+		totalGames.setMinHeight(GameConstants.getUIHeight()*0.85);
+		totalGames.setPadding(inset);
 		
 		// Add labels and name fields to pane.
 		pane.add(bLabel, 0, 0);
 		pane.add(bName, 1, 0);
 		pane.add(wLabel, 0, 1);
 		pane.add(wName, 1, 1);
+		pane.add(totalGamesLabel, 0, 2);
+		pane.add(totalGames, 1, 2);
 		
 		// Add pane to dialog.
 		dialog.getDialogPane().setContent(pane);
@@ -344,25 +278,69 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		// Else result is null, cancel the game.
 		dialog.setResultConverter(click -> {
 			if (click == button)
-				return new Pair<>(bName.getText(), wName.getText());
+				return new promptResults(bName.getText(), wName.getText(), totalGames.getText());
 			return null;
 		});
 		
 		// Show dialog to get player input.
-		Optional<Pair<String, String>> result = dialog.showAndWait();
+		Optional<promptResults> result = dialog.showAndWait();
 		
 		// If result is present and name is not empty, change player names.
 		// If result is null, cancel starting the game.
-		if (result.isPresent()) {
-			if (bName.getText().length() != 0)
+		result.ifPresent((promptResults results) -> {
+			if (results.bName.length() != 0)
 				cmd.runCommand("/name black " + bName.getText());
-			if (wName.getText().length() != 0)
-				cmd.runCommand("/name white " + wName.getText());
+			if (results.wName.length() != 0)
+				cmd.runCommand("/name white " + wName.getText());			
+
+			String userInput = results.totalGames;
+			if (userInput.length() == 0 || isValidInput(userInput)) {
+				if (userInput.length() != 0) Settings.setTotalGames(Integer.parseInt(userInput));
+				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
+			} else {
+				infoPnl.print("You must play to a positive odd number. Please try again.", MessageType.ERROR);
+				promptStartGame();
+			}
+			
 			isPromptCancel = false;
-		} else {
+        });
+		if (!result.isPresent()) {
 			isPromptCancel = true;
 			infoPnl.print("Game not started.");
 		}
+	}
+	/**
+	 * Inner class that stores results of promptStartGame() so we can process user input.
+	 * 		- Player names + total games they play to
+	 * NOTE: totalGames is a string here so we can validate player input before processing it
+	 */
+	private static class promptResults {
+		String bName;
+		String wName;
+		String totalGames;
+		
+		promptResults(String bName, String wName, String totalGames) {
+			this.bName = bName;
+			this.wName = wName;
+			this.totalGames = totalGames;
+		}
+	}
+	// valid input if:
+	// - is a number.
+	// - positive.
+	// - odd.
+	private boolean isValidInput(String userInput) {
+		boolean isValidInput = false;
+		// is a number.
+		if (isNumber(userInput)) {
+			int num = Integer.parseInt(userInput);
+			
+			// positive and odd.
+			if (num > 0 && num % 2 != 0) {
+				isValidInput = true;
+			}
+		}
+		return isValidInput;
 	}
 	
 	/**
