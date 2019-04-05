@@ -22,9 +22,7 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.paint.Color;
 import javafx.util.Duration;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import move.BarToPip;
 import move.Move;
@@ -33,7 +31,9 @@ import move.PipToHome;
 import move.PipToPip;
 import move.RollMoves;
 import move.SumMove;
+import ui.Dialogs;
 import ui.InfoPanel;
+import ui.ScoreboardPrompt;
 
 /**
  * This class handles the gameplay of Backgammon.
@@ -732,27 +732,25 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 		if (root.isMatchOver())
 			root.handleMatchOver();
 		else {
-			// Create dialog prompt.
-			Alert dialog = new Alert(Alert.AlertType.INFORMATION);
 			int remainingScore = Settings.TOTAL_GAMES_IN_A_MATCH - pCurrent.getScore();
-			dialog.setTitle("Winner winner chicken dinner!");
-			dialog.initModality(Modality.APPLICATION_MODAL);
-			dialog.initOwner(stage);
-			dialog.setGraphic(null);
-			dialog.setContentText("Continue to next game?");
-			dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+			String playerResult = pCurrent.getScore() + " down, " + remainingScore + " to go.";
+			
+			// Create dialog prompt.			
+			Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Winner winner chicken dinner, " + pCurrent.getName() + "! " + playerResult, stage, "Next game");
+			
+			// Add score board to dialog prompt
+			ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);
+			dialog.getDialogPane().setContent(contents);
 			
 			// Auto save game log.
 			infoPnl.saveToFile();
 			
 			// Output to dialog prompt.
-			String playerResult = pCurrent.getScore() + " down, " + remainingScore + " to go.";
-			dialog.setHeaderText("Congratulations, " + pCurrent.getName() + " " + playerResult);
 			Optional<ButtonType> result = dialog.showAndWait();
 			
 			// Restart game if player wishes,
 			// else exit gameplay mode and enter free-for-all mode.
-			if (ButtonType.OK.equals(result.get())) {
+			if (result.get().equals(dialog.getButton())) {
 				infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
 				root.restartGame();
 			} else {

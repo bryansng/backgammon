@@ -10,7 +10,6 @@ import musicplayer.MusicPlayer;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.input.KeyCode;
@@ -19,7 +18,6 @@ import javafx.scene.input.KeyCombination;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.stage.Modality;
 import javafx.stage.Stage;
 import ui.CommandPanel;
 import ui.InfoPanel;
@@ -186,20 +184,18 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	 */
 	public void handleMatchOver() {
 		Player winner = gameplay.getCurrent();
-		Alert dialog = new Alert(Alert.AlertType.INFORMATION);
-		dialog.setTitle("Congratulations!");
-		dialog.initModality(Modality.APPLICATION_MODAL);
-		dialog.initOwner(stage);
-		dialog.setGraphic(null);
-		dialog.setContentText("Play again?");
-		dialog.setHeaderText("The winner of the match is " + winner.getName());
-		dialog.getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL);
+		
+		Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Congratulations, " + winner.getName() + " wins the match!", stage, "Play again");
+		
+		ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);		
+
+		dialog.getDialogPane().setContent(contents);
 		
 		Optional<ButtonType> result = dialog.showAndWait();
 		
 		// Restart game if player wishes,
 		// else exit gameplay mode and enter free-for-all mode.
-		if (ButtonType.OK.equals(result.get())) {
+		if (result.get().equals(dialog.getButton())) {
 			resetApplication();
 			cmd.runCommand("/start");
 		} else {

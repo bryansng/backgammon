@@ -11,7 +11,9 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextAlignment;
@@ -28,42 +30,52 @@ import javafx.scene.text.TextAlignment;
  */
 public class ScoreboardPrompt extends GridPane {
 	// Display fonts.
-	Font score = Font.loadFont(GameConstants.getFontInputStream(true, true), 150);
-	Font title = Font.loadFont(GameConstants.getFontInputStream(), 50);
-	Font names = Font.loadFont(GameConstants.getFontInputStream(), 15);
+	private Font score = Font.loadFont(GameConstants.getFontInputStream(true, true), 150);
+	private Font match = Font.loadFont(GameConstants.getFontInputStream(), 50);
+	private Font label = Font.loadFont(GameConstants.getFontInputStream(), 20);
+	private Font field = Font.loadFont(GameConstants.getFontInputStream(), 18);
 
 	// Labels for player colors + total games.
-	Labels bColor = new Labels("", getCheckerImg("black"));;
-	Labels wColor = new Labels("", getCheckerImg("white"));;
-	Labels totalGamesLabel = new Labels("MATCH\nTO");
+	private Labels bColor = new Labels("", getCheckerImg("black"), false);;
+	private Labels wColor = new Labels("", getCheckerImg("white"), false);;
+	private Labels totalGamesLabel = new Labels("MATCH\nTO", true);
 	
 	// TextFields for player names + total games.
-	TextFields bNameField;
-	TextFields wNameField;	
-	TextFields totalGames;
+	private TextFields bNameField;
+	private TextFields wNameField;	
+	private TextFields totalGames;
 	
 	// Labels for player names.
-	Labels bNameLabel;
-	Labels wNameLabel;
+	private Labels bNameLabel;
+	private Labels wNameLabel;
+	
+	// NameCards to display player colors and names.
+	private NameCard black;
+	private NameCard white;
 	
 	// ScoreCards to display player and match score.
-	ScoreCard bScore;
-	ScoreCard wScore;
-	ScoreCard mScore;
+	private ScoreCard bScore;
+	private ScoreCard wScore;
+	private ScoreCard mScore;
 	
 	/**
-	 * Constructs a GridPane with a given style, depending on context.
+	 * Constructs a GridPane with a given style, 
+	 * depending on context (start/end game).
+	 * Note: End of game requires passing in the correct players.
 	 */
 	public ScoreboardPrompt() {
 		initStyle();
-		addStartComponents();
+		initStartComponents();
 	}
 	public ScoreboardPrompt(Player bPlayer, Player wPlayer) {
 		initStyle();
-		addEndComponents(bPlayer, wPlayer);
+		initEndComponents(bPlayer, wPlayer);
 	}
 	
-	public void initStyle() {
+	/**
+	 * Styles the grid pane.
+	 */
+	private void initStyle() {
 		setAlignment(Pos.CENTER);
 		setVgap(5);
 		setHgap(10);
@@ -72,11 +84,15 @@ public class ScoreboardPrompt extends GridPane {
 	/**
 	 * Initializes and adds components of promptStartGame().
 	 */
-	public void addStartComponents() {
+	private void initStartComponents() {
 		// TextFields for player names + total games.
 		bNameField = new TextFields("Default: Tea", false);
 		wNameField = new TextFields("Default: Cup", false);
 		totalGames = new TextFields("11", true);
+		
+		// Name  for player names + colors
+		black = new NameCard(bColor, bNameField);
+		white = new NameCard(wColor, wNameField);
 		
 		// Garbage collection for unused variables in this prompt.
 		bNameLabel = null;
@@ -88,14 +104,7 @@ public class ScoreboardPrompt extends GridPane {
 		mScore = null;
 		
 		// Add components to pane
-		add(bColor, 0, 0);
-		add(bNameField, 1, 0);	
-		add(bScore, 0, 1, 2, 1);
-		add(totalGamesLabel, 2, 0);
-		add(totalGames, 2, 1);
-		add(wColor, 3, 0);
-		add(wNameField, 4, 0);	
-		add(wScore, 3, 1, 2, 1);
+		addComponents(black, bScore, totalGamesLabel, totalGames, white, wScore);
 		
 		// Ensures components are centered. 
 		centering(totalGamesLabel, bScore, totalGames, wScore);
@@ -103,18 +112,21 @@ public class ScoreboardPrompt extends GridPane {
 	
 	/**
 	 * Initializes and adds components of onGameOver().
-	 * @param bPlayer
-	 * @param wPlayer
+	 * Note: End of game requires passing in the correct players.
 	 */
-	public void addEndComponents(Player bPlayer, Player wPlayer) {
+	private void initEndComponents(Player bPlayer, Player wPlayer) {
 		// Garbage collection for unused variables in this prompt.
 		bNameField = null;
 		wNameField = null;
 		totalGames = null;
 		
 		// Labels for player names.
-		bNameLabel = new Labels(bPlayer.getName());
-		wNameLabel = new Labels(wPlayer.getName());
+		bNameLabel = new Labels(bPlayer.getName(), false);
+		wNameLabel = new Labels(wPlayer.getName(), false);
+		
+		// NameCards for player colors and names.
+		black = new NameCard(bColor, bNameLabel);
+		white = new NameCard(wColor, wNameLabel);
 
 		// Updated ScoreCards for players and current match.
 		bScore = new ScoreCard(Integer.toString(bPlayer.getScore()), false);
@@ -122,21 +134,36 @@ public class ScoreboardPrompt extends GridPane {
 		mScore = new ScoreCard(Integer.toString(Settings.TOTAL_GAMES_IN_A_MATCH), true);
 				
 		// Add components to pane
-		add(bColor, 0, 0);
-		add(bNameLabel, 1, 0);	
-		add(bScore, 0, 1, 2, 1);
-		add(totalGamesLabel, 2, 0);
-		add(mScore, 2, 1);
-		add(wColor, 3, 0);
-		add(wNameLabel, 4, 0);	
-		add(wScore, 3, 1, 2, 1);
+		addComponents(black, bScore, totalGamesLabel, mScore, white, wScore);
 		
 		// Ensures components are centered. 
 		centering(totalGamesLabel, bScore, mScore, wScore);
 	}
+
+	/**
+	 * Adds components to grid pane.
+	 */
+	private void addComponents(NameCard black, ScoreCard bScore, Labels totalGamesLabel, TextFields totalGames, NameCard white, ScoreCard wScore) {
+		// Add components to pane
+		add(black, 0, 0);
+		add(bScore, 0, 1);
+		add(totalGamesLabel, 1, 0);
+		add(totalGames, 1, 1);
+		add(white, 2, 0);
+		add(wScore, 2, 1);
+	}
+	private void addComponents(NameCard black, ScoreCard bScore, Labels totalGamesLabel, ScoreCard mScore, NameCard white, ScoreCard wScore) {
+		// Add components to pane
+		add(black, 0, 0);
+		add(bScore, 0, 1);
+		add(totalGamesLabel, 1, 0);
+		add(mScore, 1, 1);
+		add(white, 2, 0);
+		add(wScore, 2, 1);
+	}
 	
 	/**
-	 * Centers certain components in the grid pane.
+	 * Centers components in the grid pane.
 	 */
 	private void centering(Labels totalGamesLabel, ScoreCard bScore, TextField totalGames, ScoreCard wScore) {		
 		setHalignment(totalGamesLabel, HPos.CENTER);
@@ -155,7 +182,7 @@ public class ScoreboardPrompt extends GridPane {
 	
 	/**
 	 * Accesses contents of TextFields in this class.
-	 * @param string determines which TextField
+	 * @param string determining which TextField
 	 * @return contents of TextFields
 	 */
 	public String getPlayerInput(String string) {
@@ -171,25 +198,32 @@ public class ScoreboardPrompt extends GridPane {
 	
 	/**
 	 * Inner class to customize labels.
-	 * 		- Constructor takes in string and ImageView to initialize.
+	 * Constructor takes in
+	 * 		- a string to initialize display label.
+	 * 		- an ImageView to initialize display checker colors.
+	 * 		- a boolean isMatch to determine if it's a match label.
 	 */
 	private class Labels extends Label {
-		private Labels(String string) {
+		private Labels(String string, boolean isMatch) {
 			super(string);
-			initStyle();
+			initStyle(isMatch);
 		}
 		
-		private Labels(String string, ImageView img) {
+		private Labels(String string, ImageView img, boolean isMatch) {
 			super(string, img);
-			initStyle();
+			initStyle(isMatch);
 		}
 		
-		private void initStyle() {
-			setFont(title);	
+		private void initStyle(boolean isMatch) {
+			setFont(label);	
 			setPadding(new Insets(5));
-			setTextAlignment(TextAlignment.CENTER);
-			setAlignment(Pos.CENTER);
 			setMaxWidth(Double.MAX_VALUE);
+			
+			if (isMatch) {
+				setFont(match);	
+				setTextAlignment(TextAlignment.CENTER);
+				setAlignment(Pos.CENTER);
+			}
 		}
 	}
 	/**
@@ -204,17 +238,19 @@ public class ScoreboardPrompt extends GridPane {
 	
 	/**
 	 * Inner class to customize TextField.
-	 *		- Constructor takes in string to initialize prompt text.
+	 * Constructor takes in
+	 * 		- string to initialize prompt text.
+	 * 		- boolean isMatch to determine if it's for total number of games.
 	 */
 	private class TextFields extends TextField {
-		private TextFields(String string, boolean center) {
+		private TextFields(String string, boolean isMatch) {
 			super();
 			setPromptText(string);
-			setFont(names);
+			setFont(field);
 			setPadding(new Insets(5));
 			setStyle("-fx-text-fill: #424949");
-			setPrefWidth(GameConstants.getScreenSize().getWidth() * 0.07);
-			if (center) setCenter();
+			setMaxWidth(Double.MAX_VALUE);
+			if (isMatch) setCenter();
 		}
 		
 		// TextField for total games.
@@ -226,32 +262,60 @@ public class ScoreboardPrompt extends GridPane {
 			setPrefWidth(GameConstants.getScreenSize().getWidth() * 0.13);
 			setStyle("-fx-text-fill: LIGHTGRAY");
 		}
-	}	
+	}
 	
 	/**
-	 * Inner class to make a score card.
-	 * @author admin
-	 *
+	 * Inner class to make a name card, 
+	 * consisting of player colors and names.
+	 * 		- player names are TextFields/Labels, depending on start/end game.
+	 */
+	private class NameCard extends HBox {
+		private NameCard(Labels color, Labels name) {
+			getChildren().addAll(color, name);
+			initStyle();
+		}
+		private NameCard(Labels color, TextFields name) {
+			getChildren().addAll(color, name);
+			initStyle();
+		}
+		
+		private void initStyle() {
+			setMinWidth(GameConstants.getScreenSize().getWidth() * 0.13);
+			setMaxWidth(GameConstants.getScreenSize().getWidth() * 0.13);
+			setAlignment(Pos.CENTER);
+		}
+	}
+	
+	/**
+	 * Inner class to make a score card, consisting of a score against a background.
+	 * Constructor takes in 
+	 * 		- a string for the score.
+	 * 		- a boolean isMatchCard to determine if it's a match card (background + text color).
 	 */
 	private class ScoreCard extends VBox {
 		TextScore score;
 		
-		private ScoreCard(String string, boolean matchCard) {
+		private ScoreCard(String string, boolean isMatchCard) {
 			score = new TextScore(string);	
 			getChildren().addAll(score);
-			initStyle(matchCard);
+			initStyle(isMatchCard);
 		}
 		
-		private void initStyle(boolean matchCard) {
+		private void initStyle(boolean isMatchCard) {
 			setAlignment(Pos.CENTER);
 			setPrefHeight(GameConstants.getScreenSize().getHeight() * 0.3);
 			setPrefWidth(GameConstants.getScreenSize().getWidth() * 0.13);
-			if (matchCard) setBackground(GameConstants.getScoreboardImage("black"));
+			setMaxWidth(GameConstants.getScreenSize().getWidth() * 0.13);
+			if (isMatchCard) {
+				setBackground(GameConstants.getScoreboardImage("black"));
+				score.setFill(Color.LIGHTGRAY);
+			}
 			else setBackground(GameConstants.getScoreboardImage("white"));
 		}
 	}
 	/**
-	 * Inner class to customize text within a score board
+	 * Inner class to customize text within a score board.
+	 * 		- Constructor takes in a string to initialize the display text.
 	 */
 	private class TextScore extends Text {
 		private TextScore(String string) {
