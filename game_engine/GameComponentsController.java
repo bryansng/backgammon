@@ -275,6 +275,19 @@ public class GameComponentsController extends VBox {
 	public boolean isCubeInHome() {
 		return getPlayerHomeCubeIsIn() != null;
 	}
+	
+	public void removeCheckers() {
+		// remove from pips.
+		board.removeCheckers();
+		
+		// remove from bars.
+		bars.getBar(Settings.getTopPerspectiveColor()).removeCheckers();
+		bars.getBar(Settings.getBottomPerspectiveColor()).removeCheckers();
+		
+		// remove from homes.
+		mainHome.getHome(Settings.getTopPerspectiveColor()).removeCheckers();
+		mainHome.getHome(Settings.getBottomPerspectiveColor()).removeCheckers();
+	}
 
 	/**
 	 * Removes all checkers from board (pips, homes, bars).
@@ -287,5 +300,10 @@ public class GameComponentsController extends VBox {
 		bars.reset();
 		topPlayerPnl.reset();
 		btmPlayerPnl.reset();
+	}
+	// used exclusively to reset after each match, not each game.
+	public void resetTimers() {
+		topPlayerPnl.resetTimer();
+		btmPlayerPnl.resetTimer();
 	}
 }

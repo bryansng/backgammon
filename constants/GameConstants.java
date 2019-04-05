@@ -23,6 +23,9 @@ public class GameConstants {
 	public static final boolean DEBUG_MODE = true;
 	public static final boolean VERBOSE_MODE = false;
 	public static final boolean VERY_VERBOSE_MODE = false;
+	
+	/* Debug GameplayTimer */
+	public static final boolean FORCE_OUT_OF_TIME = false;
 
 	/* Debug Letter Mapping to moves */
 	public static final boolean FORCE_A_LOT_MOVES = false;
@@ -92,8 +95,6 @@ public class GameConstants {
 	public static final int FONT_SIZE = 15;
 	public static final int FONT_SIZE_PLAYER_PANEL = 16;
 	public static final int FONT_SIZE_PIP_NUMBER_LABEL = 14;
-	
-	public static boolean exit = false;
 	
 	/**
 	 * Loads font from file and returns a font object with that font.

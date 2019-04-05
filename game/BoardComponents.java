@@ -599,6 +599,7 @@ public class BoardComponents extends HBox {
 	}
 	
 	public void removeCheckers() {
+		// remove from pips.
 		for (int i = 0; i < pips.length; i++) {
 			pips[i].removeCheckers();
 		}

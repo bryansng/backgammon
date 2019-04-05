@@ -18,8 +18,10 @@ import exceptions.PlayerNoPerspectiveException;
  *
  */
 public class Settings {
+	public static final boolean ENABLE_AUTO_PLAY = false;
+	public static final boolean ENABLE_AUTO_ROLL = false;
 	public static final boolean ENABLE_NEXT_PAUSE = true;
-	public static boolean DARK_THEME = true;
+	public static boolean DARK_THEME = false;
 	public static final int DEFAULT_TOTAL_GAMES = 11;
 	public static int TOTAL_GAMES_IN_A_MATCH = DEFAULT_TOTAL_GAMES;
 	

@@ -36,40 +36,42 @@ public class ScoreboardPrompt extends GridPane {
 	private Font field = Font.loadFont(GameConstants.getFontInputStream(), 18);
 
 	// Labels for player colors + total games.
-	private Labels bColor = new Labels("", getCheckerImg("black"), false);;
-	private Labels wColor = new Labels("", getCheckerImg("white"), false);;
+	private Labels bColor = new Labels("", getCheckerImg("black"), false);
+	private Labels wColor = new Labels("", getCheckerImg("white"), false);
 	private Labels totalGamesLabel = new Labels("MATCH\nTO", true);
 	
 	// TextFields for player names + total games.
-	private TextFields bNameField;
-	private TextFields wNameField;	
-	private TextFields totalGames;
+	private TextFields bNameField, wNameField, totalGames;
 	
 	// Labels for player names.
-	private Labels bNameLabel;
-	private Labels wNameLabel;
+	private Labels bNameLabel, wNameLabel;
 	
 	// NameCards to display player colors and names.
-	private NameCard black;
-	private NameCard white;
+	private NameCard black, white;
 	
 	// ScoreCards to display player and match score.
-	private ScoreCard bScore;
-	private ScoreCard wScore;
-	private ScoreCard mScore;
+	private ScoreCard bScore, wScore, mScore;
+	
+	private boolean isForStart;
 	
 	/**
 	 * Constructs a GridPane with a given style, 
 	 * depending on context (start/end game).
-	 * Note: End of game requires passing in the correct players.
+	 * Note: End of game requires passing in the correct players for their scores.
 	 */
 	public ScoreboardPrompt() {
 		initStyle();
 		initStartComponents();
+		isForStart = true;
+		addComponents();
+		centerComponents();
 	}
 	public ScoreboardPrompt(Player bPlayer, Player wPlayer) {
 		initStyle();
 		initEndComponents(bPlayer, wPlayer);
+		isForStart = false;
+		addComponents();
+		centerComponents();
 	}
 	
 	/**
@@ -102,12 +104,6 @@ public class ScoreboardPrompt extends GridPane {
 		bScore = new ScoreCard("0", false);
 		wScore = new ScoreCard("0", false);
 		mScore = null;
-		
-		// Add components to pane
-		addComponents(black, bScore, totalGamesLabel, totalGames, white, wScore);
-		
-		// Ensures components are centered. 
-		centering(totalGamesLabel, bScore, totalGames, wScore);
 	}
 	
 	/**
@@ -132,32 +128,19 @@ public class ScoreboardPrompt extends GridPane {
 		bScore = new ScoreCard(Integer.toString(bPlayer.getScore()), false);
 		wScore = new ScoreCard(Integer.toString(wPlayer.getScore()), false);
 		mScore = new ScoreCard(Integer.toString(Settings.TOTAL_GAMES_IN_A_MATCH), true);
-				
-		// Add components to pane
-		addComponents(black, bScore, totalGamesLabel, mScore, white, wScore);
-		
-		// Ensures components are centered. 
-		centering(totalGamesLabel, bScore, mScore, wScore);
 	}
 
 	/**
 	 * Adds components to grid pane.
 	 */
-	private void addComponents(NameCard black, ScoreCard bScore, Labels totalGamesLabel, TextFields totalGames, NameCard white, ScoreCard wScore) {
-		// Add components to pane
+	private void addComponents() {
 		add(black, 0, 0);
 		add(bScore, 0, 1);
 		add(totalGamesLabel, 1, 0);
-		add(totalGames, 1, 1);
-		add(white, 2, 0);
-		add(wScore, 2, 1);
-	}
-	private void addComponents(NameCard black, ScoreCard bScore, Labels totalGamesLabel, ScoreCard mScore, NameCard white, ScoreCard wScore) {
-		// Add components to pane
-		add(black, 0, 0);
-		add(bScore, 0, 1);
-		add(totalGamesLabel, 1, 0);
-		add(mScore, 1, 1);
+		if (isForStart)
+			add(totalGames, 1, 1);
+		else
+			add(mScore, 1, 1);
 		add(white, 2, 0);
 		add(wScore, 2, 1);
 	}
@@ -165,19 +148,17 @@ public class ScoreboardPrompt extends GridPane {
 	/**
 	 * Centers components in the grid pane.
 	 */
-	private void centering(Labels totalGamesLabel, ScoreCard bScore, TextField totalGames, ScoreCard wScore) {		
+	private void centerComponents() {
 		setHalignment(totalGamesLabel, HPos.CENTER);
 		setHalignment(bScore, HPos.CENTER);
 		setHalignment(wScore, HPos.CENTER);
-		setHalignment(totalGames, HPos.CENTER);
-		setValignment(totalGames, VPos.CENTER);
-	}
-	private void centering(Labels totalGamesLabel, ScoreCard bScore, ScoreCard mScore, ScoreCard wScore) {		
-		setHalignment(totalGamesLabel, HPos.CENTER);
-		setHalignment(bScore, HPos.CENTER);
-		setHalignment(wScore, HPos.CENTER);
-		setHalignment(mScore, HPos.CENTER);
-		setValignment(mScore, VPos.CENTER);
+		if (isForStart) {
+			setHalignment(totalGames, HPos.CENTER);
+			setValignment(totalGames, VPos.CENTER);
+		} else {
+			setHalignment(mScore, HPos.CENTER);
+			setValignment(mScore, VPos.CENTER);
+		}
 	}
 	
 	/**

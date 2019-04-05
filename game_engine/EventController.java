@@ -3,6 +3,8 @@ package game_engine;
 import java.util.Optional;
 import constants.GameConstants;
 import constants.MessageType;
+import events.OutOfTimeHandler;
+import events.OutOfTimeSelectedEvent;
 import events.TouchablesStorerHandler;
 import events.TouchablesStorerSelectedEvent;
 import game.Bar;
@@ -67,6 +69,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 		
 		initTouchableListeners();
 		initTouchablesStorersListeners();
+		initOutOfTimeListener();
 	}
 	public void resetSelections() {
 		// reshow the dices on the board,
@@ -227,7 +230,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				// used to select the doubling cube.
 				} else {
 					if (!isInSelectionMode()) {
-						if (!gameplay.isStarted() || (!gameplay.isRolled() && !gameplay.isInTransition() && !root.isCrawfordGame() && gameplay.mustHighlightCube())) {
+						if (!gameplay.isStarted() || (!gameplay.isRolled() && !root.isCrawfordGame() && gameplay.mustHighlightCube())) {
 							// fromHome consideration only if its a doubling cube.
 							storerSelected = object;
 							Home fromHome = (Home) storerSelected;
@@ -309,10 +312,20 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			}
 		}
 	};
-	
 	public boolean isInSelectionMode() {
 		return isPipSelectionMode || isBarSelectionMode || isCubeHomeSelectionMode || isHomeSelectionMode;
 	}
+	
+	private void initOutOfTimeListener() {
+		root.addEventHandler(OutOfTimeSelectedEvent.OUTOFTIME, outOfTimeHandler);
+	}
+	OutOfTimeHandler outOfTimeHandler = new OutOfTimeHandler() {
+		@Override
+		public void onOutOfTime() {
+			infoPnl.print("You ran out of time.");
+			root.handleMatchOver(true);
+		}
+	};
 
 	/**
 	 * Manages all the UI (infoPnl, cmdPnl, rollDieBtn) listeners.
@@ -341,8 +354,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (args.length == 2 && isPip(args[0]) && isPip(args[1])) {
 				cmd.runCommand("/move " + text, true);
-			} else if (gameplay.isMapped() && gameplay.isKey(text.toUpperCase().trim())) {
-				cmd.runCommand(gameplay.getMapping(text.toUpperCase().trim()));
+			} else if (gameplay.getGameplayMoves().isMapped() && gameplay.getGameplayMoves().isKey(text.toUpperCase().trim())) {
+				cmd.runCommand(gameplay.getGameplayMoves().getMapping(text.toUpperCase().trim()));
 			} else if (text.equals("double")) {
 				cmd.runCommand("/double");
 			} else if (text.equals("yes") && gameplay.isDoubling()) {
@@ -399,9 +412,6 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 			if (!ButtonType.OK.equals(closeResponse.get())) {
 				event.consume();
 			}
-			
-			// TODO check if there is a way to not use this to stop threads.
-			GameConstants.exit = true;
 		});
 	}
 

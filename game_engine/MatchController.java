@@ -7,6 +7,7 @@ import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
 import interfaces.InputValidator;
 import musicplayer.MusicPlayer;
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -101,6 +102,8 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		topPlayer.reset();
 		infoPnl.reset();
 		resetGame();
+		game.resetTimers();
+		
 		isPlayerInfosEnteredFirstTime = true;
 		isPromptCancel = false;
 		hadCrawfordGame = false;
@@ -122,7 +125,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		if (!hadCrawfordGame && checkIsCrawfordGame()) {
 			isCrawfordGame = true;
 			hadCrawfordGame = true;
-			infoPnl.print("New game is a Crawford game.", MessageType.DEBUG);
+			infoPnl.print("Current game is a Crawford game.");
 		// if had crawford game,
 		// we check if the current game is a crawford game,
 		// if it is, we reset.
@@ -136,7 +139,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		if (!hadCrawfordGame && GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE) {
 			isCrawfordGame = true;
 			hadCrawfordGame = true;
-			infoPnl.print("New game is a Crawford game.", MessageType.DEBUG);
+			infoPnl.print("Current game is a Crawford game.");
 		}
 	}
 	// Checks if next game is crawford game.
@@ -168,7 +171,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 			gameplay.start();
 		}
 	}
-		
+	
 	/**
 	 * Returns true if match over.
 	 * Match over if player score greater or equal than total games.
@@ -182,27 +185,46 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	 * If a player has a score equal to the maximum score,
 	 * then announce the winner and ask if they want to play again.
 	 */
-	public void handleMatchOver() {
-		Player winner = gameplay.getCurrent();
+	public void handleMatchOver(boolean isOutOfTime) {
+		Player winner;
+		if (isOutOfTime) winner = gameplay.getOpponent();
+		else winner = gameplay.getCurrent();
 		
 		Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Congratulations, " + winner.getShortName() + " wins the match!", stage, "Play again");
 		
-		ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);		
-
+		ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);
+		
 		dialog.getDialogPane().setContent(contents);
 		
-		Optional<ButtonType> result = dialog.showAndWait();
-		
-		// Restart game if player wishes,
-		// else exit gameplay mode and enter free-for-all mode.
-		if (result.get().equals(dialog.getButton())) {
-			resetApplication();
-			cmd.runCommand("/start");
-		} else {
-			resetApplication();
-			infoPnl.print("Enter /start if you wish to play again.", MessageType.ANNOUNCEMENT);
-			infoPnl.print("Enter /quit if you wish to quit.", MessageType.ANNOUNCEMENT);
-		}
+		// Run later because this method will be called from a running animation.
+		// This animation resides in GameplayTimer.java.
+		//
+		// Animations are handled via events, showAndWait() below relies on
+		// events too.
+		//
+		// So, calling showAndWait() from a running animations means there is a
+		// nested event loop. This cannot happen, so the code below will have
+		// to run later.
+		Platform.runLater(new Runnable() {
+			@Override
+			public void run() {
+				Optional<ButtonType> result = dialog.showAndWait();
+				
+				// Restart game if player wishes,
+				// else exit gameplay mode and enter free-for-all mode.
+				if (ButtonType.OK.equals(result.get())) {
+					resetApplication();
+					cmd.runCommand("/start");
+				} else {
+					resetApplication();
+					infoPnl.print("Enter /start if you wish to play again.", MessageType.ANNOUNCEMENT);
+					infoPnl.print("Enter /quit if you wish to quit.", MessageType.ANNOUNCEMENT);
+				}
+			}
+		});
+	}
+	public void handleMatchOver() {
+		handleMatchOver(false);
 	}
 	
 	/**

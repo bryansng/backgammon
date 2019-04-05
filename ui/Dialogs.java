@@ -19,19 +19,19 @@ public class Dialogs<T> extends Dialog<T> {
 	// Each dialog has a start/play again button and a cancel button.
 	ButtonType button;
 	
-	public Dialogs(String string, Stage stage, String btnString) {
-		initDialog(string, stage);
-		setButton(btnString);
+	public Dialogs(String headerText, Stage stage, String btnText) {
+		initDialog(headerText, stage);
+		setButton(btnText);
 	}
 	
-	private void initDialog(String string, Stage stage) {
-		setTitle(string);
+	private void initDialog(String headerText, Stage stage) {
+		setTitle(headerText);
 		initModality(Modality.APPLICATION_MODAL);
 		initOwner(stage);
 	}
 	
-	private void setButton(String string) {
-		button = new ButtonType(string, ButtonData.OK_DONE);
+	private void setButton(String btnText) {
+		button = new ButtonType(btnText, ButtonData.OK_DONE);
 		getDialogPane().getButtonTypes().addAll(ButtonType.CANCEL, button);
 	}
 	

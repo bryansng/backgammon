@@ -4,7 +4,6 @@ import constants.GameConstants;
 import game_engine.Player;
 import game_engine.Settings;
 import interfaces.ColorParser;
-import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
@@ -54,14 +53,11 @@ public class PlayerPanel extends HBox implements ColorParser {
 	private PlayerInfo playerName;
 	private PlayerInfo playerColor;
 	private PlayerInfo playerScore;
-	private PlayerInfo playerTimer;
-	private PlayerInfo moveTimer;
-	private Clock timer;
+	private GameplayTimer timer;
 	
 	public PlayerPanel(double width, Player player) {
 		super();
 		this.player = player;
-		timer = new Clock();
 		style(width);
 		initComponents();
 		initLayout();
@@ -78,17 +74,18 @@ public class PlayerPanel extends HBox implements ColorParser {
 		setPlayerName(player, player.getName());
 		playerName.setContentDisplay(ContentDisplay.LEFT);
 		playerName.setGraphicTextGap(10);
+		
 		playerColor = new PlayerInfo("", new Checker(player.getColor(), true));
+		
 		playerScore = new PlayerInfo("", null);
 		setPlayerScore(player, player.getScore());
-		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 20));
+		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 24));
 		
-		moveTimer = new PlayerInfo("Safe Time: " + timer.getSeconds(), null);
-		playerTimer = new PlayerInfo("Timer: " + player.formatTime(), null);
+		timer = new GameplayTimer();
 	}
 	
 	private void initLayout() {
-		getChildren().addAll(playerName, playerColor, playerScore, moveTimer, playerTimer);
+		getChildren().addAll(playerName, playerColor, playerScore, timer);
 	}
 	
 	public void setPlayerName(Player player, String name) {
@@ -116,39 +113,8 @@ public class PlayerPanel extends HBox implements ColorParser {
 		return playerName.getEmoji();
 	}
 	
-	public void startMoveTimer() {
-		getChildren().remove(moveTimer);
-		timer.countdown(this, this, player);
-	}
-	
-	public void updateMoveTimer() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				getChildren().remove(moveTimer);
-				moveTimer = new PlayerInfo("Safe Time: " + timer.getSeconds(), null);
-				getChildren().add(3, moveTimer);
-			}
-		});
-	}
-	
-	public void stopMoveTimer() {
-		timer.stopTimer(player);
-	}
-	
-	public void updatePlayerTimer() {
-		Platform.runLater(new Runnable() {
-			@Override
-			public void run() {
-				getChildren().remove(playerTimer);
-				playerTimer = new PlayerInfo("Timer: " + player.formatTime(), null);
-				getChildren().add(4, playerTimer);
-			}
-		});
-	}
-	
-	public void resetTimer() {
-		timer.restartTimer();
+	public GameplayTimer getTimer() {
+		return timer;
 	}
 	
 	public void reset() {
@@ -156,5 +122,8 @@ public class PlayerPanel extends HBox implements ColorParser {
 		playerName.getEmoji().reset();
 		unhighlightChecker();
 		setPlayerScore(player, player.getScore());
+	}
+	public void resetTimer() {
+		timer.reset();
 	}
 }
