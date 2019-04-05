@@ -58,7 +58,7 @@ public class GameConstants {
 	/* Debug BarToPip */
 	// for checkers at bars.
 	public static final boolean FORCE_CHECKERS_AT_BARS = false;
-	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = false;
+	public static final boolean FORCE_LESS_CHECKERS_AT_BARS = true;
 	// for checkers at pips.
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_FRONT = false;
 	public static final boolean FORCE_CHECKERS_AT_OPPOSITE_HOME_BOARD_AT_BACK = false;
@@ -75,7 +75,7 @@ public class GameConstants {
 
 	/* Debug PipToHome */
 	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD = false;
-	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = false;
+	public static final boolean FORCE_CHECKERS_IN_HOME_BOARD_AT_PIP_5 = true;
 	public static final boolean FORCE_LESS_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_LESSER_CHECKERS_IN_HOME_BOARD = false;
 	public static final boolean FORCE_ONE_CHECKER_OUTSIDE_HOME_BOARD = false;

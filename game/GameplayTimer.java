@@ -42,7 +42,7 @@ public class GameplayTimer extends Label {
 		setAlignment(Pos.CENTER);
 		setTextAlignment(TextAlignment.CENTER);
 		setTextFill(Color.WHITE);
-		setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 24));
+		setFont(Font.loadFont(GameConstants.getFontInputStream(false, true), 24));
 		
 		// prevents the entire player panel from
 		// expanding and contracting due to changing numbers in the timer. 

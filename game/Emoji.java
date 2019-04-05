@@ -1,14 +1,15 @@
 package game;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
-
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.scene.image.Image;
@@ -55,12 +56,53 @@ public class Emoji extends ImageView {
 		reset();
 	}
 	
-	private void loadImagesFromFileIntoArray(String path, ArrayList<Image> arr) {
-		File directory = new File(System.getProperty("java.class.path") + "/game/img/player_panel/" + path);
-		for (File imgFile : directory.listFiles()) {
-			if (imgFile.getPath().endsWith(".png"))
-				arr.add(convertFileToImage(imgFile));
+	private void loadImagesFromFileIntoArray(String folderPath, ArrayList<Image> arr) {
+		String directoryPath = "/game/img/player_panel/".concat(folderPath);
+		
+		// works in Eclipse and JAR, but not as flexible.
+		//
+		// The below goes to the hard-created txt containing names of the image file names,
+		// then it loops through the txt file to get the file names and loads them.
+		String classPath = System.getProperty("java.class.path");
+		if (classPath.contains(".jar")) {
+			// gets just the names of the images, and loads them via getResourceAsStream.
+			InputStream txtStream = getClass().getResourceAsStream(directoryPath + "/" + folderPath + ".txt");
+			try (BufferedReader br = new BufferedReader(new InputStreamReader(txtStream))) {
+			    String line = "";
+			    while ((line = br.readLine()) != null) {
+			    	InputStream imgStream = getClass().getResourceAsStream(directoryPath + "/" + line);
+			    	try {
+			    		arr.add(new Image(imgStream));
+			    		imgStream.close();
+			    	} catch (IOException e) {
+			    		e.printStackTrace();
+			    	}
+			    }
+				txtStream.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		// works in Eclipse but not JAR.
+		// This is more flexible since we don't need to hard-create a txt file
+		// containing image filenames.
+		} else {
+			File directory = new File(classPath + directoryPath);
+			for (File imgFile : directory.listFiles()) {
+				if (imgFile.getPath().endsWith(".png"))
+					arr.add(convertFileToImage(imgFile));
+			}
 		}
+		/* THE BELOW IS EXPERIMENTAL.
+		// below works in Eclipse, but not in JAR.
+		String mainPath = "";
+		try {
+			mainPath = Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath();
+		} catch (URISyntaxException e) {
+			e.printStackTrace();
+		}
+		System.out.println("Main path: " + mainPath + "\n\n");
+		validateIsDirectory(new File(mainPath + path));
+		*/
 	}
 	
 	private Image convertFileToImage(File file) {

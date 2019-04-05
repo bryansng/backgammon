@@ -230,7 +230,7 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				// used to select the doubling cube.
 				} else {
 					if (!isInSelectionMode()) {
-						if (!gameplay.isStarted() || (!gameplay.isRolled() && !gameplay.isInTransition() && !root.isCrawfordGame() && gameplay.mustHighlightCube())) {
+						if (!gameplay.isStarted() || (!gameplay.isRolled() && !root.isCrawfordGame() && gameplay.mustHighlightCube())) {
 							// fromHome consideration only if its a doubling cube.
 							storerSelected = object;
 							Home fromHome = (Home) storerSelected;
@@ -354,8 +354,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (args.length == 2 && isPip(args[0]) && isPip(args[1])) {
 				cmd.runCommand("/move " + text, true);
-			} else if (gameplay.isMapped() && gameplay.isKey(text.toUpperCase().trim())) {
-				cmd.runCommand(gameplay.getMapping(text.toUpperCase().trim()));
+			} else if (gameplay.getGameplayMoves().isMapped() && gameplay.getGameplayMoves().isKey(text.toUpperCase().trim())) {
+				cmd.runCommand(gameplay.getGameplayMoves().getMapping(text.toUpperCase().trim()));
 			} else if (text.equals("double")) {
 				cmd.runCommand("/double");
 			} else if (text.equals("yes") && gameplay.isDoubling()) {

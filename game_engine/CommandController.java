@@ -173,7 +173,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			if (gameplay.isRolled()) {
 				if (!gameplay.isMoved()) {
 					game.unhighlightAll();
-					if (gameplay.isValidMove(fro, to)) {
+					if (gameplay.getGameplayMoves().isValidMove(fro, to)) {
 						infoPnl.print("Moving...", MessageType.ANNOUNCEMENT);
 					} else {
 						game.getBoard().highlightFromPipsAndFromBarChecker(gameplay.getValidMoves());
@@ -477,12 +477,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// checks are made to /accept beforehand.
 		if (gameplay.isDoubling()) {
 			infoPnl.print("Doubling cube accepted, game continues.", MessageType.ANNOUNCEMENT);
-			gameplay.nextFunction();
-			runCommand("/movecube " + parseColor(gameplay.getCurrent().getColor()) + " " + parseColor(gameplay.getOpponent().getColor()));
-			gameplay.getCurrent().setHasCube(false);
-			gameplay.getOpponent().setHasCube(true);
 			gameplay.doubling();
-			gameplay.roll();
+			runCommand("/movecube " + parseColor(gameplay.getOpponent().getColor()) + " " + parseColor(gameplay.getCurrent().getColor()));
+			gameplay.getCurrent().setHasCube(true);
+			gameplay.getOpponent().setHasCube(false);
+			gameplay.nextFunction();
+			if (Settings.ENABLE_AUTO_ROLL) gameplay.roll();
 			
 			// check if dead cube.
 			// dead cube if currentPlayer.score + 1*cubeMultiplier >= totalGames.
@@ -613,13 +613,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Changes player name.
 	 */
 	private void runNameCommand(String[] args) {
-		if (args.length != 3) {
+		if (args.length < 3) {
 			infoPnl.print("Incorrect syntax: expected /name color newName.", MessageType.ERROR);
 			return;
 		}
-		
 		String color = args[1].toLowerCase();
-		String playerName = args[2];
+		String playerName = getFullName(args);
 		if (parseColor(color).equals(Settings.getTopPerspectiveColor())) {
 			game.getPlayerPanel(parseColor(color)).setPlayerName(topPlayer, playerName);
 			infoPnl.print("Player with " + parseColor(topPlayer.getColor()) + " checkers is now " + "\"" + playerName + "\".");
@@ -629,6 +628,12 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		} else {
 			infoPnl.print("Incorrect syntax: expected white or black color in /name color newName.", MessageType.ERROR);
 		}
+	}
+	private String getFullName(String[] args) {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 2; i < args.length; i++)
+			sb.append(args[i] + " ");
+		return sb.toString();
 	}
 	
 	/**
@@ -710,7 +715,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	 * Reorganizes the checkers at the checkersStorer based on assignment specification.
 	 */
 	private void runCheatCommand() {
-		game.getBoard().removeCheckers();
+		game.removeCheckers();
 		initCheatCheckers();
 		if (gameplay.isStarted()) gameplay.recalculateMoves();
 		infoPnl.print("Cheat command ran.");

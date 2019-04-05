@@ -78,7 +78,7 @@ public class PlayerPanel extends HBox implements ColorParser {
 		
 		playerScore = new PlayerInfo("", null);
 		setPlayerScore(player, player.getScore());
-		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 20));
+		playerScore.setFont(Font.loadFont(GameConstants.getFontInputStream(true, true), 24));
 		
 		timer = new GameplayTimer();
 	}
