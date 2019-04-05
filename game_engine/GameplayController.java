@@ -736,7 +736,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			String playerResult = pCurrent.getScore() + " down, " + remainingScore + " to go.";
 			
 			// Create dialog prompt.			
-			Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Winner winner chicken dinner, " + pCurrent.getName() + "! " + playerResult, stage, "Next game");
+			Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Winner winner chicken dinner, " + pCurrent.getShortName() + "! " + playerResult, stage, "Next game");
 			
 			// Add score board to dialog prompt
 			ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);

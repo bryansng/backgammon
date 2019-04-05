@@ -185,7 +185,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 	public void handleMatchOver() {
 		Player winner = gameplay.getCurrent();
 		
-		Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Congratulations, " + winner.getName() + " wins the match!", stage, "Play again");
+		Dialogs<ButtonType> dialog = new Dialogs<ButtonType>("Congratulations, " + winner.getShortName() + " wins the match!", stage, "Play again");
 		
 		ScoreboardPrompt contents = new ScoreboardPrompt(topPlayer, bottomPlayer);		
 

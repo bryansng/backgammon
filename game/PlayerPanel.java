@@ -35,6 +35,7 @@ public class PlayerPanel extends HBox implements ColorParser {
 		public void initStyle() {
 			setFont(Font.loadFont(GameConstants.getFontInputStream(), GameConstants.FONT_SIZE_PLAYER_PANEL));
 			setTextFill(Color.WHITE);
+			setMaxWidth(GameConstants.getScreenSize().getWidth() * 0.15);
 			setWrapText(true);
 		}
 		

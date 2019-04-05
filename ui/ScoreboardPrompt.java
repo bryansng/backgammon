@@ -217,6 +217,7 @@ public class ScoreboardPrompt extends GridPane {
 		private void initStyle(boolean isMatch) {
 			setFont(label);	
 			setPadding(new Insets(5));
+			setWrapText(true);
 			setMaxWidth(Double.MAX_VALUE);
 			
 			if (isMatch) {
@@ -282,6 +283,7 @@ public class ScoreboardPrompt extends GridPane {
 		private void initStyle() {
 			setMinWidth(GameConstants.getScreenSize().getWidth() * 0.13);
 			setMaxWidth(GameConstants.getScreenSize().getWidth() * 0.13);
+			setMaxHeight(this.getMaxWidth() * 0.5);
 			setAlignment(Pos.CENTER);
 		}
 	}
@@ -303,7 +305,7 @@ public class ScoreboardPrompt extends GridPane {
 		
 		private void initStyle(boolean isMatchCard) {
 			setAlignment(Pos.CENTER);
-			setPrefHeight(GameConstants.getScreenSize().getHeight() * 0.3);
+			setMinHeight(GameConstants.getScreenSize().getHeight() * 0.3);
 			setPrefWidth(GameConstants.getScreenSize().getWidth() * 0.13);
 			setMaxWidth(GameConstants.getScreenSize().getWidth() * 0.13);
 			if (isMatchCard) {

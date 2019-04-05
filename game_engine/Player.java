@@ -49,6 +49,20 @@ public class Player implements ColorPerspectiveParser {
 		return name;
 	}
 	
+	/**
+	 * Returns a shorter version of player name. (Max 50 chars)
+	 * @param player
+	 * @return string of max 50 chars
+	 */
+	public String getShortName() {
+		String shortName = "";
+		if (name.length() > 50)
+			shortName = name.substring(0, 47) + "...";
+		else
+			shortName = name;
+		return shortName;
+	}
+	
 	public int getScore() {
 		return score;
 	}
