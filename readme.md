@@ -63,6 +63,48 @@ Personally, I prefer Eclipse for Java.
   For instance, Board used to handle its *functions* (moveCheckers, action methods) and its *initialization* (itself, dices, pips and checkers). Since maintaining code generally happens in the *functions* side of things, it would be nice to separate *functions* and *initialization*. Hence, BoardComponents is the superclass with *initialization* and Board is the subclass that has all the *functions*.
 
 &nbsp;
+## Sprint 4 - Short Documentation
+### Requirements:
+|     | Requirements              | Our interpretation        |
+| --- | ------------------------- | ------------------------- |
+| <ul><li>[x] </li></ul> | Ask players the number of points they're playing to at the beginning of the match.  | Prompt for player names and number of points in one single dialog prompt. NOTE: Click the black score in the middle to change the number of points to play to. |
+| <ul><li>[x] </li></ul> | Display doubling cube, match score and match length on the board panel | Doubling cube displayed on the left. Match score and match length are displayed on the player panels. |
+| <ul><li>[x] </li></ul> | Players can enter 'double' command before their play. | 👍 NOTE: "/double" and "double" both work. |
+| <ul><li>[x] </li></ul> | If doubling not legal at that time, display error message. | Doubling is allowed before rolling and if game is not a Crawford game. |
+| <ul><li>[x] </li></ul> | The player receiving the doubling cube may accept or reject it. If accepted, update the cube to show ownership. If rejected, end the game and allocate points to the winner. | The doubling cube is placed in the left homes of the player to show ownership and doubling value. |
+| <ul><li>[x] </li></ul> | On game over, update match score on board and report new match score on info panel. | On game over, match score is updated on player panels on board, a dialog prompt, and info panel. The dialog prompt also asks if players want to continue to the next game. | 
+| <ul><li>[x] </li></ul> | On game over, ask players to press any key to start the next game in the match. | Players are given autonomy - they are asked if they want to continue to the next game with a dialog prompt. If they decline, the game enters free-for-all mode. After declining, players may use "/start" to resume next game. | 
+| <ul><li>[x] </li></ul> | On match over, announce winner and ask if players want to play again. | On match over, winner is announced on info panel and a dialog prompt. The prompt also asks if players want to play again. Players are given autonomy - if they decline, the game enters free-for-all mode. |
+| <ul><li>[x] </li></ul> | Modify 'cheat' command to 13 checkers being bore off and 2 checkers on the ace point for both sides. | 👍 NOTE: "/cheat" and "cheat" both work. |
+| <ul><li>[x] </li></ul> | Player may use 'quit' command to terminate program at any time. | 👍 NOTE: Done in Sprint 1, "/quit" and "quit" both work. |
+| <ul><li>[x] </li></ul> | Implement Crawford Rule, Dead Cube, doubling and match score as per the clarifications email. | 👍 NOTE: This game allocates 3 points to the winner on a Backgammon as per the rules, but the clarifications email allocates 2 points.  |
+
+&nbsp;
+### Who did what:
+see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
+
+| Bryan             | Emily & Braddy    |
+| ----------------- | ----------------- |
+| Display doubling cube, match score and match length on the board panel. | Ask players the number of points they're playing to at the beginning of the match. |
+| Players can enter 'double' command before their play. If doubling not legal at that time, display error message. | On game over, update match score on board and report new match score on info panel. |
+| If doubling not legal at that time, display error message. | On game over, prompt players to start the next game in the match. |
+| The player receiving the doubling cube may accept or reject it. Update the game on accept/decline. | On match over, announce winner and ask if players want to play again. |
+| Implement Crawford Rule and Dead Cube. | "quit" and "cheat" commands. |
+
+#### Additionally, we also did
+- Made all commands are case-insensitive. The game converts all commands to lowercase internally.
+- Represented players with emojis, which react to gameplay, e.g. sad face when jailed.
+- Beautified game start/end prompts to look like a scoreboard. 
+- Combined prompts for player names, colors, and number of points.
+- Added a timer that mimics tournament timers, e.g. players having 15s to roll die. 
+- Added dice roll sounds.
+- Added a digital font for scores and timers. 
+- Added dark mode, which changes info panel to look like a terminal. 
+- Compression, refactoring, and testing.
+
+&nbsp;
+&nbsp;
+
 ## Sprint 3 - Short Documentation
 ### Requirements:
 |     | Requirements              | Our interpretation        |
@@ -104,13 +146,13 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 | <ul><li>[x] </li></ul> | Announce the game.        | Welcome players at application start in Info Panel. Game is announced when players start it. |
 | <ul><li>[x] </li></ul> | Get player names and tell them their checkers' colors. | A dialog to prompt players to input their names and checker colors when they start the game. |
 | <ul><li>[x] </li></ul> | Roll to see who moves first. Roll results are used as starting value. Roll again if dice values are equal. | At game start, roll automatically and prompt players to move based on the rolls. The roll function recursively rolls until the die result are not equal, so to the players, the die result is never equal. |
-| <ul><li>[x] </li></ul> | Allow players to takes turns to roll and move around the board. | �? |
+| <ul><li>[x] </li></ul> | Allow players to takes turns to roll and move around the board. | 👍 |
 | <ul><li>[x] </li></ul> | Rolls are automatic. | All rolls are automatic at start of game ("/start") and change of turn (i.e. "/next"). |
 | <ul><li>[x] </li></ul> | Moves should be entered as "'starting pip' 'ending pip'", e.g. "6 3". | Moves may be made using "/move # #", "# #", or mouse clicks. |
 | <ul><li>[x] </li></ul> | The program returns errors if there are no checkers at the starting pip, if the pip numbers are out of range, or if the command format is invalid. | Errors are returned for the former two. The program echoes whatever is not in the correct command format on the info panel. |
 | <ul><li>[x] </li></ul> | Players are allowed to enter a move again after an error. | Players are allowed to move as long as there are moves left, even in the case of an invalid move. |
 | <ul><li>[x] </li></ul> | Players are only allowed to enter one move at a time. | Move command takes in only 2 arguments, i.e. source and destination, which is only a move. |
-| <ul><li>[x] </li></ul> | The moves do not have to match the dice roll or avoid opponent blocks yet. The program does not need to check that the move is valid yet. | �? |
+| <ul><li>[x] </li></ul> | The moves do not have to match the dice roll or avoid opponent blocks yet. The program does not need to check that the move is valid yet. | 👍 |
 | <ul><li>[x] </li></ul> | When the player enters "next", the current player's turn is over and the other player should then roll and move. | Player enter "/next" or "next" to switch turns. Die is rolled automatically each turn. |
 | <ul><li>[x] </li></ul> | The pip numbers at the edge of the board should be correct for the player who is moving their checkers, i.e. pip numbers change depending on whose move is it. | Depending on the player's perspective, pip numbers automatically change relative to that every "/next". |
 | <ul><li>[x] </li></ul> | Program terminates on "quit". | Done in Sprint 1. Players quit game using "/quit", "quit", or the window close button. |
