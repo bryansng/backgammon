@@ -608,6 +608,8 @@ public class BoardComponents extends HBox {
 	public void reset() {
 		initCheckers();
 		
+		leftDices = null;
+		rightDices = null;
 		leftBoard.setCenter(null);
 		rightBoard.setCenter(null);
 		

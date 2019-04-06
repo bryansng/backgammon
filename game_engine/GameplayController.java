@@ -127,8 +127,8 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * @return first player to roll.
 	 */
 	private Player getFirstPlayerToRoll(DieResults rollResult) {
-		int bottomPlayerRoll = rollResult.getFirst().getDiceResult();
-		int topPlayerRoll = rollResult.getLast().getDiceResult();
+		int bottomPlayerRoll = rollResult.getLast().getDiceResult();
+		int topPlayerRoll = rollResult.getFirst().getDiceResult();
 
 		if (bottomPlayerRoll > topPlayerRoll) {
 			return bottomPlayer;
@@ -204,7 +204,7 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * If timer is stopped within the safe timer's limit, then nothing is decremented,
 	 * else, update the player's individual timer
 	 */
-	private void stopCurrentPlayerTimer() {
+	public void stopCurrentPlayerTimer() {
 		if (pCurrent != null) game.getPlayerPanel(pCurrent.getColor()).getTimer().stop();
 	}
 	
@@ -378,9 +378,13 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	 * 
 	 * Else announce the winner and ask if the players want to play another match.
 	 */
-	private void handleGameOver() {
+	public void handleGameOver(boolean isIntermediate) {
+		// Output to infoPnl.
+		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
+		
 		stopCurrentPlayerTimer();
-		handleGameOverScore();
+		if (isIntermediate) swapPlayers();
+		handleGameOverScore(isIntermediate);
 		
 		if (root.isMatchOver())
 			root.handleMatchOver();
@@ -403,29 +407,40 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			
 			// Restart game if player wishes,
 			// else exit gameplay mode and enter free-for-all mode.
+			reset();
 			if (result.get().equals(dialog.getButton())) {
-				infoPnl.print("Starting next game...", MessageType.ANNOUNCEMENT);
-				root.restartGame();
+				cmd.runCommand("/start");
 			} else {
-				infoPnl.print("Game has ended.", MessageType.ANNOUNCEMENT);
-				reset();
+				infoPnl.print("Enter /start if you wish to resume the game.", MessageType.ANNOUNCEMENT);
+				infoPnl.print("Enter /quit if you wish to quit.", MessageType.ANNOUNCEMENT);
 			}
 		}
 	}
+	public void handleGameOver() {
+		handleGameOver(false);
+	}
 	
-	private void handleGameOverScore() {
-		// Output to infoPnl.
-		infoPnl.print("Game over.", MessageType.ANNOUNCEMENT);
-		Home filledHome = game.getMainHome().getFilledHome();
-		if (filledHome.getColor().equals(pCurrent.getColor())) {
-			PlayerPanel winnerPnl = game.getPlayerPanel(pCurrent.getColor());
-			winnerPnl.setPlayerScore(pCurrent, getGameOverScore());
-			infoPnl.print("Congratulations, " + pCurrent.getName() + " won.");
-			
-			// facial expressions.
-			game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
-			game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
+	private void handleGameOverScore(boolean isIntermediate) {
+		Player winner = pCurrent;
+		Player loser = pOpponent;
+		if (isIntermediate) {
+			// round end, allocate points as required.
+			PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
+			winnerPnl.setPlayerScore(winner, getIntermediateScore());
+		} else {
+			Home filledHome = game.getMainHome().getFilledHome();
+			if (filledHome.getColor().equals(winner.getColor())) {
+				PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
+				winnerPnl.setPlayerScore(winner, getGameOverScore());
+				
+				// facial expressions.
+				game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
+				game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
+			}
 		}
+		infoPnl.print("Congratulations, " + winner.getName() + " won.");
+		infoPnl.print(winner.getName() + " score: " + winner.getScore() + "/" + Settings.TOTAL_GAMES_IN_A_MATCH + ".");
+		infoPnl.print(loser.getName() + " score: " + loser.getScore() + "/" + Settings.TOTAL_GAMES_IN_A_MATCH + ".");
 	}
 	
 	/**
@@ -452,10 +467,10 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	// score if a player rejects/declines a doubling of stakes.
 	public int getIntermediateScore() {
 		int score;
-		// since current player rejects the cube,
-		// the opponent would be the proposer and hence the winner.
-		Player winner = getOpponent();
-		DoublingCube cube = game.getBoard().getHomeCubeIsIn().getTopCube();
+		// current player must be the proposer, hence the winner.
+		// so turns must be swapped to get back to the proposer.
+		Player winner = pCurrent;
+		DoublingCube cube = game.getCube();
 		score = winner.getScore() + GameEndScore.SINGLE.ordinal()*cube.getIntermediateGameMultiplier();
 		return score;
 	}

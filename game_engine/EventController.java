@@ -169,7 +169,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 						isPipSelectionMode = true;
 						infoPnl.print("Pip clicked is: " + gameplay.correct(fromPip) + ".", MessageType.DEBUG);
 					} else {
-						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
+						if (!gameplay.isRolled()) infoPnl.print("You can only move after rolling.", MessageType.ERROR);
+						else infoPnl.print("You can only move from highlighted objects.", MessageType.ERROR);
 					}
 				// either pip or bar selected, basis for toPip selection.
 				} else if (isPipSelectionMode || isBarSelectionMode) {
@@ -195,11 +196,16 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(parseColor(fromBar)));
 					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
 					if (!gameplay.isStarted() || gameplay.getValidMoves().isValidFro(fromBarPipNum)) {
+						if (!gameplay.isRolled()) {
+							infoPnl.print("You can only move after rolling.", MessageType.ERROR);
+							return;
+						}
 						gameplay.highlightPips(fromBar);
 						isBarSelectionMode = true;
 						infoPnl.print("Bar clicked.", MessageType.DEBUG);
 					} else {
-						infoPnl.print("You can only move from highlighted checkers.", MessageType.ERROR);
+						if (!gameplay.isRolled()) infoPnl.print("You can only move after rolling.", MessageType.ERROR);
+						else infoPnl.print("You can only move from highlighted objects.", MessageType.ERROR);
 					}
 				}
 			// home selected, basis for fromHome or toHome selection.
@@ -362,6 +368,10 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand("/accept");
 			} else if (text.equals("no") && gameplay.isDoubling()) {
 				cmd.runCommand("/decline");
+			} else if (text.equals("start")) {
+				cmd.runCommand("/start");
+			} else if (text.equals("roll")) {
+				cmd.runCommand("/roll");
 			} else if (text.equals("next")) {
 				cmd.runCommand("/next");
 			} else if (text.equals("cheat")) {

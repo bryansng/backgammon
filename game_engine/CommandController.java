@@ -12,7 +12,6 @@ import game.DoublingCube;
 import game.DoublingCubeHome;
 import game.Home;
 import game.Pip;
-import game.PlayerPanel;
 import interfaces.ColorParser;
 import interfaces.IndexOffset;
 import interfaces.InputValidator;
@@ -477,12 +476,14 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// checks are made to /accept beforehand.
 		if (gameplay.isDoubling()) {
 			infoPnl.print("Doubling cube accepted, game continues.", MessageType.ANNOUNCEMENT);
+			gameplay.stopCurrentPlayerTimer();
 			gameplay.doubling();
 			runCommand("/movecube " + parseColor(gameplay.getOpponent().getColor()) + " " + parseColor(gameplay.getCurrent().getColor()));
 			gameplay.getCurrent().setHasCube(true);
 			gameplay.getOpponent().setHasCube(false);
 			gameplay.nextFunction();
 			if (Settings.ENABLE_AUTO_ROLL) gameplay.roll();
+			else game.getCube().setNormalImage();
 			
 			// check if dead cube.
 			// dead cube if currentPlayer.score + 1*cubeMultiplier >= totalGames.
@@ -502,14 +503,10 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	private void runDoubleDeclineCommand() {
 		// checks are made to /decline beforehand.
 		if (gameplay.isDoubling()) {
-			infoPnl.print("Doubling cube declined, restarting game.", MessageType.ANNOUNCEMENT);
-			
-			// round end, allocate points as required.
-			Player winner = gameplay.getOpponent();
-			PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
-			winnerPnl.setPlayerScore(winner, gameplay.getIntermediateScore());
-			infoPnl.print("Starting new game...", MessageType.ANNOUNCEMENT);
-			root.restartGame();
+			infoPnl.print("Doubling cube declined.", MessageType.ANNOUNCEMENT);
+			game.getCube().setNormalImage();
+			runCommand("/movecube " + parseColor(gameplay.getOpponent().getColor()) + " box");
+			gameplay.handleGameOver(true);
 		}
 	}
 	

@@ -33,7 +33,7 @@ public class ScoreboardPrompt extends GridPane {
 	private Font score = Font.loadFont(GameConstants.getFontInputStream(true, true), 150);
 	private Font match = Font.loadFont(GameConstants.getFontInputStream(), 50);
 	private Font label = Font.loadFont(GameConstants.getFontInputStream(), 20);
-	private Font field = Font.loadFont(GameConstants.getFontInputStream(), 18);
+	private Font field = Font.loadFont(GameConstants.getFontInputStream(), 16);
 
 	// Labels for player colors + total games.
 	private Labels bColor = new Labels("", getCheckerImg("black"), false);

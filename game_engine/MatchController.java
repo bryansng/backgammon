@@ -118,34 +118,6 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		gameplay.reset();
 		cmd.reset();
 		event.reset();
-		
-		/* Handle Crawford Game */
-		// if did not have a crawford game,
-		// we check if next game is crawford game.
-		if (!hadCrawfordGame && checkIsCrawfordGame()) {
-			isCrawfordGame = true;
-			hadCrawfordGame = true;
-			infoPnl.print("Current game is a Crawford game.");
-		// if had crawford game,
-		// we check if the current game is a crawford game,
-		// if it is, we reset.
-		// giving us:
-		// isCrawfordGame = false, hadCrawfordGame = true.
-		} else if (isCrawfordGame) {
-			isCrawfordGame = false;
-			infoPnl.print("New game is not a Crawford game.", MessageType.DEBUG);
-		}
-		
-		if (!hadCrawfordGame && GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE) {
-			isCrawfordGame = true;
-			hadCrawfordGame = true;
-			infoPnl.print("Current game is a Crawford game.");
-		}
-	}
-	// Checks if next game is crawford game.
-	// is crawford game either winner match score, i.e. TOTAL_GAMES_IN_A_MATCH-1.
-	private boolean checkIsCrawfordGame() {
-		return topPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1 || bottomPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1;
 	}
 	
 	/**
@@ -167,9 +139,37 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 		}
 		
 		if (!isPromptCancel) {
+			/* Handle Crawford Game */
+			// if did not have a crawford game,
+			// we check if next game is crawford game.
+			if (!hadCrawfordGame && checkIsCrawfordGame()) {
+				isCrawfordGame = true;
+				hadCrawfordGame = true;
+				infoPnl.print("Current game is a Crawford game.");
+			// if had crawford game,
+			// we check if the current game is a crawford game,
+			// if it is, we reset.
+			// giving us:
+			// isCrawfordGame = false, hadCrawfordGame = true.
+			} else if (isCrawfordGame) {
+				isCrawfordGame = false;
+				infoPnl.print("New game is not a Crawford game.", MessageType.DEBUG);
+			}
+			
+			if (!hadCrawfordGame && GameConstants.FORCE_TEST_AFTER_CRAWFORD_RULE) {
+				isCrawfordGame = true;
+				hadCrawfordGame = true;
+				infoPnl.print("Current game is a Crawford game.");
+			}
+			
 			isPlayerInfosEnteredFirstTime = false;
 			gameplay.start();
 		}
+	}
+	// Checks if next game is crawford game.
+	// is crawford game either winner match score, i.e. TOTAL_GAMES_IN_A_MATCH-1.
+	private boolean checkIsCrawfordGame() {
+		return topPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1 || bottomPlayer.getScore() == Settings.TOTAL_GAMES_IN_A_MATCH-1;
 	}
 	
 	/**
@@ -274,7 +274,7 @@ public class MatchController extends GridPane implements ColorPerspectiveParser,
 					game.getPlayerPanel(Settings.getTopPerspectiveColor()).updateTotalGames();
 					game.getPlayerPanel(Settings.getBottomPerspectiveColor()).updateTotalGames();
 				}
-				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".", MessageType.DEBUG);
+				infoPnl.print("Max totalGames per game set to " + Settings.TOTAL_GAMES_IN_A_MATCH + ".");
 				isPromptCancel = false;
 			} else {
 				infoPnl.print("You must play to a positive odd number less than 100. Please try again.", MessageType.ERROR);
