@@ -64,7 +64,7 @@ public class MusicPlayer {
 		
 		mediaPlayer.setOnEndOfMedia(new Runnable() {
 			public void run() {
-				play();
+				initMediaPlayer(defaultMusic);
 			}
 		});
 
