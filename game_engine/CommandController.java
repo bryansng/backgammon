@@ -725,6 +725,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 	/**
 	 * Initialize checkers for cheat (testing purposes)
 	 */
+	/*
 	private void initCheatCheckers() {
 		// Add checkers to pips.
 		// Note that numbers start from bottom internally
@@ -743,6 +744,37 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 		// Add checkers to homes.
 		game.getMainHome().getHome(Settings.getTopPerspectiveColor()).initCheckers(13, Settings.getTopPerspectiveColor());
 		game.getMainHome().getHome(Settings.getBottomPerspectiveColor()).initCheckers(13, Settings.getBottomPerspectiveColor());
+	}
+	*/
+	
+	private void initCheatCheckers() {
+		// Add checkers to pips.
+		// Note that numbers start from bottom internally
+		Pip[] pips = game.getBoard().getPips();		
+		for (int i = 0; i < pips.length; i++) {
+			switch (i) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+				case 4:
+					pips[i].initCheckers(2, Settings.getBottomPerspectiveColor());
+					break;	
+				case 23:
+				case 21:
+				case 20:
+					pips[i].initCheckers(3, Settings.getTopPerspectiveColor());
+					break;
+			}
+		}
+		
+		// Add checkers to homes.
+		game.getMainHome().getHome(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
+		game.getMainHome().getHome(Settings.getBottomPerspectiveColor()).initCheckers(2, Settings.getBottomPerspectiveColor());
+		
+		// Add checkers to bars.
+		game.getBars().getBar(Settings.getTopPerspectiveColor()).initCheckers(3, Settings.getTopPerspectiveColor());
+		game.getBars().getBar(Settings.getBottomPerspectiveColor()).initCheckers(3, Settings.getBottomPerspectiveColor());
 	}
 	
 	/**

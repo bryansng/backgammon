@@ -422,7 +422,6 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 	
 	private void handleGameOverScore(boolean isIntermediate) {
 		Player winner = pCurrent;
-		Player loser = pOpponent;
 		if (isIntermediate) {
 			// round end, allocate points as required.
 			PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
@@ -432,15 +431,18 @@ public class GameplayController implements ColorParser, ColorPerspectiveParser, 
 			if (filledHome.getColor().equals(winner.getColor())) {
 				PlayerPanel winnerPnl = game.getPlayerPanel(winner.getColor());
 				winnerPnl.setPlayerScore(winner, getGameOverScore());
-				
-				// facial expressions.
-				game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
-				game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
+			} else {
+				infoPnl.print("[ERROR] FilledHome is not the expected winner's (i.e. pCurrent).", MessageType.DEBUG);
 			}
 		}
+		// facial expressions.
+		game.getEmojiOfPlayer(pCurrent.getColor()).setWinFace();
+		game.getEmojiOfPlayer(pOpponent.getColor()).setLoseFace();
 		infoPnl.print("Congratulations, " + winner.getName() + " won.");
-		infoPnl.print(winner.getName() + " score: " + winner.getScore() + "/" + Settings.TOTAL_GAMES_IN_A_MATCH + ".");
-		infoPnl.print(loser.getName() + " score: " + loser.getScore() + "/" + Settings.TOTAL_GAMES_IN_A_MATCH + ".");
+		infoPnl.print(topPlayer.getName() + ": " + getScoreFormat(topPlayer.getScore()) + " vs " + bottomPlayer.getName() + ": " + getScoreFormat(bottomPlayer.getScore()));
+	}
+	private String getScoreFormat(int score) {
+		return score + "/" + Settings.TOTAL_GAMES_IN_A_MATCH;
 	}
 	
 	/**

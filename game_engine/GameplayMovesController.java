@@ -84,13 +84,13 @@ public class GameplayMovesController implements ColorParser, ColorPerspectivePar
 			// if rolled, but no available moves,
 			// we unhighlight the cube.
 			game.getCube().setNormalImage();
-			infoPnl.print("Setting cube to normal.");
+			infoPnl.print("Setting cube to normal.", MessageType.DEBUG);
 			
 			// facial expression.
 			game.getEmojiOfPlayer(gameplay.getCurrent().getColor()).setLoseFace(true);
-			infoPnl.print("Setting facial expressions.");
-
-			infoPnl.print("Nexting...");
+			infoPnl.print("Setting facial expressions.", MessageType.DEBUG);
+			
+			infoPnl.print("Nexting...", MessageType.DEBUG);
 			gameplay.next();
 		} else {
 			handleCharacterMapping();
@@ -404,19 +404,21 @@ public class GameplayMovesController implements ColorParser, ColorPerspectivePar
 			
 			// check if both moves start from same location (pip/bar).
 			if (someMoves.size() == 2) {
-				Move move1 = someMoves.getFirst();
-				Move move2 = someMoves.getLast();
-				
-				if (move1.getFro() == move2.getFro()) {
-					// get the one with the larger dice result,
-					// remove the other one.
-					if (move1.getRollMoves().getDiceResult() > move2.getRollMoves().getDiceResult()) {
-						move2.getRollMoves().getMoves().remove(move2);
-						infoPnl.print("Rule: Removed move of smaller dice roll.", MessageType.DEBUG);
-					} else if (move1.getRollMoves().getDiceResult() < move2.getRollMoves().getDiceResult()) {
-						move1.getRollMoves().getMoves().remove(move1);
-					} else {
-						return;
+				if (someMoves.getFirst().getRollMoves().isNormalRollMoves() && someMoves.getLast().getRollMoves().isNormalRollMoves()) {
+					Move move1 = someMoves.getFirst();
+					Move move2 = someMoves.getLast();
+					
+					if (move1.getFro() == move2.getFro()) {
+						// get the one with the larger dice result,
+						// remove the other one.
+						if (move1.getRollMoves().getDiceResult() > move2.getRollMoves().getDiceResult()) {
+							move2.getRollMoves().getMoves().remove(move2);
+							infoPnl.print("Rule: Removed move of smaller dice roll.", MessageType.DEBUG);
+						} else if (move1.getRollMoves().getDiceResult() < move2.getRollMoves().getDiceResult()) {
+							move1.getRollMoves().getMoves().remove(move1);
+						} else {
+							return;
+						}
 					}
 				}
 			}

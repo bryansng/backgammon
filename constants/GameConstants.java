@@ -24,6 +24,13 @@ public class GameConstants {
 	public static final boolean VERBOSE_MODE = false;
 	public static final boolean VERY_VERBOSE_MODE = false;
 	
+	/* Debug moves printing */
+	// check if the "move larger of two moves" rule.
+	// it should not apply between sumMoves and its NormalMoves.
+	// the below needs FORCE_DOUBLE_INSTANCE to be set and force until white gets a double 6.
+	public static final boolean FORCE_DOUBLE_BAD_PRINT_MOVES = false;
+	public static final boolean FORCE_BAD_PRINT_MOVES = false;
+	
 	/* Debug GameplayTimer */
 	public static final boolean FORCE_OUT_OF_TIME = false;
 

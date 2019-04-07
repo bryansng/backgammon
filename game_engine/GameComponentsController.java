@@ -111,12 +111,14 @@ public class GameComponentsController extends VBox {
 	}
 	
 	// highlight the box and player's home.
+	// finally, highlight cube.
 	public void highlightCubeZones(Color pColor) {
 		unhighlightAllCubeZones();
 		unhighlightCube();
 		
 		otherHome.highlight(pColor);
 		getCubeHome().highlight();
+		highlightCube();
 	}
 	
 	public void highlightCube() {

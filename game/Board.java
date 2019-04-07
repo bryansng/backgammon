@@ -47,7 +47,8 @@ public class Board extends BoardMoves {
 		rightCubeHome.highlight();
 	}
 	
-	// display and highlight a specific cube home. 
+	// display and highlight a specific cube home.
+	// finally, highlight cube.
 	public void highlightCubeHome(Color pColor) {
 		game.unhighlightCube();
 		game.unhighlightAllCubeZones();
@@ -55,6 +56,7 @@ public class Board extends BoardMoves {
 		DoublingCubeHome cubeHome = getCubeHomeOfPlayer(pColor);
 		getHalfBoardOfPlayer(pColor).setCenter(cubeHome);
 		cubeHome.highlight();
+		game.highlightCube();
 	}
 	
 	// display the cube home that the cube is in.

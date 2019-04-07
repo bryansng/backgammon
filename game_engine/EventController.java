@@ -196,10 +196,6 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 					int fromBarPipNum = Settings.getPipBearOnBoundary(getPOV(parseColor(fromBar)));
 					// same as ((gameplay.isStarted() && gameplay.isValidFro(fromPip)) || (!gameplay.isStarted()))
 					if (!gameplay.isStarted() || gameplay.getValidMoves().isValidFro(fromBarPipNum)) {
-						if (!gameplay.isRolled()) {
-							infoPnl.print("You can only move after rolling.", MessageType.ERROR);
-							return;
-						}
 						gameplay.highlightPips(fromBar);
 						isBarSelectionMode = true;
 						infoPnl.print("Bar clicked.", MessageType.DEBUG);
