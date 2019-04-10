@@ -2,7 +2,7 @@ package move;
 
 import java.util.Iterator;
 import java.util.LinkedList;
-
+import botAPI.Plays;
 import game.DieResults;
 import interfaces.ColorParser;
 import interfaces.InputValidator;
@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
  *
  */
 @SuppressWarnings("serial")
-public class Moves extends LinkedList<RollMoves> implements InputValidator, ColorParser {
+public class Moves extends LinkedList<RollMoves> implements InputValidator, ColorParser, Plays {
 	private DieResults res;
 	
 	public Moves(DieResults res) {
