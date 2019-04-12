@@ -480,6 +480,7 @@ public class CommandController implements ColorParser, InputValidator, IndexOffs
 			gameplay.doubling();
 			runCommand("/movecube " + parseColor(gameplay.getOpponent().getColor()) + " " + parseColor(gameplay.getCurrent().getColor()));
 			gameplay.getCurrent().setHasCube(true);
+			game.getCube().setOwner(gameplay.getCurrent());
 			gameplay.getOpponent().setHasCube(false);
 			gameplay.nextFunction();
 			if (Settings.ENABLE_AUTO_ROLL) gameplay.roll();

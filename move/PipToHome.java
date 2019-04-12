@@ -45,6 +45,8 @@ public class PipToHome extends SumMove implements ColorParser, ColorPerspectiveP
 	}
 	
 	// either -1 or 24.
+	// 24 is home for bottom, i.e. black.
+	// -1 is home for top, i.e. white. 
 	public int getToHomePipNum() {
 		return toHomePipNum;
 	}

@@ -317,7 +317,7 @@ public class Board extends BoardMoves {
 	}
 	
 	// checks if loser's checkers are in their inner board.
-	private boolean isCheckersInInnerBoard(Color loserColor) {
+	public boolean isCheckersInInnerBoard(Color loserColor) {
 		return getHomeQuadOfPlayer(loserColor).hasCheckerColor(loserColor);
 	}
 	
@@ -327,7 +327,7 @@ public class Board extends BoardMoves {
 	}
 	
 	// checks if loser's checkers are in winner's inner board.
-	private boolean isCheckersInWinnerInnerBoard(Color loserColor) {
+	public boolean isCheckersInWinnerInnerBoard(Color loserColor) {
 		if (loserColor == Settings.getBottomPerspectiveColor()) {
 			return getHomeQuadOfPlayer(Settings.getTopPerspectiveColor()).hasCheckerColor(loserColor);
 		} else {

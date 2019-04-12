@@ -63,13 +63,13 @@ public class CheckersStorer extends TouchablesStorer {
 	/**
 	 * Returns a boolean value indicating if the two checkers storer's top checkers are of the same color.
 	 * If the other object is empty, return true as well.
+	 * NOTE: true is returned to indicate that this checkerStorer is free to have
+	 * a checker moved onto it.
 	 * @param object, the other checker storer to be compared with.
 	 * @return the boolean value.
 	 */
 	public boolean topCheckerColorEquals(CheckersStorer otherObject) {
-		if (otherObject.isEmpty()) {
-			return true;
-		}
+		if (otherObject.isEmpty()) return true;
 		return getTopChecker().getColor().equals(otherObject.getTopChecker().getColor());
 	}
 	
@@ -79,6 +79,8 @@ public class CheckersStorer extends TouchablesStorer {
 	 * @return the boolean value.
 	 */
 	public boolean topCheckerColorEquals(Color color) {
+		// on empty, return false is used to convert our implementation to Chris's in GameComponentController's get().
+		if (isEmpty()) return false;
 		return getTopChecker().getColor().equals(color);
 	}
 	

@@ -15,6 +15,7 @@ import game.Pip;
 import interfaces.ColorParser;
 import interfaces.ColorPerspectiveParser;
 import interfaces.InputValidator;
+import interfaces.IntegerLettersParser;
 import javafx.event.ActionEvent;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
@@ -37,7 +38,7 @@ import ui.RollDieButton;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class EventController implements ColorParser, ColorPerspectiveParser, InputValidator {
+public class EventController implements ColorParser, ColorPerspectiveParser, InputValidator, IntegerLettersParser {
 	private Stage stage;
 	private MatchController root;
 	private GameComponentsController game;
@@ -356,8 +357,8 @@ public class EventController implements ColorParser, ColorPerspectiveParser, Inp
 				cmd.runCommand(cmdPnl.getText(), true);
 			} else if (args.length == 2 && isPip(args[0]) && isPip(args[1])) {
 				cmd.runCommand("/move " + text, true);
-			} else if (gameplay.getGameplayMoves().isMapped() && gameplay.getGameplayMoves().isKey(text.toUpperCase().trim())) {
-				cmd.runCommand(gameplay.getGameplayMoves().getMapping(text.toUpperCase().trim()));
+			} else if (gameplay.getGameplayMoves().isMapped() && (gameplay.getGameplayMoves().isKey(isString(text) ? text.toUpperCase().trim() : toLetters(Integer.parseInt(text.trim())).toUpperCase()))) {
+				cmd.runCommand(gameplay.getGameplayMoves().getMapping(isString(text) ? text.toUpperCase().trim() : toLetters(Integer.parseInt(text.trim())).toUpperCase()));
 			} else if (text.equals("double")) {
 				cmd.runCommand("/double");
 			} else if (text.equals("yes") && gameplay.isDoubling()) {

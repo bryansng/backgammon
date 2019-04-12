@@ -3,6 +3,9 @@ package game;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Random;
+
+import botAPI.CubeAPI;
+import game_engine.Player;
 import interfaces.ColorPerspectiveParser;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -16,12 +19,13 @@ import javafx.scene.image.ImageView;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class DoublingCube extends ImageView implements ColorPerspectiveParser, Touchable {
+public class DoublingCube extends ImageView implements ColorPerspectiveParser, Touchable, CubeAPI {
 	private final int MAX_DICE_SIZE = 6;
 	private Image[] cubeSides;
 	private Image[] cubeHighlightedSides;
 	private int currentSide;
 	private boolean isMaxDoubling, isUsed;
+	private Player cubeOwner;
 	
 	/**
 	 * Constructors
@@ -136,6 +140,10 @@ public class DoublingCube extends ImageView implements ColorPerspectiveParser, T
 		setNormalImage();
 	}
 	
+	public void setOwner(Player owner) {
+		this.cubeOwner = owner;
+	}
+	
 	public void resetRotation() {
 		setRotate(0.0);
 	}
@@ -144,7 +152,25 @@ public class DoublingCube extends ImageView implements ColorPerspectiveParser, T
 		currentSide = MAX_DICE_SIZE-1;
 		isMaxDoubling = false;
 		isUsed = false;
+		cubeOwner = null;
 		setNormalImage();
 		resetRotation();
+	}
+	
+	// which value, game end value, intermediate value?
+	@Override
+	public int getValue() {
+		// return game end value.
+		return getEndGameMultiplier(); 
+	}
+	
+	@Override
+	public boolean isOwned() {
+		return isUsed();
+	}
+	
+	@Override
+	public int getOwnerId() {
+		return cubeOwner.getID();
 	}
 }

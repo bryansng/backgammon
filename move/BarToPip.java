@@ -44,6 +44,8 @@ public class BarToPip extends SumMove implements ColorParser, ColorPerspectivePa
 	}
 	
 	// either -1 or 24.
+	// 24 is bar for bottom, i.e. white.
+	// -1 is bar for top, i.e. black.
 	public int getFromBarPipNum() {
 		return fromBarPipNum;
 	}

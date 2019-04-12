@@ -1,10 +1,13 @@
 package game_engine;
 
+import botAPI.BoardAPI;
+import botAPI.Plays;
 import constants.GameConstants;
 import constants.MoveResult;
 import game.Bar;
 import game.Bars;
 import game.Board;
+import game.Dice;
 import game.DoublingCube;
 import game.DoublingCubeHome;
 import game.Emoji;
@@ -12,6 +15,7 @@ import game.Home;
 import game.HomePanel;
 import game.Pip;
 import game.PlayerPanel;
+import interfaces.PlayerNumberParser;
 import javafx.scene.effect.DropShadow;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -27,7 +31,8 @@ import javafx.scene.paint.Color;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class GameComponentsController extends VBox {
+public class GameComponentsController extends VBox implements BoardAPI, PlayerNumberParser {
+	private GameplayController gameplay;
 	private PlayerPanel topPlayerPnl, btmPlayerPnl;
 	private Bars bars;
 	private Board board;
@@ -40,6 +45,11 @@ public class GameComponentsController extends VBox {
 	public GameComponentsController(Player bottomPlayer, Player topPlayer) {
 		super();
 		initGameComponents(bottomPlayer, topPlayer);
+		get();
+	}
+	// used to get total plays.
+	public void setGameplayController(GameplayController gameplay) {
+		this.gameplay = gameplay;
 	}
 	
 	/**
@@ -307,5 +317,75 @@ public class GameComponentsController extends VBox {
 	public void resetTimers() {
 		topPlayerPnl.resetTimer();
 		btmPlayerPnl.resetTimer();
+	}
+
+    // 2D array of checkers.
+    // 1st index: is the player id.
+    // 2nd index is number pip number, 0 to 25.
+    // pip 0 is bear off, pip 25 is the bar, pips 1-24 are on the main board.
+    // the value in checkers is the number of checkers that the player has on the point.
+	@Override
+	public int[][] get() {
+		// including bear-off and bar, at 0 and 25.
+		int[][] checkers = new int[2][GameConstants.NUMBER_OF_PIPS+2];
+		Pip[] pips = board.getPips();
+		for (int pNum = 0; pNum < checkers.length; pNum++) {
+			Color pColor = getColor(pNum+1);
+			// checkers at bear off and bars.
+			checkers[pNum][0] = getMainHome().getHome(pColor).size();
+			checkers[pNum][checkers.length-1] = getBars().getBar(pColor).size();
+			// checkers at pips.
+			for (int pipNum = 1; pipNum <= GameConstants.NUMBER_OF_PIPS; pipNum++) {
+				if (pips[pipNum-1].topCheckerColorEquals(pColor)) {
+					// top player's first pip is actually at pip 23 internally.
+					if (pColor.equals(Settings.getTopPerspectiveColor())) {
+						checkers[pNum][GameConstants.NUMBER_OF_PIPS-pipNum+1] = pips[pipNum-1].size();
+					// bottom player's first pip is at pip 0.
+					} else checkers[pNum][pipNum] = pips[pipNum-1].size();
+				}
+			}
+		}
+		printCheckers(checkers);
+		return checkers;
+	}
+	private void printCheckers(int[][] checkers) {
+		String s = "";
+		for (int i = 0; i < checkers.length; i++) {
+			for (int j = 0; j < checkers[i].length; j++) {
+				s += checkers[i][j] + " ";
+			}
+			s += "\n";
+		}
+		System.out.println(s);
+	}
+	
+	@Override
+	public int getNumCheckers(int player, int pip) {
+		return get()[player][pip];
+	}
+	
+	@Override
+	public Plays getPossiblePlays(Player player, Dice dice) {
+		return (Plays) gameplay.getValidMoves();
+	}
+	
+	@Override
+	public boolean lastCheckerInInnerBoard(Player player) {
+		return board.isCheckersInInnerBoard(player.getColor());
+	}
+	
+	@Override
+	public boolean lastCheckerInOpponentsInnerBoard(Player player) {
+		return board.isCheckersInWinnerInnerBoard(player.getColor());
+	}
+	
+	@Override
+	public boolean allCheckersOff(Player player) {
+		return getMainHome().getHome(player.getColor()).isFilled();
+	}
+	
+	@Override
+	public boolean hasCheckerOff(Player player) {
+		return !getMainHome().getHome(player.getColor()).isEmpty();
 	}
 }

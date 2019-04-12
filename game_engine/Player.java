@@ -3,6 +3,7 @@ package game_engine;
 import constants.GameConstants;
 import constants.PlayerPerspectiveFrom;
 import interfaces.ColorPerspectiveParser;
+import interfaces.PlayerNumberParser;
 import javafx.scene.paint.Color;
 
 /**
@@ -14,16 +15,17 @@ import javafx.scene.paint.Color;
  * @author Braddy Yeoh, 17357376
  *
  */
-public class Player implements ColorPerspectiveParser {
+public class Player implements ColorPerspectiveParser, PlayerNumberParser {
 	private String name;
-	private int score;
-	private Color color;
-	private boolean hasCube;
 	private PlayerPerspectiveFrom pov;
+	private Color color;
+	private int score, id;
+	private boolean hasCube;
 	
 	public Player(PlayerPerspectiveFrom pov) {
 		this.pov = pov;
 		this.color = getColor(pov);
+		this.id = getPlayerNumber(color);
 		reset();
 	}
 	
@@ -70,6 +72,10 @@ public class Player implements ColorPerspectiveParser {
 	
 	public PlayerPerspectiveFrom getPOV() {
 		return pov;
+	}
+	
+	public int getID() {
+		return id;
 	}
 	
 	public boolean hasCube() {
