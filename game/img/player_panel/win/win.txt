@@ -1,5 +1,0 @@
-kiss.png
-kiss_face.png
-nerd.png
-sunglasses.png
-wink_wink.png

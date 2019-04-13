@@ -10,19 +10,7 @@
 # But not these files...
 !.gitignore/
 !readme.md/
-
-# And not these folders...
-!/constants/
-!/events/
-!/exceptions/
-!/game/
-!/game_engine/
-!/interfaces/
-!/move/
-!/musicplayer/
-!/ui/
-!/bot/
-!/botAPI/
+!*.java/
 
 
 
