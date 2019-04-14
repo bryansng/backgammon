@@ -9,4 +9,5 @@ public interface BotAPI {
     
     // REMEMBER TO REMOVE THIS.
     ArrayList<Double> getWeights();
+    void setWeights(ArrayList<Double> newWeights);
 }

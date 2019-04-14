@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class TeaCup implements BotAPI {
-	public static final boolean DEBUG = true;
+	public static final boolean DEBUG = false;
 	public static final boolean VERBOSE = false;
 	
     private PlayerAPI me, opponent;
@@ -45,7 +45,7 @@ public class TeaCup implements BotAPI {
 		try {
 			String classPath = System.getProperty("java.class.path");
 			File txt = new File(classPath + "/weights.txt");
-			System.out.println(txt.getCanonicalPath());
+			if (DEBUG) System.out.println(txt.getCanonicalPath());
 			Scanner scan = new Scanner(txt);
 			
 			// go to last line.
@@ -67,6 +67,11 @@ public class TeaCup implements BotAPI {
     }
     public ArrayList<Double> getWeights() {
     	return weights;
+    }
+    public void setWeights(ArrayList<Double> newWeights) {
+    	System.out.println("\nOld Weight: " + Arrays.toString(weights.toArray()));
+    	weights = newWeights;
+    	System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
     }
     
 	public String getName() {
@@ -126,7 +131,7 @@ public class TeaCup implements BotAPI {
 		for (int[][] checkers : boardPositions) {
 			if (DEBUG) System.out.println(i + ": Next Move:");
 			scores[i] = getScore(checkers[currID], checkers[oppoID]);
-			printCheckers(checkers);
+			if (DEBUG) printCheckers(checkers);
 			i++;
 		}
 		return getProbabilities(scores);
@@ -283,7 +288,7 @@ public class TeaCup implements BotAPI {
 			// so search from 21.
 			// 24-20+2 = 6
 			for (int i = 26-indexOfLastPrime; i < o.length; i++) {
-				System.out.println("i: " + i);
+				if (DEBUG) System.out.println("i: " + i);
 				captured += o[i];
 			}
 		}
