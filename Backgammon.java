@@ -210,6 +210,21 @@ public class Backgammon {
         pause();
     }
     
+    private void playMatches()  throws InterruptedException {
+        boolean playAgain = true;
+        do {
+            playAMatch();
+            if (!quitGame) {
+                //playAgain = ui.getPlayAgainDecision();
+            	reset();
+            }
+        } while (!quitGame && playAgain);
+    }    
+    private void reset() {
+    	match.reset();
+    	match.setLength(MATCH_LENGTH);
+    }
+    
     private void updateWeights() {
     	StringBuilder sb = new StringBuilder();
     	// date,
@@ -252,7 +267,6 @@ public class Backgammon {
     public static void main(String[] args) throws InterruptedException {
         Backgammon game = new Backgammon();
         game.setupBots(args);
-        game.playAMatch();
-//        System.exit(0);
+        game.playMatches();
     }
 }

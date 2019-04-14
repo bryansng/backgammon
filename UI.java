@@ -167,5 +167,4 @@ public class UI {
     public void displayMatchWinner(Player player) {
         displayString(player + " WINS THE MATCH!!!!!!");
     }
-
 }
