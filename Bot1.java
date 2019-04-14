@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 public class Bot1 implements BotAPI {
     // The public API of Bot must not change
     // This is ONLY class that you can edit in the program
@@ -34,4 +36,10 @@ public class Bot1 implements BotAPI {
         // Add your code here
         return "n";
     }
+
+	@Override
+	public ArrayList<Double> getWeights() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

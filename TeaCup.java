@@ -1,14 +1,20 @@
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Scanner;
 
 public class TeaCup implements BotAPI {
 	public static final boolean DEBUG = true;
 	public static final boolean VERBOSE = false;
+	
     private PlayerAPI me, opponent;
     private BoardAPI board;
     private CubeAPI cube;
     private MatchAPI match;
     private InfoPanelAPI info;
-    //private HashMap<String, Double> weights;
+    
+	private ArrayList<Double> weights = new ArrayList<>();
 	private double pipCountWeight, blockBlotWeight, homeBlockWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight;
     
     public TeaCup(PlayerAPI me, PlayerAPI opponent, BoardAPI board, CubeAPI cube, MatchAPI match, InfoPanelAPI info) {
@@ -19,12 +25,11 @@ public class TeaCup implements BotAPI {
         this.match = match;
         this.info = info;
         initWeights();
-        
     }
     private void initWeights() {
-    	// TODO read from file.
-    	ArrayList<Double> weights = new ArrayList<>();
-    	for (int i = 0; i < 9; i++) weights.add(0.5);
+    	weights = new ArrayList<>();
+    	//for (int i = 0; i < 9; i++) weights.add(0.5);
+    	readWeightsFromFile();
     	pipCountWeight = weights.get(0);
     	blockBlotWeight = weights.get(1);
     	homeBlockWeight = weights.get(2);
@@ -34,6 +39,34 @@ public class TeaCup implements BotAPI {
     	checkersInHomeWeight = weights.get(6);
     	checkersTakenOffWeight = weights.get(7);
     	pipsCoveredWeight = weights.get(8);
+    	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
+    }
+    private void readWeightsFromFile() {
+		try {
+			String classPath = System.getProperty("java.class.path");
+			File txt = new File(classPath + "/weights.txt");
+			System.out.println(txt.getCanonicalPath());
+			Scanner scan = new Scanner(txt);
+			
+			// go to last line.
+			// last line has the most updated weights.
+			String lastLine = "";
+			while (scan.hasNextLine()) {
+				lastLine = scan.nextLine();
+			}
+			
+			// store the weights.
+			String[] weightsInString = lastLine.split(",");
+			for (int i = 0; i < weightsInString.length; i++)
+				weights.add(Double.parseDouble(weightsInString[i]));
+			//buffer.close();
+			scan.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+    }
+    public ArrayList<Double> getWeights() {
+    	return weights;
     }
     
 	public String getName() {
@@ -51,9 +84,9 @@ public class TeaCup implements BotAPI {
 	public String getCommand(Plays possiblePlays) {
 		// generate resulting board positions.
 		// go through board positions and score them.
-		getBestMove(getBoardPositionsScores(getResultingBoardPositions(possiblePlays)));
-		return "1";
+		return String.valueOf(1+getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
 	}
+	
 	// generates resulting board positions.
 	private ArrayList<int[][]> getResultingBoardPositions(Plays plays) {
 		ArrayList<int[][]> boardPositions = new ArrayList<>();
@@ -82,25 +115,91 @@ public class TeaCup implements BotAPI {
 		}
 		return boardPositions;
 	}
+	
 	// scores the board positions.
-	private double[] getBoardPositionsScores(ArrayList<int[][]> boardPositions) {
+	private double[] getBoardPositionsProbabilities(ArrayList<int[][]> boardPositions) {
 		double[] scores = new double[boardPositions.size()];
 		int currID = me.getId();
 		int oppoID = opponent.getId();
 		
 		int i = 0;
 		for (int[][] checkers : boardPositions) {
-			System.out.println(i + ": Next Move:");
+			if (DEBUG) System.out.println(i + ": Next Move:");
 			scores[i] = getScore(checkers[currID], checkers[oppoID]);
 			printCheckers(checkers);
 			i++;
 		}
-		return scores;
+		return getProbabilities(scores);
 	}
+	
+	// Normalize the scores to probabilities.
+	// https://stackoverflow.com/questions/26916150/normalize-small-probabilities-in-python
+	private double[] getProbabilities(double[] scores) {
+		double[] probs = new double[scores.length];
+		double prob_factor = 1.0 / getSum(scores);
+		for (int i = 0; i < scores.length; i++) probs[i] = scores[i] * prob_factor;
+		if (DEBUG) System.out.println("Probabilities: " + Arrays.toString(probs));
+		return probs;
+	}
+	private double getSum(double[] scores) {
+		double sum = 0;
+		for (int i = 0; i < scores.length; i++) sum += scores[i];
+		return sum;
+	}
+	
 	private double getScore(int[] c, int[] o) {
-		double score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
-		System.out.println("Score: " + score);
+		double score = 0;
+		
+		if (isOpposedBearOff(c, o)) {
+			// and even checkers on last pip.
+			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o);
+		} else if (isUnopposedPreBearOff(c, o)) {
+			score = numCheckersInHomeBoard(c, o);
+		} else if (isUnopposedBearOff(c, o)) {
+			score = numCheckersTakenOff(c, o) + numPipsCovered(c, o);
+		} else {
+			// if pip count difference is good then escape is good.
+			// if pip count difference is bad then escape is bad
+			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
+		}
+		if (DEBUG) System.out.println("Score: " + score);
 		return score;
+	}
+	private boolean isOpposedBearOff(int[] c, int[] o) {
+		// opposed if it is not unopposed.
+		return !isUnopposedBearOff(c, o);
+	}
+	private boolean isUnopposedPreBearOff(int[] c, int[] o) {
+		// unopposed pre if c has not bear-off yet and is unopposed bear off.
+		return (!board.hasCheckerOff((Player) me) && isUnopposedBearOff(c, o));
+	}
+	private boolean isUnopposedBearOff(int[] c, int[] o) {
+		// unopposed bear off if the only thing remaining is trying to bear-off,
+		// i.e. no opponent's checkers in the way.
+		
+		// find last checker of opponent.
+		int lastOpponentCheckerIndex = findLastCheckerIndex(o);
+		
+		// convert it into bot's perspective.
+		lastOpponentCheckerIndex = 25 - lastOpponentCheckerIndex;
+		
+		// find last checker of bot.
+		int lastBotCheckerIndex = findLastCheckerIndex(c);
+		
+		// if difference between opponent's index and bot's index is
+		// positive, then it is unopposed. 
+		// else it is opposed.
+		return (lastOpponentCheckerIndex - lastBotCheckerIndex) > 0;
+	}
+	private int findLastCheckerIndex(int[] checkers) {
+		int lastCheckerIndex = -1;
+		for (int i = checkers.length-1; i >= 1; i--) {
+			if (checkers[i] > 0) {
+				lastCheckerIndex = i;
+				break;
+			}
+		}
+		return lastCheckerIndex;
 	}
 	
 	// difference between the total number of dice results needed to bear-off.
@@ -177,7 +276,6 @@ public class TeaCup implements BotAPI {
 		// calculate captured checkers.
 		int captured = 0;
 		if (indexOfLastPrime != -1) {
-			// TODO check if the initialization of i is correct below.
 			// was indexOfLastPrime+1
 			// Formulae 24-indexOfLastPrime+2,
 			// i.e. bottom pov is 5, top pov is 20,
@@ -272,10 +370,10 @@ public class TeaCup implements BotAPI {
 	
 	// picks the best move.
 	// returns the index of the move that results to the best board positions.
-	private int getBestMove(double[] scores) {
+	private int getBestMove(double[] probs) {
 		int maxAt = 0;
-		for (int i = 0; i < scores.length; i++)
-			maxAt = scores[i] > scores[maxAt] ? i : maxAt;
+		for (int i = 0; i < probs.length; i++)
+			maxAt = probs[i] > probs[maxAt] ? i : maxAt;
 		if (DEBUG) System.out.println("Chosen index: " + maxAt);
 		return maxAt;
 	}
@@ -301,7 +399,6 @@ public class TeaCup implements BotAPI {
 	}
 	
 	public String getDoubleDecision() {
-		// TODO Auto-generated method stub
 		return "n";
 	}
 }

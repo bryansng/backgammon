@@ -77,5 +77,12 @@ public class Match implements MatchAPI {
             crawford = false;
             crawfordDone = false;
         }
-
+        
+        // OUR METHOD.
+        public String getStats() {
+        	String stats = "";
+        	stats += players.get(0).getScore() + "/" + matchLength + ",";
+        	stats += players.get(1).getScore() + "/" + matchLength;
+        	return stats;
+        }
     }

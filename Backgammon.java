@@ -1,15 +1,22 @@
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Random;
 
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 
+    public static final int MATCH_LENGTH = 3;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
-    private static final int DELAY = 3000;  // in milliseconds
+    //private static final int DELAY = 3000;  // in milliseconds
+    private static final int DELAY = 0;  // in milliseconds
     private static final String[] ALL_BOT_NAMES = {"Bot0","Bot1"};
 
     private final Cube cube = new Cube();
@@ -24,7 +31,7 @@ public class Backgammon {
 
     private void setupBots (String[] args) {
         if (args.length < NUM_PLAYERS) {
-            botNames[0] = "Bot0";
+            botNames[0] = "TeaCup";
             botNames[1] = "TeaCup";
             /*
             botNames[0] = "Bot0";
@@ -46,7 +53,7 @@ public class Backgammon {
             }
         }
         if (args.length < NUM_PLAYERS + 1) {
-            match.setLength(3);
+            match.setLength(MATCH_LENGTH);
         } else {
             match.setLength(Integer.parseInt(args[2]));
         }
@@ -195,10 +202,51 @@ public class Backgammon {
             pause();
         } while (!quitGame && !match.isOver());
         if (match.isOver()) {
+        	ui.getInfoPanel().clear();
             ui.displayMatchWinner(match.getWinner());
+            updateWeights();
         }
         pause();
         pause();
+    }
+    
+    private void updateWeights() {
+    	StringBuilder sb = new StringBuilder();
+    	// date,
+    	sb.append(getCurrentTime() + "\n");
+    	// stats,
+    	sb.append(match.getStats() + "\n");
+    	// new weights to test.
+    	sb.append(getNewWeights() + "\n");
+    	toFile(sb);
+    }
+    private String getNewWeights() {
+    	// weights in the range of -0.5 to 0.5.
+    	// NOTE: ATM, just use random weights.
+    	String newWeights = "";
+    	Random rand = new Random();
+    	for (int i = 0; i < bots[1].getWeights().size(); i++) {
+    		newWeights += rand.nextDouble()-0.5;
+    		if (i != bots[1].getWeights().size()-1) newWeights += ",";
+    	}
+    	return newWeights;
+    }
+	private void toFile(StringBuilder sb) {
+		try {
+			String classPath = System.getProperty("java.class.path");
+			File txt = new File(classPath + "/weights.txt");
+			BufferedWriter buffer = new BufferedWriter(new FileWriter(txt, true));
+			buffer.append(sb);
+			buffer.flush();
+			buffer.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+    private String getCurrentTime() {
+    	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd,HH:mm:ss");
+    	Date date = new Date();
+    	return dateFormat.format(date);
     }
 
     public static void main(String[] args) throws InterruptedException {
