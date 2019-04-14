@@ -10,8 +10,11 @@
 # But not these files...
 !.gitignore/
 !readme.md/
-!*.java/
-!weights.txt
+!*.java
+!*.jpg
+!*.jpeg
+!*.png
+!*.txt
 
 
 
