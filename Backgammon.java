@@ -25,7 +25,11 @@ public class Backgammon {
     private void setupBots (String[] args) {
         if (args.length < NUM_PLAYERS) {
             botNames[0] = "Bot0";
+            botNames[1] = "TeaCup";
+            /*
+            botNames[0] = "Bot0";
             botNames[1] = "Bot1";
+            */
         } else {
             for (int i = 0; i < NUM_PLAYERS; i++) {
                 boolean found = false;
@@ -124,6 +128,7 @@ public class Backgammon {
                 ui.displayDiceRoll(currentPlayer);
                 currentDice = currentPlayer.getDice();
             }
+            if (TeaCup.DEBUG) System.out.println("Dice: " + currentDice.toString());
             Plays possiblePlays;
             possiblePlays = board.getPossiblePlays(currentPlayer,currentDice);
             if (possiblePlays.number()==0) {
