@@ -1,3 +1,12 @@
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Move {
     // Move holds the details of single checker movement from one pip to another.
 

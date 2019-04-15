@@ -9,6 +9,16 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
 
+
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 

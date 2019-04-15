@@ -1,5 +1,14 @@
 import java.util.ArrayList;
 
+/**
+ * Backgammon BotAPI by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Bot1 implements BotAPI {
     // The public API of Bot must not change
     // This is ONLY class that you can edit in the program

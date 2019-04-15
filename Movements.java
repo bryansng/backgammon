@@ -2,6 +2,15 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
 
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Movements implements Iterable<Integer>, Iterator<Integer> {
     // Movements stores the list of checker movements that a player can perform as a result of a dice roll.
     // E.g. a [4,4] dice roll would allow the movements 4,4,4,4

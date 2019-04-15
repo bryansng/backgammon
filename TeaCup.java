@@ -4,6 +4,15 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Scanner;
 
+/**
+ * TeaCup the Backgammon bot based on BotAPI provided by Chris.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class TeaCup implements BotAPI {
 	public static final boolean DEBUG = true;
 	public static final boolean VERBOSE = false;
