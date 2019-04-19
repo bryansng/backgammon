@@ -15,7 +15,7 @@ public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 	private static boolean DEBUG = false;
 
-    public static final int MATCH_LENGTH = 1001;
+    public static final int MATCH_LENGTH = 51;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -222,15 +222,16 @@ public class Backgammon {
     	ArrayList<Double> oldWeights = bots[1].getWeights();
     	ArrayList<Double> newWeights = new ArrayList<>();
     	Random rand = new Random();
+    	// TODO how to get game winner, not match winner.
     	if (match.getWinner().equals(players.get(1))) {
         	for (int i = 0; i < bots[1].getWeights().size(); i++) {
         		double oldWeight = oldWeights.get(i); 
         		// positive weights.
         		if (oldWeight > 0)
-        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.023
+        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
         		// negative weights.
         		else
-        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.023 to 0
+        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
         	}
         	//bots[1].setWeights(getProbabilities(newWeights));
         	bots[1].setWeights(newWeights);
@@ -243,7 +244,6 @@ public class Backgammon {
     		lossesInARow++;
     		if (DEBUG) System.out.println("Losses after: " + lossesInARow);
         	// if bot losses three times in a row, exchange the weights between the bots.
-    		//if ((players.get(0).getScore() - players.get(1).getScore()) >= 3) {
     		if (lossesInARow >= 3) {
     			if (DEBUG) System.out.println("\n\nNOTE: Bot 1 losses more than three times, exchanging weights with bot 1.");
     			if (DEBUG) System.out.println("Bot 1 old weights: " + Arrays.toString(bots[1].getWeights().toArray()));
@@ -259,10 +259,10 @@ public class Backgammon {
 	        		double oldWeight = oldWeights.get(i); 
 	        		// positive weights.
 	        		if (oldWeight < 0)
-	        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.023
+	        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
 	        		// negative weights.
 	        		else
-	        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.023 to 0
+	        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
 	        	}
 	        	//bots[1].setWeights(getProbabilities(newWeights));
 	        	bots[1].setWeights(newWeights);
@@ -321,6 +321,10 @@ public class Backgammon {
 	}
     
     private void updateWeightsEachMatch() {
+    	if (match.getWinner().equals(players.get(1)))
+    		updateWeightsFile(getNewWeightsInString(bots[1].getWeights()));
+    	else
+    		updateWeightsFile(getNewWeightsInString(bots[0].getWeights()));
     }
     
     @SuppressWarnings("unused")

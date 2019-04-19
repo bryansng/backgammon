@@ -69,7 +69,8 @@ public class TeaCup implements BotAPI {
     	return weights;
     }
     public void setWeights(ArrayList<Double> newWeights) {
-    	System.out.println("\nOld Weight: " + Arrays.toString(weights.toArray()));
+    	System.out.println("\nBot " + me.getId() + ":");
+    	System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
     	weights = newWeights;
     	System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
     }
