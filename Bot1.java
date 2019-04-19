@@ -51,4 +51,10 @@ public class Bot1 implements BotAPI {
 		// TODO Auto-generated method stub
 		return null;
 	}
+
+	@Override
+	public void setWeights(ArrayList<Double> newWeights) {
+		// TODO Auto-generated method stub
+		
+	}
 }

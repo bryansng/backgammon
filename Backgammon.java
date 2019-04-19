@@ -6,6 +6,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
@@ -21,8 +23,9 @@ import java.util.Random;
  */
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
+	private static boolean DEBUG = false;
 
-    public static final int MATCH_LENGTH = 3;
+    public static final int MATCH_LENGTH = 51;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -145,7 +148,7 @@ public class Backgammon {
                 ui.displayDiceRoll(currentPlayer);
                 currentDice = currentPlayer.getDice();
             }
-            if (TeaCup.DEBUG) System.out.println("Dice: " + currentDice.toString());
+            if (DEBUG) System.out.println("Dice: " + currentDice.toString());
             Plays possiblePlays;
             possiblePlays = board.getPossiblePlays(currentPlayer,currentDice);
             if (possiblePlays.number()==0) {
@@ -208,13 +211,14 @@ public class Backgammon {
                 match.updateScores(points);
                 ui.displayPointsWon(match.getWinner(),points);
                 ui.displayScore(players,match);
+                updateWeightsEachGame();	// added by us.
+                ui.getInfoPanel().clear();	// added by us.
             }
             pause();
         } while (!quitGame && !match.isOver());
         if (match.isOver()) {
-        	ui.getInfoPanel().clear();
             ui.displayMatchWinner(match.getWinner());
-            updateWeights();
+            updateWeightsEachMatch();		// added by us.
         }
         pause();
         pause();
@@ -235,19 +239,124 @@ public class Backgammon {
     	match.setLength(MATCH_LENGTH);
     }
     
-    private void updateWeights() {
+    private int lossesInARow = 0;
+    private void updateWeightsEachGame() {
+    	// if bot wins, add a small random amount (could be slightly
+    	// negative) to the positive weights and subtract a small amount
+    	// from the negative weights (could be slightly negative).
+    	ArrayList<Double> oldWeights = bots[1].getWeights();
+    	ArrayList<Double> newWeights = new ArrayList<>();
+    	Random rand = new Random();
+    	// TODO how to get game winner, not match winner.
+    	if (match.getWinner().equals(players.get(1))) {
+        	for (int i = 0; i < bots[1].getWeights().size(); i++) {
+        		double oldWeight = oldWeights.get(i); 
+        		// positive weights.
+        		if (oldWeight > 0)
+        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
+        		// negative weights.
+        		else
+        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
+        	}
+        	//bots[1].setWeights(getProbabilities(newWeights));
+        	bots[1].setWeights(newWeights);
+        	if (DEBUG) System.out.println("\nReset losses due to win, Losses before: " + lossesInARow);
+			lossesInARow = 0;
+			if (DEBUG) System.out.println("Losses after: " + lossesInARow);
+    	// if bot losses, do opposite.
+    	} else {
+    		if (DEBUG) System.out.println("\nBot loss, Losses before: " + lossesInARow);
+    		lossesInARow++;
+    		if (DEBUG) System.out.println("Losses after: " + lossesInARow);
+        	// if bot losses three times in a row, exchange the weights between the bots.
+    		if (lossesInARow >= 3) {
+    			if (DEBUG) System.out.println("\n\nNOTE: Bot 1 losses more than three times, exchanging weights with bot 1.");
+    			if (DEBUG) System.out.println("Bot 1 old weights: " + Arrays.toString(bots[1].getWeights().toArray()));
+    			ArrayList<Double> temp = bots[1].getWeights();
+    			bots[1].setWeights(bots[0].getWeights());
+    			bots[0].setWeights(temp);
+    			if (DEBUG) System.out.println("Bot 1 new weights: " + Arrays.toString(bots[1].getWeights().toArray()) + "\n\n");
+    			if (DEBUG) System.out.println("Swapping, Losses before: " + lossesInARow);
+    			lossesInARow = 0;
+    			if (DEBUG) System.out.println("Losses after: " + lossesInARow);
+    		} else {
+	        	for (int i = 0; i < bots[1].getWeights().size(); i++) {
+	        		double oldWeight = oldWeights.get(i); 
+	        		// positive weights.
+	        		if (oldWeight < 0)
+	        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
+	        		// negative weights.
+	        		else
+	        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
+	        	}
+	        	//bots[1].setWeights(getProbabilities(newWeights));
+	        	bots[1].setWeights(newWeights);
+    		}
+    	}
+    	updateWeightsFile(getNewWeightsInString(bots[1].getWeights()));
+    }
+    private String getNewWeightsInString(ArrayList<Double> newWeights) {
+    	String weightsInStr = "";
+    	for (int i = 0; i < newWeights.size(); i++) {
+    		weightsInStr += newWeights.get(i);
+			if (i != bots[1].getWeights().size()-1) weightsInStr += ",";
+    	}
+    	return weightsInStr;
+    }
+    private void updateWeightsFile(String newWeights) {
     	StringBuilder sb = new StringBuilder();
     	// date,
     	sb.append(getCurrentTime() + "\n");
     	// stats,
     	sb.append(match.getStats() + "\n");
     	// new weights to test.
-    	sb.append(getNewWeights() + "\n");
+    	sb.append(newWeights + "\n");
     	toFile(sb);
     }
-    private String getNewWeights() {
+    
+	// Normalize the scores to probabilities.
+	// https://stackoverflow.com/questions/16514443/how-to-normalize-a-list-of-positive-and-negative-decimal-number-to-a-specific-ra
+	@SuppressWarnings("unused")
+	private ArrayList<Double> getProbabilities(ArrayList<Double> weights) {
+		ArrayList<Double> probs = new ArrayList<>();
+		double[] minMaxSum = getMinMaxSum(weights);
+		double old_min, old_range, new_min = -1, new_range = 1;// + 0.9999999999 - new_min;
+		old_min = minMaxSum[0];
+		old_range = minMaxSum[1] - old_min;
+		for (int i = 0; i < weights.size(); i++) {
+			probs.add((weights.get(i) - old_min) / old_range * new_range + new_min);
+		}
+		return probs;
+	}
+	private double[] getMinMaxSum(ArrayList<Double> weights) {
+		double min, max, sum = 0;
+		min = weights.get(0);
+		max = weights.get(0);
+		for (int i = 0; i < weights.size(); i++) {
+			double val = weights.get(i);
+			sum += val;
+			if (val > max) max = val;
+			if (val < min) min = val;
+		}
+		double[] minMaxSum = new double[3];
+		minMaxSum[0] = min;
+		minMaxSum[1] = max;
+		minMaxSum[2] = sum;
+		return minMaxSum;
+	}
+    
+    private void updateWeightsEachMatch() {
+    	if (match.getWinner().equals(players.get(1)))
+    		updateWeightsFile(getNewWeightsInString(bots[1].getWeights()));
+    	else
+    		updateWeightsFile(getNewWeightsInString(bots[0].getWeights()));
+    }
+    
+    @SuppressWarnings("unused")
+	private String getNewRandomWeights() {
     	// weights in the range of -0.5 to 0.5.
     	// NOTE: ATM, just use random weights.
+    	// random weights.
     	String newWeights = "";
     	Random rand = new Random();
     	for (int i = 0; i < bots[1].getWeights().size(); i++) {
@@ -256,6 +365,7 @@ public class Backgammon {
     	}
     	return newWeights;
     }
+    
 	private void toFile(StringBuilder sb) {
 		try {
 			String classPath = System.getProperty("java.class.path");

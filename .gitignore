@@ -10,11 +10,11 @@
 # But not these files...
 !.gitignore/
 !readme.md/
-!*.java/
-!weights.txt
-!board.jpg
-
-
+!*.java
+!*.jpg
+!*.jpeg
+!*.png
+!*.txt
 
 # IGNORE macOS FILES.
 # General
