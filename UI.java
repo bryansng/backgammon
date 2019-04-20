@@ -28,6 +28,12 @@ public class UI {
         this.bots = bots;
     }
 
+    public String getString() {
+        String textEntered = commandPanel.getString();
+        displayString("> " + textEntered);
+        return textEntered;
+    }
+
     public InfoPanel getInfoPanel() {
         return infoPanel;
     }
@@ -79,8 +85,13 @@ public class UI {
     }
 
     public String getName(Player player) {
-        String textEntered = bots[player.getId()].getName();
-        displayString("> " + textEntered);
+    	String textEntered = "";
+    	try {
+        	textEntered = bots[player.getId()].getName();
+    	} catch (ArrayIndexOutOfBoundsException e) {
+    		textEntered = "Bryan";
+    	}
+    	displayString("> " + textEntered);
         return textEntered;
     }
 
@@ -88,7 +99,13 @@ public class UI {
         Command command;
         displayString(player + " (" + player.getColorName() + ") enter double, your move or quit:");
         do {
-            String commandString = bots[player.getId()].getCommand(possiblePlays);
+            String commandString = "";
+        	try {
+        		commandString = bots[player.getId()].getCommand(possiblePlays);
+        	} catch (ArrayIndexOutOfBoundsException e) {
+        		displayString("Bot decision: " + bots[0].getCommand(possiblePlays));
+                commandString = getString();
+        	}
             displayString("> " + commandString);
             command = new Command(commandString,possiblePlays);
             if (!command.isValid()) {

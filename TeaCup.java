@@ -7,15 +7,19 @@ import java.util.Scanner;
 public class TeaCup implements BotAPI {
 	public static final boolean DEBUG = false;
 	public static final boolean VERBOSE = false;
+	public static final boolean TEST = false;
 	
     private PlayerAPI me, opponent;
     private BoardAPI board;
-    private CubeAPI cube;
-    private MatchAPI match;
-    private InfoPanelAPI info;
+    @SuppressWarnings("unused")
+	private CubeAPI cube;
+    @SuppressWarnings("unused")
+	private MatchAPI match;
+    @SuppressWarnings("unused")
+	private InfoPanelAPI info;
     
 	private ArrayList<Double> weights = new ArrayList<>();
-	private double pipCountWeight, blockBlotWeight, homeBlockWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight;
+	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight;
     
     public TeaCup(PlayerAPI me, PlayerAPI opponent, BoardAPI board, CubeAPI cube, MatchAPI match, InfoPanelAPI info) {
         this.me = me;
@@ -28,7 +32,6 @@ public class TeaCup implements BotAPI {
     }
     private void initWeights() {
     	weights = new ArrayList<>();
-    	//for (int i = 0; i < 9; i++) weights.add(0.5);
     	readWeightsFromFile();
     	pipCountWeight = weights.get(0);
     	blockBlotWeight = weights.get(1);
@@ -39,6 +42,9 @@ public class TeaCup implements BotAPI {
     	checkersInHomeWeight = weights.get(6);
     	checkersTakenOffWeight = weights.get(7);
     	pipsCoveredWeight = weights.get(8);
+    	blotWithoutContestWeight = weights.get(9);
+    	primingDefenseWeight = weights.get(10);
+    	//blotFurtherFromHomeWeight = weights.get(11);
     	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     }
     private void readWeightsFromFile() {
@@ -138,14 +144,78 @@ public class TeaCup implements BotAPI {
 		return getProbabilities(scores);
 	}
 	
+	/*
+	// Normalizes if all elements in the list is positive.
 	// Normalize the scores to probabilities.
 	// https://stackoverflow.com/questions/26916150/normalize-small-probabilities-in-python
 	private double[] getProbabilities(double[] scores) {
 		double[] probs = new double[scores.length];
 		double prob_factor = 1.0 / getSum(scores);
 		for (int i = 0; i < scores.length; i++) probs[i] = scores[i] * prob_factor;
-		if (DEBUG) System.out.println("Probabilities: " + Arrays.toString(probs));
+		if (DEBUG) {
+			System.out.println("Scores: " + Arrays.toString(scores));
+			System.out.println("Probabilities: " + Arrays.toString(probs));
+		}
+		if (getSum(probs) != 1.0) {
+			System.out.println("\n\nSum of probs: " + getSum(probs));
+			System.out.println("Scores: " + Arrays.toString(scores));
+			System.out.println("Probabilities: " + Arrays.toString(probs));
+		}
 		return probs;
+	}
+	*/
+	
+	private double[] getProbabilities(double[] scores) {
+		double[] probs = new double[scores.length];
+		double[] minMaxSum = getMinMaxSum(scores);
+		double old_min, old_sum, new_sum;
+		old_min = minMaxSum[0];
+		old_sum = minMaxSum[2];
+		double adjustValue = getAdjustmentValue(old_min);
+		// get new sum, which is current_sum +  adjustValue * size of list.
+		new_sum = old_sum + adjustValue * scores.length;
+		for (int i = 0; i < scores.length; i++) {
+			probs[i] = (scores[i] + adjustValue) / new_sum;
+		}
+		if (VERBOSE) {
+			if (getSum(probs) != 1.0) {
+				System.out.println("\n\nAdjust value: " + adjustValue);
+				System.out.println("Sum of probs: " + getSum(probs));
+				System.out.println("Scores:\n" + Arrays.toString(scores));
+				System.out.println("Probabilities:\n" + Arrays.toString(probs));
+			}
+		}
+		return probs;
+	}
+	private double[] getMinMaxSum(double[] scores) {
+		double min, max, sum = 0;
+		min = scores[0];
+		max = scores[0];
+		for (int i = 0; i < scores.length; i++) {
+			double val = scores[i];
+			sum += val;
+			if (val > max) max = val;
+			if (val < min) min = val;
+		}
+		double[] minMaxSum = new double[3];
+		minMaxSum[0] = min;
+		minMaxSum[1] = max;
+		minMaxSum[2] = sum;
+		return minMaxSum;
+	}
+	// hard to normalize list with negative values,
+	// Idea: so we add all the values by a positive number
+	// making all the values in the list positive.
+	//
+	// this method returns the value needed to make
+	// all values in the list positive.
+	// NOTE: get min, then add until that min is positive.
+	private double getAdjustmentValue(double min) {
+		if (min > 0) {
+			return 0;
+		}
+		double adjustValue = 1.0;
+		return adjustValue + getAdjustmentValue(min + adjustValue);
 	}
 	private double getSum(double[] scores) {
 		double sum = 0;
@@ -156,30 +226,40 @@ public class TeaCup implements BotAPI {
 	private double getScore(int[] c, int[] o) {
 		double score = 0;
 		
-		if (isOpposedBearOff(c, o)) {
+		if (isOpposed(c, o) && isBearOff(c)) {
 			// and even checkers on last pip.
-			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o);
-		} else if (isUnopposedPreBearOff(c, o)) {
+			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o);
+			if (VERBOSE) System.out.println("Current game phase: Is opposed bear off.");
+		} else if (!isOpposed(c, o) && isBearOff(c) && c[0] == 0) {
+			// unopposed pre if c has not bear-off yet and is unopposed bear off.
 			score = numCheckersInHomeBoard(c, o);
-		} else if (isUnopposedBearOff(c, o)) {
+			if (VERBOSE) System.out.println("Current game phase: Is unopposed pre-bear off.");
+		} else if (!isOpposed(c, o) && isBearOff(c)) {
 			score = numCheckersTakenOff(c, o) + numPipsCovered(c, o);
+			if (VERBOSE) System.out.println("Current game phase: Is unopposed bear off.");
 		} else {
 			// if pip count difference is good then escape is good.
 			// if pip count difference is bad then escape is bad
-			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
+			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o) + numHomeBoardBlocks(c, o) + primingDefense(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
+			//  + blotFurtherFromHome(c, o)
+			if (VERBOSE) System.out.println("Current game phase: Normal");
 		}
 		if (DEBUG) System.out.println("Score: " + score);
 		return score;
 	}
-	private boolean isOpposedBearOff(int[] c, int[] o) {
+	private boolean isOpposed(int[] c, int[] o) {
 		// opposed if it is not unopposed.
-		return !isUnopposedBearOff(c, o);
+		return !isUnopposed(c, o);
 	}
-	private boolean isUnopposedPreBearOff(int[] c, int[] o) {
-		// unopposed pre if c has not bear-off yet and is unopposed bear off.
-		return (!board.hasCheckerOff((Player) me) && isUnopposedBearOff(c, o));
+	private boolean isBearOff(int[] c) {
+		// checkers in home board...
+		// if num checkers in home and home board is 15.
+		int numCheckers = 0;
+		for (int i = 0; i <= 6; i++) numCheckers += c[i];
+		if (VERBOSE) System.out.println("Num checkers in home board: " + numCheckers);
+		return numCheckers == 15;
 	}
-	private boolean isUnopposedBearOff(int[] c, int[] o) {
+	private boolean isUnopposed(int[] c, int[] o) {
 		// unopposed bear off if the only thing remaining is trying to bear-off,
 		// i.e. no opponent's checkers in the way.
 		
@@ -188,9 +268,11 @@ public class TeaCup implements BotAPI {
 		
 		// convert it into bot's perspective.
 		lastOpponentCheckerIndex = 25 - lastOpponentCheckerIndex;
+		if (VERBOSE) System.out.println("Last checker of opponent at: " + lastOpponentCheckerIndex);
 		
 		// find last checker of bot.
 		int lastBotCheckerIndex = findLastCheckerIndex(c);
+		if (VERBOSE) System.out.println("Last checker of current at: " + lastBotCheckerIndex);
 		
 		// if difference between opponent's index and bot's index is
 		// positive, then it is unopposed. 
@@ -240,8 +322,75 @@ public class TeaCup implements BotAPI {
 		return (cBlocks - oBlots) * blockBlotWeight;
 	}
 	
-	// TODO add a check for double blocks,
-	// i.e. able to move two checkers to the same empty pip to block it.
+	// check if can blot, provided no opponent checkers nearby the blot.
+	private double blotWithoutContest(int[] c, int[] o) {
+		// search for blots.
+		ArrayList<Integer> blots = new ArrayList<>();
+		for (int i = 1; i < c.length; i++) {
+			if (c[i] == 1) {
+				// 25-i to get index relative to opponent,
+				// i.e. 25-5 = 20.
+				// i.e. 25-1 = 24.
+				int blotIndexRelativeToOpponent = 25-i;
+				blots.add(blotIndexRelativeToOpponent);
+			}
+		}
+		
+		// takes into account:
+		// - distance between blot and opponent's pips
+		//
+		// search for number of pips opponent checkers are on after blot.
+		// blot index, and its distance to the closest opponent pip.
+		double sumOfMinDistances = 0;
+		for (int blotIndex : blots) {
+			int minDistance = 0;
+			for (int i = blotIndex; i < o.length; i++) {
+				if (o[i] > 0) {
+					if (minDistance == 0)
+						minDistance = i - blotIndex;
+					if ((i - blotIndex) < minDistance) {
+						minDistance = i - blotIndex;
+					}
+				}
+			}
+			// further away the checkers are, the better.
+			//
+			// square to emphasize further away = better.
+			// without square, hard to differentiate between distance of 3,3 and 5,1.
+			// with square, 3,3 = 9+9 = 18 compared with 5,1 = 25+1 = 26.
+			// 5,1 is better since it is better that one checker is safe than both at risk.
+			// score += minDistance*minDistance;
+			// above not used, it causes too much diffraction.
+			sumOfMinDistances += minDistance;
+			/*
+			if (TEST) {
+				System.out.println("Blot Index: " + blotIndex);
+				System.out.println("Min Distances: " + minDistance);
+			}
+			*/
+		}
+		double score = sumOfMinDistances / blots.size();
+		return (Double.isNaN(score) ? 0 : score) * blotWithoutContestWeight;
+	}
+	
+	// if possible, do blots that are further away from home.
+	// waste of dice result if we do blots nearer to home.
+	@SuppressWarnings("unused")
+	private double blotFurtherFromHome(int[] c, int[] o) {
+		double sumBlotIndex = 0, totalBlots = 0;
+		for (int i = 1; i < c.length; i++) {
+			if (c[i] == 1) {
+				sumBlotIndex += i;
+				totalBlots += 1;
+			}
+		}
+		if (TEST) {
+			System.out.println("Sum blot indexes: " + sumBlotIndex);
+			System.out.println("Total blots: " + totalBlots);
+		}
+		double score = sumBlotIndex / totalBlots;
+		return (Double.isNaN(score) ? 0 : score) * blotFurtherFromHomeWeight;
+	}
 	
 	// if move played has more home board blocks, then that's a good thing.
 	// however, this is not always a good thing.
@@ -260,15 +409,51 @@ public class TeaCup implements BotAPI {
 		return num * homeBlockWeight;
 	}
 	
-	// TODO add priming defenses.
+	// Add priming defenses.
+	// Calculate priming length of opponent player,
+	// if around 3, start to move captured checkers.
 	// http://www.nacr.net/backgammon-basics-priming-game.html
+	private double primingDefense(int[] c, int[] o) {
+		// need check if there are checkers captured.
+		// else, this is useless.
+		int[] resultArr = getPrimeLength(o);
+		int officialLen = resultArr[0];
+		int indexOfLastPrime = resultArr[1];
+		
+		// calculate captured checkers.
+		int captured = getCapturedCheckers(c, indexOfLastPrime);
+		/*
+		if (TEST) {
+			System.out.println("Prime length: " + officialLen);
+			System.out.println("Index of last Prime: " + indexOfLastPrime);
+			System.out.println("Captured: " + captured);
+		}
+		*/
+		return (officialLen*captured) * primingDefenseWeight;
+	}
 
 	private double lengthPrimeCapturedChecker(int[] c, int[] o) {
 		// need check if there are checkers captured.
 		// else, this is useless.
-		//
-		// length of prime with a threshold of 4 (put 3 below, but will register after 3, so 4).
-		int maxLen = 3, len = 0, indexOfLastPrime = -1;
+		int[] resultArr = getPrimeLength(c);
+		int officialLen = resultArr[0];
+		int indexOfLastPrime = resultArr[1];
+		
+		// calculate captured checkers.
+		int captured = getCapturedCheckers(o, indexOfLastPrime);
+		/*
+		System.out.println("Prime length: " + officialLen);
+		System.out.println("Index of last Prime: " + indexOfLastPrime);
+		System.out.println("Captured: " + captured);
+		*/
+		// TODO can consider the number of captured checkers.
+		// NOTE: Added, but could consider better calculation.
+		return (officialLen*captured) * primingWeight;
+	}
+	private int[] getPrimeLength(int[] c) {
+		// length of prime with a threshold of 2 (put 1 below, but will register after 1, so 2).
+		int threshold = 1;
+		int maxLen = threshold, len = 0, indexOfLastPrime = -1;
 		for (int i = c.length-1; i >= 1; i--) {
 			if (c[i] > 1) {
 				len++;
@@ -278,8 +463,9 @@ public class TeaCup implements BotAPI {
 				}
 			} else len = 0;
 		}
-		
-		// calculate captured checkers.
+		return new int[]{maxLen > threshold ? maxLen : 0, maxLen > threshold ? indexOfLastPrime : 0};
+	}
+	private int getCapturedCheckers(int[] o, int indexOfLastPrime) {
 		int captured = 0;
 		if (indexOfLastPrime != -1) {
 			// was indexOfLastPrime+1
@@ -293,14 +479,7 @@ public class TeaCup implements BotAPI {
 				captured += o[i];
 			}
 		}
-		/*
-		System.out.println("Prime length: " + (maxLen > 3 ? maxLen : 0));
-		System.out.println("Index of last Prime: " + (maxLen > 3 ? indexOfLastPrime : -1));
-		System.out.println("Captured: " + captured);
-		*/
-		// TODO can consider the number of captured checkers.
-		// NOTE: Added, but could consider better calculation.
-		return (maxLen*captured) * primingWeight;
+		return captured;
 	}
 	
 	// anchors = checkers in opponent's home boards.
@@ -396,8 +575,14 @@ public class TeaCup implements BotAPI {
 	private void printCheckers(int[][] checkers) {
 		String s = "";
 		for (int i = 0; i < checkers.length; i++) {
-			for (int j = 0; j < checkers[i].length; j++) {
-				s += checkers[i][j] + " ";
+			if (i == 0) {
+				for (int j = 0; j < checkers[i].length; j++) {
+					s += checkers[i][j] + " ";
+				}
+			} else {
+				for (int j = checkers[i].length-1; j >= 0; j--) {
+					s += checkers[i][j] + " ";
+				}
 			}
 			s += "\n";
 		}

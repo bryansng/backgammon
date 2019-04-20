@@ -13,27 +13,30 @@ import java.util.Random;
 
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
-	private static boolean DEBUG = false;
-
-    public static final int MATCH_LENGTH = 51;
+	private static final boolean DEBUG = false;
+	private static final boolean ENTER_TO_MOVE_ON = false;
+	private static final boolean PLAY_WITH_BOT = false;
+    public static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
+    
+    public static final int MATCH_LENGTH = 201;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
     private static final int DELAY = 0;  // in milliseconds
-    private static final String[] ALL_BOT_NAMES = {"Bot0","Bot1"};
-
+    private static final String[] ALL_BOT_NAMES = {"Bot0","Bot1","TeaCup"};
+    
     private final Cube cube = new Cube();
     private final Players players = new Players();
     private final Board board = new Board(players);
     private final Game game = new Game(board, cube, players);
     private final Match match = new Match(game, cube, players);
-    private BotAPI[] bots = new BotAPI[NUM_PLAYERS];
+    private BotAPI[] bots = new BotAPI[NUM_PLAYERS_VS_BOTS];
     private final UI ui = new UI(board,players,cube,match,bots);
-    private String[] botNames = new String[NUM_PLAYERS];
+    private String[] botNames = new String[NUM_PLAYERS_VS_BOTS];
     private boolean quitGame = false;
 
     private void setupBots (String[] args) {
-        if (args.length < NUM_PLAYERS) {
+        if (args.length < NUM_PLAYERS_VS_BOTS) {
             botNames[0] = "TeaCup";
             botNames[1] = "TeaCup";
             /*
@@ -41,7 +44,7 @@ public class Backgammon {
             botNames[1] = "Bot1";
             */
         } else {
-            for (int i = 0; i < NUM_PLAYERS; i++) {
+            for (int i = 0; i < NUM_PLAYERS_VS_BOTS; i++) {
                 boolean found = false;
                 for (int j = 0; (j < ALL_BOT_NAMES.length) && !found; j++) {
                     if (args[i].equals(ALL_BOT_NAMES[j])) {
@@ -55,12 +58,12 @@ public class Backgammon {
                 }
             }
         }
-        if (args.length < NUM_PLAYERS + 1) {
+        if (args.length < NUM_PLAYERS_VS_BOTS + 1) {
             match.setLength(MATCH_LENGTH);
         } else {
-            match.setLength(Integer.parseInt(args[2]));
+            match.setLength(Integer.parseInt(args[1]));
         }
-        for (int i=0; i<NUM_PLAYERS; i++) {
+        for (int i=0; i<NUM_PLAYERS_VS_BOTS; i++) {
             try {
                 Class<?> botClass = Class.forName(botNames[i]);
                 Constructor<?> botCons = botClass.getDeclaredConstructor(PlayerAPI.class, PlayerAPI.class, BoardAPI.class, CubeAPI.class, MatchAPI.class, InfoPanelAPI.class);
@@ -90,7 +93,10 @@ public class Backgammon {
 
     private void pause() throws InterruptedException {
         try {
-            Thread.sleep(DELAY);
+        	if (ENTER_TO_MOVE_ON) {
+        		ui.displayString("Enter an empty string to proceed.");
+        		while (!ui.getString().equals("")) {}
+        	} else Thread.sleep(DELAY);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
@@ -222,16 +228,15 @@ public class Backgammon {
     	ArrayList<Double> oldWeights = bots[1].getWeights();
     	ArrayList<Double> newWeights = new ArrayList<>();
     	Random rand = new Random();
-    	// TODO how to get game winner, not match winner.
-    	if (match.getWinner().equals(players.get(1))) {
+    	if (game.getWinner().equals(players.get(1))) {
         	for (int i = 0; i < bots[1].getWeights().size(); i++) {
-        		double oldWeight = oldWeights.get(i); 
+        		double oldWeight = oldWeights.get(i);
         		// positive weights.
         		if (oldWeight > 0)
-        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
+        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.23
         		// negative weights.
         		else
-        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
+        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.23 to 0
         	}
         	//bots[1].setWeights(getProbabilities(newWeights));
         	bots[1].setWeights(newWeights);
@@ -259,10 +264,10 @@ public class Backgammon {
 	        		double oldWeight = oldWeights.get(i); 
 	        		// positive weights.
 	        		if (oldWeight < 0)
-	        			newWeights.add(oldWeight + rand.nextDouble()*0.05);	// 0 to 0.23
+	        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.23
 	        		// negative weights.
 	        		else
-	        			newWeights.add(oldWeight - rand.nextDouble()*0.05);	// -0.23 to 0
+	        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.23 to 0
 	        	}
 	        	//bots[1].setWeights(getProbabilities(newWeights));
 	        	bots[1].setWeights(newWeights);
@@ -361,7 +366,14 @@ public class Backgammon {
 
     public static void main(String[] args) throws InterruptedException {
         Backgammon game = new Backgammon();
-        game.setupBots(args);
+        if (PLAY_WITH_BOT) {
+            String[] myArgs = new String[2];
+            myArgs[0] = "TeaCup";
+            myArgs[1] = "3";
+            game.setupBots(myArgs);
+        } else {
+            game.setupBots(args);
+        }
         game.playAMatch();
 //        System.exit(0);
     }
