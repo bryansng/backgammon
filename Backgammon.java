@@ -25,7 +25,7 @@ public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 	private static boolean DEBUG = false;
 
-    public static final int MATCH_LENGTH = 51;
+    public static final int MATCH_LENGTH = 11;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -226,13 +226,16 @@ public class Backgammon {
     
     private void playMatches()  throws InterruptedException {
         boolean playAgain = true;
+        int numOfMatchesToTest = 0;
         do {
+        	System.out.println("Match #" + numOfMatchesToTest);
             playAMatch();
             if (!quitGame) {
                 //playAgain = ui.getPlayAgainDecision();
+            	numOfMatchesToTest++;
             	reset();
             }
-        } while (!quitGame && playAgain);
+        } while (!quitGame && playAgain && numOfMatchesToTest < 100);
     }    
     private void reset() {
     	match.reset();
@@ -248,7 +251,7 @@ public class Backgammon {
     	ArrayList<Double> newWeights = new ArrayList<>();
     	Random rand = new Random();
     	// TODO how to get game winner, not match winner.
-    	if (match.getWinner().equals(players.get(1))) {
+    	if (game.getWinner().equals(players.get(1))) {
         	for (int i = 0; i < bots[1].getWeights().size(); i++) {
         		double oldWeight = oldWeights.get(i); 
         		// positive weights.
