@@ -42,9 +42,11 @@ public class TeaCup implements BotAPI {
     	checkersInHomeWeight = weights.get(6);
     	checkersTakenOffWeight = weights.get(7);
     	pipsCoveredWeight = weights.get(8);
+    	/*
     	blotWithoutContestWeight = weights.get(9);
     	primingDefenseWeight = weights.get(10);
-    	//blotFurtherFromHomeWeight = weights.get(11);
+    	blotFurtherFromHomeWeight = weights.get(11);
+    	*/
     	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     }
     private void readWeightsFromFile() {
@@ -117,10 +119,16 @@ public class TeaCup implements BotAPI {
 				
 				temp[currID][fro]--;
 				temp[currID][to]++;
-				if (aMove.isHit())
-					temp[oppoID][to]--;
+				if (aMove.isHit()) {
+					temp[oppoID][25-to]--;
+					temp[oppoID][temp[oppoID].length-1]++;
+				}
 				
-				if (VERBOSE) System.out.println("Next move: " + aMove.toString());
+				if (VERBOSE) {
+					System.out.println("Next move: " + aMove.toString());
+					if (temp[currID][fro] < 0 || temp[currID][to] < 0 || temp[oppoID][to] < 0 || temp[oppoID][temp[oppoID].length-1] < 0)
+						System.out.println("ERROR: Play caused board positions to be wrong.");
+				}
 			}
 			boardPositions.add(temp);
 			if (VERBOSE) printCheckers(temp);
@@ -143,28 +151,9 @@ public class TeaCup implements BotAPI {
 		}
 		return getProbabilities(scores);
 	}
-	
-	/*
-	// Normalizes if all elements in the list is positive.
+
 	// Normalize the scores to probabilities.
 	// https://stackoverflow.com/questions/26916150/normalize-small-probabilities-in-python
-	private double[] getProbabilities(double[] scores) {
-		double[] probs = new double[scores.length];
-		double prob_factor = 1.0 / getSum(scores);
-		for (int i = 0; i < scores.length; i++) probs[i] = scores[i] * prob_factor;
-		if (DEBUG) {
-			System.out.println("Scores: " + Arrays.toString(scores));
-			System.out.println("Probabilities: " + Arrays.toString(probs));
-		}
-		if (getSum(probs) != 1.0) {
-			System.out.println("\n\nSum of probs: " + getSum(probs));
-			System.out.println("Scores: " + Arrays.toString(scores));
-			System.out.println("Probabilities: " + Arrays.toString(probs));
-		}
-		return probs;
-	}
-	*/
-	
 	private double[] getProbabilities(double[] scores) {
 		double[] probs = new double[scores.length];
 		double[] minMaxSum = getMinMaxSum(scores);
@@ -178,12 +167,11 @@ public class TeaCup implements BotAPI {
 			probs[i] = (scores[i] + adjustValue) / new_sum;
 		}
 		if (VERBOSE) {
-			if (getSum(probs) != 1.0) {
-				System.out.println("\n\nAdjust value: " + adjustValue);
-				System.out.println("Sum of probs: " + getSum(probs));
-				System.out.println("Scores:\n" + Arrays.toString(scores));
-				System.out.println("Probabilities:\n" + Arrays.toString(probs));
-			}
+			//if (getSum(probs) != 1.0) {
+			System.out.println("\n\nAdjust value: " + adjustValue);
+			System.out.println("Sum of probs: " + getSum(probs));
+			System.out.println("Scores:\n" + Arrays.toString(scores));
+			System.out.println("Probabilities:\n" + Arrays.toString(probs));
 		}
 		return probs;
 	}
@@ -228,7 +216,7 @@ public class TeaCup implements BotAPI {
 		
 		if (isOpposed(c, o) && isBearOff(c)) {
 			// and even checkers on last pip.
-			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o);
+			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o);// + blotWithoutContest(c, o);
 			if (VERBOSE) System.out.println("Current game phase: Is opposed bear off.");
 		} else if (!isOpposed(c, o) && isBearOff(c) && c[0] == 0) {
 			// unopposed pre if c has not bear-off yet and is unopposed bear off.
@@ -240,8 +228,7 @@ public class TeaCup implements BotAPI {
 		} else {
 			// if pip count difference is good then escape is good.
 			// if pip count difference is bad then escape is bad
-			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o) + numHomeBoardBlocks(c, o) + primingDefense(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
-			//  + blotFurtherFromHome(c, o)
+			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numPipsCovered(c, o);// + blotWithoutContest(c, o) + primingDefense(c, o) + blotFurtherFromHome(c, o);
 			if (VERBOSE) System.out.println("Current game phase: Normal");
 		}
 		if (DEBUG) System.out.println("Score: " + score);
@@ -375,7 +362,6 @@ public class TeaCup implements BotAPI {
 	
 	// if possible, do blots that are further away from home.
 	// waste of dice result if we do blots nearer to home.
-	@SuppressWarnings("unused")
 	private double blotFurtherFromHome(int[] c, int[] o) {
 		double sumBlotIndex = 0, totalBlots = 0;
 		for (int i = 1; i < c.length; i++) {
@@ -394,8 +380,6 @@ public class TeaCup implements BotAPI {
 	
 	// if move played has more home board blocks, then that's a good thing.
 	// however, this is not always a good thing.
-	//
-	// TODO could take into account home board blocks to opponents.
 	private double numHomeBoardBlocks(int[] c, int[] o) {
 		int num = 0;
 		int MAX = 6;
@@ -446,8 +430,6 @@ public class TeaCup implements BotAPI {
 		System.out.println("Index of last Prime: " + indexOfLastPrime);
 		System.out.println("Captured: " + captured);
 		*/
-		// TODO can consider the number of captured checkers.
-		// NOTE: Added, but could consider better calculation.
 		return (officialLen*captured) * primingWeight;
 	}
 	private int[] getPrimeLength(int[] c) {

@@ -18,7 +18,7 @@ public class Backgammon {
 	private static final boolean PLAY_WITH_BOT = false;
     public static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
-    public static final int MATCH_LENGTH = 201;
+    public static final int MATCH_LENGTH = 51;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -233,10 +233,10 @@ public class Backgammon {
         		double oldWeight = oldWeights.get(i);
         		// positive weights.
         		if (oldWeight > 0)
-        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.23
+        			newWeights.add(oldWeight + getMinuteRandomValue(rand));	// 0 to 0.23
         		// negative weights.
         		else
-        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.23 to 0
+        			newWeights.add(oldWeight - getMinuteRandomValue(rand));	// -0.23 to 0
         	}
         	//bots[1].setWeights(getProbabilities(newWeights));
         	bots[1].setWeights(newWeights);
@@ -264,10 +264,10 @@ public class Backgammon {
 	        		double oldWeight = oldWeights.get(i); 
 	        		// positive weights.
 	        		if (oldWeight < 0)
-	        			newWeights.add(oldWeight + rand.nextDouble()*0.023);	// 0 to 0.23
+	        			newWeights.add(oldWeight + getMinuteRandomValue(rand));
 	        		// negative weights.
 	        		else
-	        			newWeights.add(oldWeight - rand.nextDouble()*0.023);	// -0.23 to 0
+	        			newWeights.add(oldWeight - getMinuteRandomValue(rand));
 	        	}
 	        	//bots[1].setWeights(getProbabilities(newWeights));
 	        	bots[1].setWeights(newWeights);
@@ -292,6 +292,11 @@ public class Backgammon {
     	// new weights to test.
     	sb.append(newWeights + "\n");
     	toFile(sb);
+    }
+    private double minuteRange = 0.05;
+    private double getMinuteRandomValue(Random rand) {
+    	//return (rand.nextDouble()-0.5) * minuteRange;
+    	return rand.nextDouble() * minuteRange;
     }
     
 	// Normalize the scores to probabilities.
