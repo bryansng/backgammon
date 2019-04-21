@@ -11,15 +11,16 @@ public class TeaCup implements BotAPI {
 	
     private PlayerAPI me, opponent;
     private BoardAPI board;
-    @SuppressWarnings("unused")
 	private CubeAPI cube;
-    @SuppressWarnings("unused")
 	private MatchAPI match;
     @SuppressWarnings("unused")
 	private InfoPanelAPI info;
     
 	private ArrayList<Double> weights = new ArrayList<>();
 	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight;
+	
+	private double meWinningChance;
+	private double oppWinningChance;
     
     public TeaCup(PlayerAPI me, PlayerAPI opponent, BoardAPI board, CubeAPI cube, MatchAPI match, InfoPanelAPI info) {
         this.me = me;
@@ -52,7 +53,9 @@ public class TeaCup implements BotAPI {
     private void readWeightsFromFile() {
 		try {
 			String classPath = System.getProperty("java.class.path");
-			File txt = new File(classPath + "/weights.txt");
+			File txt = new File(classPath + "/weights.txt");	// NOTE: This resides in /bin, NOT /src.
+			// File txt = new File("/Users/YeohB/Desktop/UCD/Stage 2/Semester 2/COMP20050 - Software Engineering Project 2/Software Engineering/backgammon/src/weights.txt");
+			
 			if (DEBUG) System.out.println(txt.getCanonicalPath());
 			Scanner scan = new Scanner(txt);
 			
@@ -67,7 +70,6 @@ public class TeaCup implements BotAPI {
 			String[] weightsInString = lastLine.split(",");
 			for (int i = 0; i < weightsInString.length; i++)
 				weights.add(Double.parseDouble(weightsInString[i]));
-			//buffer.close();
 			scan.close();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -96,11 +98,22 @@ public class TeaCup implements BotAPI {
 	   » The bot should select the play with the highest score (i.e. the highest probability of the bot winning).
 	 */
 	public String getCommand(Plays possiblePlays) {
-		// generate resulting board positions.
-		// go through board positions and score them.
-		return String.valueOf(1+getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+		String command = "";
+		
+		if (!cube.isOwned()) {
+			calculateWinningChance(possiblePlays, me, opponent);
+			if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
+				command = "double";
+			else
+				command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+		} else
+			// generate resulting board positions.
+			// go through board positions and score them.
+			command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+
+		return command;
 	}
-	
+
 	// generates resulting board positions.
 	private ArrayList<int[][]> getResultingBoardPositions(Plays plays) {
 		ArrayList<int[][]> boardPositions = new ArrayList<>();
@@ -136,12 +149,57 @@ public class TeaCup implements BotAPI {
 		return boardPositions;
 	}
 	
+	private ArrayList<int[][]> getResultingBoardPositions(Plays plays, PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		ArrayList<int[][]> boardPositions = new ArrayList<>();
+		int currID = currentPlayer.getId();
+		int oppoID = opponentPlayer.getId();
+		int[][] checkers = board.get();
+		if (DEBUG) {
+			System.out.println("Initial position:");
+			printCheckers(checkers);
+		}
+		for (Play aPlay : plays) {
+			int[][] temp = getCopy(checkers);
+			for (Move aMove : aPlay) {
+				int fro = aMove.getFromPip();
+				int to = aMove.getToPip();
+
+				temp[currID][fro]--;
+				temp[currID][to]++;
+				if (aMove.isHit())
+					temp[oppoID][to]--;
+
+				if (VERBOSE)
+					System.out.println("Next move: " + aMove.toString());
+			}
+			boardPositions.add(temp);
+			if (VERBOSE)
+				printCheckers(temp);
+		}
+		return boardPositions;
+	}
+
 	// scores the board positions.
 	private double[] getBoardPositionsProbabilities(ArrayList<int[][]> boardPositions) {
 		double[] scores = new double[boardPositions.size()];
 		int currID = me.getId();
 		int oppoID = opponent.getId();
 		
+		int i = 0;
+		for (int[][] checkers : boardPositions) {
+			if (DEBUG) System.out.println(i + ": Next Move:");
+			scores[i] = getScore(checkers[currID], checkers[oppoID]);
+			if (DEBUG) printCheckers(checkers);
+			i++;
+		}
+		return getProbabilities(scores);
+	}
+	
+	private double[] getBoardPositionsProbabilities(ArrayList<int[][]> boardPositions, PlayerAPI curr, PlayerAPI opp) {
+		double[] scores = new double[boardPositions.size()];
+		int currID = curr.getId();
+		int oppoID = opp.getId();
+
 		int i = 0;
 		for (int[][] checkers : boardPositions) {
 			if (DEBUG) System.out.println(i + ": Next Move:");
@@ -282,8 +340,8 @@ public class TeaCup implements BotAPI {
 		int cTotal = 0, oTotal = 0;
 		for (int i = 1; i < c.length; i++) {
 			// num checkers * pip num.
-			cTotal += i*c[i];
-			oTotal += i*o[i];
+			cTotal += i * c[i];
+			oTotal += i * o[i];
 		}
 		/*
 		System.out.println("cTotal: " + cTotal);
@@ -463,7 +521,6 @@ public class TeaCup implements BotAPI {
 		}
 		return captured;
 	}
-	
 	// anchors = checkers in opponent's home boards.
 	// Dont break anchors prematurely.
 	// READ MORE FROM HERE: http://www.bkgm.com/articles/GOL/Sep02/anchor.htm
@@ -478,7 +535,6 @@ public class TeaCup implements BotAPI {
 		*/
 		return num * anchorWeight;
 	}
-	
 	// escaped = checkers not able to get hit.
 	private double numEscapedCheckers(int[] c, int[] o) {
 		// find pip number of last opponent checker.
@@ -571,7 +627,94 @@ public class TeaCup implements BotAPI {
 		System.out.println(s);
 	}
 	
-	public String getDoubleDecision() {
-		return "n";
+	@Override
+	public String getDoubleDecision() {		
+		return considerAcceptingDoubleDice(opponent, me);
+	}
+	
+	/**
+	 * NOTE:
+	 * We can actually calculate it for one player, and then minus it from 100 to achieve the opponent's
+	 * We need to merge considerOfferingDoubleDice() and considerAcceptingDoubleCube()
+	 */
+	private String getDoubleDecision(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		return considerOfferingDoubleDice(currentPlayer, opponentPlayer);
+	}
+
+	/**
+	 * First calculate the percentage of each score of each player
+	 */
+	private String considerOfferingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		String decision = "n";
+
+		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) {
+			if (meWinningChance >= 0 && meWinningChance <= 0.50)
+				decision = "y";
+			else if (meWinningChance >= 0.50 && meWinningChance <= 0.75)
+				decision = "y";
+			else if (meWinningChance >= 0.75 && meWinningChance <= 100)
+				decision = "y"; // drop opponent's
+		} else if (match.canDouble((Player) currentPlayer)) { // TODO
+			decision = "y";
+		} else {
+			if (meWinningChance >= 0 && meWinningChance <= 0.66)
+				decision = "n";
+			else if (meWinningChance >= 0.66 && meWinningChance <= 0.75)
+				decision = "y";
+			else if ((meWinningChance >= 0.75 && meWinningChance <= 0.80) || (meWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))// no gammon
+																																																					// change
+				decision = "y"; // drop opponent's
+			else if ((meWinningChance > .80) && (isGammon(currentPlayer, opponentPlayer))) // no gammon changes
+				decision = "n";
+		}
+
+		return decision;
+	}
+
+	private String considerAcceptingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		String decision = "n";
+
+		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) { // assuming max
+			// points is 11
+			if (oppWinningChance >= .50 && oppWinningChance <= 0.75)
+				decision = "y";
+			else if (oppWinningChance >= 0.75 && oppWinningChance <= 100)
+				decision = "n"; // drop opponent's
+		} else if (match.canDouble((Player) currentPlayer)) {
+			decision = "y";
+		} else {
+			if (oppWinningChance >= 0.66 && oppWinningChance <= 0.75)
+				decision = "y";
+			else if ((oppWinningChance >= 0.75 && oppWinningChance <= 0.80) || (oppWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))// no gammon
+				// change
+				decision = "n"; // drop opponent's
+		}
+
+		return decision;
+	}
+
+	private boolean isGammon(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		return !board.hasCheckerOff(getLoser(currentPlayer, opponentPlayer)) && !board.lastCheckerInOpponentsInnerBoard(getLoser(currentPlayer, opponentPlayer));
+	}
+	
+	private Player getLoser(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+        PlayerAPI loser = currentPlayer;
+            if (board.lastCheckerInInnerBoard((Player) currentPlayer)) {
+                loser = opponentPlayer;
+            } else if (board.lastCheckerInInnerBoard((Player) opponentPlayer)) {
+                loser = currentPlayer;
+            }
+ 
+        return (Player) loser;
+	}
+	
+	private void calculateWinningChance(Plays possiblePlays, PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		double[] PxPy = new double[2];
+		
+		PxPy[0] = getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays, currentPlayer, opponentPlayer), currentPlayer, opponentPlayer));
+		PxPy[1] = getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays, currentPlayer, opponentPlayer), currentPlayer, opponentPlayer));
+		
+		meWinningChance = (PxPy[0] / (PxPy[0] + PxPy[1])) * 100;
+		oppWinningChance = 100 - meWinningChance;
 	}
 }

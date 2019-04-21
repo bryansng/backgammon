@@ -24,7 +24,6 @@ public class Backgammon {
     //private static final int DELAY = 3000;  // in milliseconds
     private static final int DELAY = 0;  // in milliseconds
     private static final String[] ALL_BOT_NAMES = {"Bot0","Bot1","TeaCup"};
-    
     private final Cube cube = new Cube();
     private final Players players = new Players();
     private final Board board = new Board(players);
@@ -157,6 +156,7 @@ public class Backgammon {
                 boolean turnOver = false, hasDoubled=false;
                 do {
                     command = ui.getCommand(currentPlayer, possiblePlays);
+                    System.out.println(command);		// added by us.
                     if (command.isMove()) {
                         board.move(currentPlayer, command.getPlay());
                         turnOver = true;
@@ -165,10 +165,12 @@ public class Backgammon {
                         if (!hasDoubled) {
                             if (match.canDouble(currentPlayer) && (!cube.isOwned() || cube.getOwner().equals(currentPlayer))) {
                                 if (ui.getDoubleDecision(opposingPlayer)) {
+                                	if (DEBUG) System.out.println("Double: y");		// added by us.
                                     cube.accept(opposingPlayer);
                                     ui.display();
                                     hasDoubled = true;
                                 } else {
+                                	if (DEBUG) System.out.println("Double: n");		// added by us.
                                     game.resign(opposingPlayer);
                                     turnOver = true;
                                 }
@@ -216,6 +218,7 @@ public class Backgammon {
             ui.displayMatchWinner(match.getWinner());
             updateWeightsEachMatch();		// added by us.
         }
+        if (DEBUG) System.out.println("Game over");		// added by us.
         pause();
         pause();
     }
@@ -354,7 +357,8 @@ public class Backgammon {
 	private void toFile(StringBuilder sb) {
 		try {
 			String classPath = System.getProperty("java.class.path");
-			File txt = new File(classPath + "/weights.txt");
+			File txt = new File(classPath + "/weights.txt");	// NOTE: This resides in /bin, NOT /src.
+			// File txt = new File("/Users/YeohB/Desktop/UCD/Stage 2/Semester 2/COMP20050 - Software Engineering Project 2/Software Engineering/backgammon/src/weights.txt");
 			BufferedWriter buffer = new BufferedWriter(new FileWriter(txt, true));
 			buffer.append(sb);
 			buffer.flush();
