@@ -14,11 +14,12 @@ import java.util.Random;
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 	private static final boolean DEBUG = false;
+	private static final boolean VERBOSE = false;
 	private static final boolean ENTER_TO_MOVE_ON = false;
 	private static final boolean PLAY_WITH_BOT = false;
     public static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
-    public static final int MATCH_LENGTH = 51;
+    public static final int MATCH_LENGTH = 101;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -143,7 +144,7 @@ public class Backgammon {
                 ui.displayDiceRoll(currentPlayer);
                 currentDice = currentPlayer.getDice();
             }
-            if (DEBUG) System.out.println("Dice: " + currentDice.toString());
+            if (VERBOSE) System.out.println("Dice: " + currentDice.toString());
             Plays possiblePlays;
             possiblePlays = board.getPossiblePlays(currentPlayer,currentDice);
             if (possiblePlays.number()==0) {
@@ -156,7 +157,7 @@ public class Backgammon {
                 boolean turnOver = false, hasDoubled=false;
                 do {
                     command = ui.getCommand(currentPlayer, possiblePlays);
-                    System.out.println(command);		// added by us.
+                    if (VERBOSE) System.out.println("Command: " + command);		// added by us.
                     if (command.isMove()) {
                         board.move(currentPlayer, command.getPlay());
                         turnOver = true;
@@ -165,12 +166,12 @@ public class Backgammon {
                         if (!hasDoubled) {
                             if (match.canDouble(currentPlayer) && (!cube.isOwned() || cube.getOwner().equals(currentPlayer))) {
                                 if (ui.getDoubleDecision(opposingPlayer)) {
-                                	if (DEBUG) System.out.println("Double: y");		// added by us.
+                                	if (VERBOSE) System.out.println("Double: y");		// added by us.
                                     cube.accept(opposingPlayer);
                                     ui.display();
                                     hasDoubled = true;
                                 } else {
-                                	if (DEBUG) System.out.println("Double: n");		// added by us.
+                                	if (VERBOSE) System.out.println("Double: n");		// added by us.
                                     game.resign(opposingPlayer);
                                     turnOver = true;
                                 }
@@ -218,88 +219,114 @@ public class Backgammon {
             ui.displayMatchWinner(match.getWinner());
             updateWeightsEachMatch();		// added by us.
         }
-        if (DEBUG) System.out.println("Game over");		// added by us.
+        if (VERBOSE) System.out.println("Game over");		// added by us.
         pause();
         pause();
     }
     
-    private int lossesInARow = 0;
+    private int[] lossesInARow = new int[NUM_PLAYERS_VS_BOTS];
     private void updateWeightsEachGame() {
+    	System.out.println("\n");
+    	Random rand = new Random();
     	// if bot wins, add a small random amount (could be slightly
     	// negative) to the positive weights and subtract a small amount
     	// from the negative weights (could be slightly negative).
-    	ArrayList<Double> oldWeights = bots[1].getWeights();
-    	ArrayList<Double> newWeights = new ArrayList<>();
-    	Random rand = new Random();
-    	if (game.getWinner().equals(players.get(1))) {
-        	for (int i = 0; i < bots[1].getWeights().size(); i++) {
-        		double oldWeight = oldWeights.get(i);
-        		// positive weights.
-        		if (oldWeight > 0)
-        			newWeights.add(oldWeight + getMinuteRandomValue(rand));	// 0 to 0.23
-        		// negative weights.
-        		else
-        			newWeights.add(oldWeight - getMinuteRandomValue(rand));	// -0.23 to 0
-        	}
-        	//bots[1].setWeights(getProbabilities(newWeights));
-        	bots[1].setWeights(newWeights);
-        	if (DEBUG) System.out.println("\nReset losses due to win, Losses before: " + lossesInARow);
-			lossesInARow = 0;
-			if (DEBUG) System.out.println("Losses after: " + lossesInARow);
-    	// if bot losses, do opposite.
-    	} else {
-    		if (DEBUG) System.out.println("\nBot loss, Losses before: " + lossesInARow);
-    		lossesInARow++;
-    		if (DEBUG) System.out.println("Losses after: " + lossesInARow);
-        	// if bot losses three times in a row, exchange the weights between the bots.
-    		if (lossesInARow >= 3) {
-    			if (DEBUG) System.out.println("\n\nNOTE: Bot 1 losses more than three times, exchanging weights with bot 1.");
-    			if (DEBUG) System.out.println("Bot 1 old weights: " + Arrays.toString(bots[1].getWeights().toArray()));
-    			ArrayList<Double> temp = bots[1].getWeights();
-    			bots[1].setWeights(bots[0].getWeights());
-    			bots[0].setWeights(temp);
-    			if (DEBUG) System.out.println("Bot 1 new weights: " + Arrays.toString(bots[1].getWeights().toArray()) + "\n\n");
-    			if (DEBUG) System.out.println("Swapping, Losses before: " + lossesInARow);
-    			lossesInARow = 0;
-    			if (DEBUG) System.out.println("Losses after: " + lossesInARow);
-    		} else {
-	        	for (int i = 0; i < bots[1].getWeights().size(); i++) {
-	        		double oldWeight = oldWeights.get(i); 
+    	ArrayList<ArrayList<Double>> botsNewWeights = new ArrayList<ArrayList<Double>>(NUM_PLAYERS_VS_BOTS);
+    	for (int i = 0; i < NUM_PLAYERS_VS_BOTS; i++) botsNewWeights.add(new ArrayList<Double>());
+    	for (int botID = 0; botID < NUM_PLAYERS_VS_BOTS; botID++) {
+	    	ArrayList<Double> oldWeights = bots[botID].getWeights();
+	    	if (game.getWinner().equals(players.get(botID))) {
+	        	for (int i = 0; i < bots[botID].getWeights().size(); i++) {
+	        		double oldWeight = oldWeights.get(i);
 	        		// positive weights.
-	        		if (oldWeight < 0)
-	        			newWeights.add(oldWeight + getMinuteRandomValue(rand));
+	        		if (oldWeight > 0)
+	        			botsNewWeights.get(botID).add(oldWeight + getMinuteRandomValue(rand));
 	        		// negative weights.
 	        		else
-	        			newWeights.add(oldWeight - getMinuteRandomValue(rand));
+	        			botsNewWeights.get(botID).add(oldWeight - getMinuteRandomValue(rand));
 	        	}
 	        	//bots[1].setWeights(getProbabilities(newWeights));
-	        	bots[1].setWeights(newWeights);
+	        	bots[botID].setWeights(botsNewWeights.get(botID));
+	        	if (DEBUG) System.out.println("\nReset losses due to win, Losses before: " + Arrays.toString(lossesInARow));
+    			int otherBotID = botID == 0 ? 1 : 0;
+				lossesInARow[botID] = 0;
+				//lossesInARow[otherBotID] = 0;
+				if (DEBUG) System.out.println("Losses after: " + Arrays.toString(lossesInARow));
+	    	// if bot losses, do opposite.
+	    	} else {
+	    		if (DEBUG) System.out.println("\nBot " + botID + " loss, Losses before: " + Arrays.toString(lossesInARow));
+	    		lossesInARow[botID]++;
+	    		if (DEBUG) System.out.println("Losses after: " + Arrays.toString(lossesInARow));
+	        	// if bot losses three times in a row, exchange the weights between the bots.
+	    		if (lossesInARow[botID] >= 3) {
+	    			if (DEBUG) System.out.println("\n\nNOTE: Bot " + botID + " losses more than three times, exchanging weights with bot 1.");
+	    			if (DEBUG) System.out.println("Bot " + botID + " old weights: " + Arrays.toString(bots[1].getWeights().toArray()));
+	    			int otherBotID = botID == 0 ? 1 : 0;
+	    			ArrayList<Double> temp = bots[botID].getWeights();
+	    			bots[botID].setWeights(bots[otherBotID].getWeights());
+	    			bots[otherBotID].setWeights(temp);
+	    			if (DEBUG) System.out.println("Bot " + botID + " new weights: " + Arrays.toString(bots[1].getWeights().toArray()) + "\n\n");
+	    			if (DEBUG) System.out.println("Swapping, Losses before: " + Arrays.toString(lossesInARow));
+	    			lossesInARow[botID] = 0;
+					//lossesInARow[otherBotID] = 0;
+	    			if (DEBUG) System.out.println("Losses after: " + Arrays.toString(lossesInARow));
+	    			botsNewWeights.set(botID, bots[botID].getWeights());
+	    		} else {
+		        	for (int i = 0; i < bots[botID].getWeights().size(); i++) {
+		        		double oldWeight = oldWeights.get(i); 
+		        		// positive weights.
+		        		if (oldWeight < 0)
+		        			botsNewWeights.get(botID).add(oldWeight + getMinuteRandomValue(rand));
+		        		// negative weights.
+		        		else
+		        			botsNewWeights.get(botID).add(oldWeight - getMinuteRandomValue(rand));
+		        	}
+		        	//bots[1].setWeights(getProbabilities(newWeights));
+		        	bots[botID].setWeights(botsNewWeights.get(botID));
+	    		}
+	    	}
+    	}
+    	updateWeightsFile(getGameStatsAndBotWeightsInString(botsNewWeights));
+    }
+    private String getGameStatsAndBotWeightsInString(ArrayList<ArrayList<Double>> botsNewWeights) {
+    	String s = "";
+    	int winnerBotID = game.getWinner().getId();
+    	for (int i = 0; i < botsNewWeights.size(); i++) {
+    		// add bot's game result, i.e. win/lose.
+    		if (i == winnerBotID) s += 1 + ",";	// win
+    		else s += 0 + ",";					// lose
+    		
+    		// add bot id.
+    		s += i + ",";
+    		
+    		// add bot weights.
+    		for (int j = 0; j < botsNewWeights.get(i).size(); j++) {
+    			s += botsNewWeights.get(i).get(j);
+				if (j != botsNewWeights.get(i).size()-1) s += ",";
     		}
+			if (i != botsNewWeights.size()-1) s += "\n";
     	}
-    	updateWeightsFile(getNewWeightsInString(bots[1].getWeights()));
+    	return s;
     }
-    private String getNewWeightsInString(ArrayList<Double> newWeights) {
-    	String weightsInStr = "";
-    	for (int i = 0; i < newWeights.size(); i++) {
-    		weightsInStr += newWeights.get(i);
-			if (i != bots[1].getWeights().size()-1) weightsInStr += ",";
-    	}
-    	return weightsInStr;
-    }
-    private void updateWeightsFile(String newWeights) {
+    private void updateWeightsFile(String gameStatsAndBotWeights) {
     	StringBuilder sb = new StringBuilder();
+    	/*
     	// date,
     	sb.append(getCurrentTime() + "\n");
     	// stats,
     	sb.append(match.getStats() + "\n");
-    	// new weights to test.
-    	sb.append(newWeights + "\n");
+    	*/
+    	// gameStatsAndBotWeights in csv format:
+    	// win/lose,botID,weights
+    	// i.e. 1,0,weights...
+    	// 1 denotes a win by bot 0.
+    	sb.append(gameStatsAndBotWeights + "\n");
     	toFile(sb);
     }
     private double minuteRange = 0.05;
     private double getMinuteRandomValue(Random rand) {
     	//return (rand.nextDouble()-0.5) * minuteRange;
-    	return rand.nextDouble() * minuteRange;
+    	return rand.nextDouble() * minuteRange;	// 0 to 0.05
     }
     
 	// Normalize the scores to probabilities.
@@ -334,10 +361,12 @@ public class Backgammon {
 	}
     
     private void updateWeightsEachMatch() {
+    	/*
     	if (match.getWinner().equals(players.get(1)))
     		updateWeightsFile(getNewWeightsInString(bots[1].getWeights()));
     	else
     		updateWeightsFile(getNewWeightsInString(bots[0].getWeights()));
+    	*/
     }
     
     @SuppressWarnings("unused")
@@ -367,7 +396,8 @@ public class Backgammon {
 			e.printStackTrace();
 		}
 	}
-    private String getCurrentTime() {
+    @SuppressWarnings("unused")
+	private String getCurrentTime() {
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd,HH:mm:ss");
     	Date date = new Date();
     	return dateFormat.format(date);
