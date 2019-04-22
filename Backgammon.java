@@ -28,6 +28,8 @@ public class Backgammon {
 	private static final boolean PLAY_WITH_BOT = false;
     public static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
+    public static int NUM_OF_MATCHES = 0;
+    public static final int TOTAL_MATCHES = 50;
     public static final int MATCH_LENGTH = 11;
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
@@ -232,16 +234,14 @@ public class Backgammon {
     
     private void playMatches()  throws InterruptedException {
         boolean playAgain = true;
-        int numOfMatchesToTest = 0;
         do {
-        	System.out.println("Match #" + numOfMatchesToTest);
             playAMatch();
             if (!quitGame) {
                 //playAgain = ui.getPlayAgainDecision();
-            	numOfMatchesToTest++;
             	reset();
+            	NUM_OF_MATCHES++;
             }
-        } while (!quitGame && playAgain && numOfMatchesToTest < 1);
+        } while (!quitGame && playAgain && NUM_OF_MATCHES < TOTAL_MATCHES);
     }    
     private void reset() {
     	match.reset();
@@ -315,8 +315,8 @@ public class Backgammon {
     	StringBuilder sb = new StringBuilder();
     	// date,
     	sb.append(getCurrentTime() + "\n");
-    	// stats,
-    	sb.append(match.getStats() + "\n");
+    	// stats, "Match No" + NUM_OF_MATCHES + "/" + TOTAL_MATCHES*MATCH_LENGTH + ", " + 
+    	sb.append(NUM_OF_MATCHES + "/" + TOTAL_MATCHES + "," + match.getStats() + "\n");
     	// new weights to test.
     	sb.append(newWeights + "\n");
     	toFile(sb);
