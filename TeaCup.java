@@ -20,15 +20,17 @@ public class TeaCup implements BotAPI {
 	
     private PlayerAPI me, opponent;
     private BoardAPI board;
-    @SuppressWarnings("unused")
+	@SuppressWarnings("unused")
 	private CubeAPI cube;
-    @SuppressWarnings("unused")
 	private MatchAPI match;
     @SuppressWarnings("unused")
 	private InfoPanelAPI info;
     
 	private ArrayList<Double> weights = new ArrayList<>();
 	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight;
+	
+	private double meWinningChance;
+	private double oppWinningChance;
     
     public TeaCup(PlayerAPI me, PlayerAPI opponent, BoardAPI board, CubeAPI cube, MatchAPI match, InfoPanelAPI info) {
         this.me = me;
@@ -53,29 +55,39 @@ public class TeaCup implements BotAPI {
     	pipsCoveredWeight = weights.get(8);
     	blotWithoutContestWeight = weights.get(9);
     	primingDefenseWeight = weights.get(10);
-    	//blotFurtherFromHomeWeight = weights.get(11);
+    	blotFurtherFromHomeWeight = weights.get(11);
     	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     }
     private void readWeightsFromFile() {
 		try {
 			String classPath = System.getProperty("java.class.path");
-			File txt = new File(classPath + "/weights.txt");
+			File txt = new File(classPath + "/weights.txt");	// NOTE: This resides in /bin, NOT /src.
+			// File txt = new File("/Users/YeohB/Desktop/UCD/Stage 2/Semester 2/COMP20050 - Software Engineering Project 2/Software Engineering/backgammon/src/weights.txt");
+			
 			if (DEBUG) System.out.println(txt.getCanonicalPath());
 			Scanner scan = new Scanner(txt);
 			
-			// go to last line.
-			// last line has the most updated weights.
-			String lastLine = "";
+			// go to second last line.
+			// last two lines has the most updated weights.
+			ArrayList<String> lines = new ArrayList<String>();
 			while (scan.hasNextLine()) {
-				lastLine = scan.nextLine();
+				lines.add(scan.nextLine());
+			}
+			scan.close();
+			
+			String line = "";
+			// if bot 0.
+			if (me.getId() == 0) { 
+				line = lines.get(lines.size() - 2);	// second last line.
+			// if bot 1.
+			} else {
+				line = lines.get(lines.size() - 1); // last line.
 			}
 			
 			// store the weights.
-			String[] weightsInString = lastLine.split(",");
-			for (int i = 0; i < weightsInString.length; i++)
-				weights.add(Double.parseDouble(weightsInString[i]));
-			//buffer.close();
-			scan.close();
+			String[] csv = line.split(",");
+			for (int i = 2; i < csv.length; i++)
+				weights.add(Double.parseDouble(csv[i]));
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -84,7 +96,7 @@ public class TeaCup implements BotAPI {
     	return weights;
     }
     public void setWeights(ArrayList<Double> newWeights) {
-    	System.out.println("\nBot " + me.getId() + ":");
+    	System.out.println("Bot " + me.getId() + ":");
     	System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
     	weights = newWeights;
     	System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
@@ -103,11 +115,25 @@ public class TeaCup implements BotAPI {
 	   » The bot should select the play with the highest score (i.e. the highest probability of the bot winning).
 	 */
 	public String getCommand(Plays possiblePlays) {
-		// generate resulting board positions.
-		// go through board positions and score them.
-		return String.valueOf(1+getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+		String command = "";
+		
+		/*
+		if (!cube.isOwned()) {
+			calculateWinningChance(possiblePlays);
+			if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
+				command = "double";
+			else
+				command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+		} else
+			// generate resulting board positions.
+			// go through board positions and score them.
+			command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+		*/
+		command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+
+		return command;
 	}
-	
+
 	// generates resulting board positions.
 	private ArrayList<int[][]> getResultingBoardPositions(Plays plays) {
 		ArrayList<int[][]> boardPositions = new ArrayList<>();
@@ -126,17 +152,23 @@ public class TeaCup implements BotAPI {
 				
 				temp[currID][fro]--;
 				temp[currID][to]++;
-				if (aMove.isHit())
-					temp[oppoID][to]--;
+				if (aMove.isHit()) {
+					temp[oppoID][25-to]--;
+					temp[oppoID][temp[oppoID].length-1]++;
+				}
 				
-				if (VERBOSE) System.out.println("Next move: " + aMove.toString());
+				if (VERBOSE) {
+					System.out.println("Next move: " + aMove.toString());
+					if (temp[currID][fro] < 0 || temp[currID][to] < 0 || temp[oppoID][to] < 0 || temp[oppoID][temp[oppoID].length-1] < 0)
+						System.out.println("ERROR: Play caused board positions to be wrong.");
+				}
 			}
 			boardPositions.add(temp);
 			if (VERBOSE) printCheckers(temp);
 		}
 		return boardPositions;
 	}
-	
+
 	// scores the board positions.
 	private double[] getBoardPositionsProbabilities(ArrayList<int[][]> boardPositions) {
 		double[] scores = new double[boardPositions.size()];
@@ -152,28 +184,9 @@ public class TeaCup implements BotAPI {
 		}
 		return getProbabilities(scores);
 	}
-	
-	/*
-	// Normalizes if all elements in the list is positive.
+
 	// Normalize the scores to probabilities.
 	// https://stackoverflow.com/questions/26916150/normalize-small-probabilities-in-python
-	private double[] getProbabilities(double[] scores) {
-		double[] probs = new double[scores.length];
-		double prob_factor = 1.0 / getSum(scores);
-		for (int i = 0; i < scores.length; i++) probs[i] = scores[i] * prob_factor;
-		if (DEBUG) {
-			System.out.println("Scores: " + Arrays.toString(scores));
-			System.out.println("Probabilities: " + Arrays.toString(probs));
-		}
-		if (getSum(probs) != 1.0) {
-			System.out.println("\n\nSum of probs: " + getSum(probs));
-			System.out.println("Scores: " + Arrays.toString(scores));
-			System.out.println("Probabilities: " + Arrays.toString(probs));
-		}
-		return probs;
-	}
-	*/
-	
 	private double[] getProbabilities(double[] scores) {
 		double[] probs = new double[scores.length];
 		double[] minMaxSum = getMinMaxSum(scores);
@@ -187,12 +200,11 @@ public class TeaCup implements BotAPI {
 			probs[i] = (scores[i] + adjustValue) / new_sum;
 		}
 		if (VERBOSE) {
-			if (getSum(probs) != 1.0) {
-				System.out.println("\n\nAdjust value: " + adjustValue);
-				System.out.println("Sum of probs: " + getSum(probs));
-				System.out.println("Scores:\n" + Arrays.toString(scores));
-				System.out.println("Probabilities:\n" + Arrays.toString(probs));
-			}
+			//if (getSum(probs) != 1.0) {
+			System.out.println("\n\nAdjust value: " + adjustValue);
+			System.out.println("Sum of probs: " + getSum(probs));
+			System.out.println("Scores:\n" + Arrays.toString(scores));
+			System.out.println("Probabilities:\n" + Arrays.toString(probs));
 		}
 		return probs;
 	}
@@ -231,27 +243,27 @@ public class TeaCup implements BotAPI {
 		for (int i = 0; i < scores.length; i++) sum += scores[i];
 		return sum;
 	}
-	
+
+	private final boolean TEST_THIS = false;
 	private double getScore(int[] c, int[] o) {
 		double score = 0;
 		
 		if (isOpposed(c, o) && isBearOff(c)) {
 			// and even checkers on last pip.
 			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o);
-			if (VERBOSE) System.out.println("Current game phase: Is opposed bear off.");
+			if (TEST_THIS) System.out.println("Current game phase: Is opposed bear off.");
 		} else if (!isOpposed(c, o) && isBearOff(c) && c[0] == 0) {
 			// unopposed pre if c has not bear-off yet and is unopposed bear off.
 			score = numCheckersInHomeBoard(c, o);
-			if (VERBOSE) System.out.println("Current game phase: Is unopposed pre-bear off.");
+			if (TEST_THIS) System.out.println("Current game phase: Is unopposed pre-bear off.");
 		} else if (!isOpposed(c, o) && isBearOff(c)) {
 			score = numCheckersTakenOff(c, o) + numPipsCovered(c, o);
-			if (VERBOSE) System.out.println("Current game phase: Is unopposed bear off.");
+			if (TEST_THIS) System.out.println("Current game phase: Is unopposed bear off.");
 		} else {
 			// if pip count difference is good then escape is good.
 			// if pip count difference is bad then escape is bad
-			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o) + numHomeBoardBlocks(c, o) + primingDefense(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numCheckersInHomeBoard(c, o) + numCheckersTakenOff(c, o) + numPipsCovered(c, o);
-			//  + blotFurtherFromHome(c, o)
-			if (VERBOSE) System.out.println("Current game phase: Normal");
+			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numPipsCovered(c, o) + blotWithoutContest(c, o) + primingDefense(c, o) + blotFurtherFromHome(c, o);
+			if (TEST_THIS) System.out.println("Current game phase: Normal");
 		}
 		if (DEBUG) System.out.println("Score: " + score);
 		return score;
@@ -304,8 +316,8 @@ public class TeaCup implements BotAPI {
 		int cTotal = 0, oTotal = 0;
 		for (int i = 1; i < c.length; i++) {
 			// num checkers * pip num.
-			cTotal += i*c[i];
-			oTotal += i*o[i];
+			cTotal += i * c[i];
+			oTotal += i * o[i];
 		}
 		/*
 		System.out.println("cTotal: " + cTotal);
@@ -384,7 +396,6 @@ public class TeaCup implements BotAPI {
 	
 	// if possible, do blots that are further away from home.
 	// waste of dice result if we do blots nearer to home.
-	@SuppressWarnings("unused")
 	private double blotFurtherFromHome(int[] c, int[] o) {
 		double sumBlotIndex = 0, totalBlots = 0;
 		for (int i = 1; i < c.length; i++) {
@@ -403,8 +414,6 @@ public class TeaCup implements BotAPI {
 	
 	// if move played has more home board blocks, then that's a good thing.
 	// however, this is not always a good thing.
-	//
-	// TODO could take into account home board blocks to opponents.
 	private double numHomeBoardBlocks(int[] c, int[] o) {
 		int num = 0;
 		int MAX = 6;
@@ -455,8 +464,6 @@ public class TeaCup implements BotAPI {
 		System.out.println("Index of last Prime: " + indexOfLastPrime);
 		System.out.println("Captured: " + captured);
 		*/
-		// TODO can consider the number of captured checkers.
-		// NOTE: Added, but could consider better calculation.
 		return (officialLen*captured) * primingWeight;
 	}
 	private int[] getPrimeLength(int[] c) {
@@ -490,7 +497,6 @@ public class TeaCup implements BotAPI {
 		}
 		return captured;
 	}
-	
 	// anchors = checkers in opponent's home boards.
 	// Dont break anchors prematurely.
 	// READ MORE FROM HERE: http://www.bkgm.com/articles/GOL/Sep02/anchor.htm
@@ -505,7 +511,6 @@ public class TeaCup implements BotAPI {
 		*/
 		return num * anchorWeight;
 	}
-	
 	// escaped = checkers not able to get hit.
 	private double numEscapedCheckers(int[] c, int[] o) {
 		// find pip number of last opponent checker.
@@ -598,7 +603,104 @@ public class TeaCup implements BotAPI {
 		System.out.println(s);
 	}
 	
-	public String getDoubleDecision() {
-		return "n";
+	@Override
+	public String getDoubleDecision() {		
+		return considerAcceptingDoubleDice(opponent, me);
+	}
+	
+	/**
+	 * NOTE:
+	 * We can actually calculate it for one player, and then minus it from 100 to achieve the opponent's
+	 * We need to merge considerOfferingDoubleDice() and considerAcceptingDoubleCube()
+	 */
+	@SuppressWarnings("unused")
+	private String getDoubleDecision(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		return considerOfferingDoubleDice(currentPlayer, opponentPlayer);
+	}
+
+	/**
+	 * First calculate the percentage of each score of each player
+	 */
+	private String considerOfferingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		String decision = "n";
+
+		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) {
+			if (meWinningChance >= 0 && meWinningChance <= 0.50)
+				decision = "y";
+			else if (meWinningChance >= 0.50 && meWinningChance <= 0.75)
+				decision = "y";
+			else if (meWinningChance >= 0.75 && meWinningChance <= 100)
+				decision = "y"; // drop opponent's
+		} else if (match.canDouble((Player) currentPlayer)) { // TODO
+			decision = "y";
+		} else {
+			if (meWinningChance >= 0 && meWinningChance <= 0.66)
+				decision = "n";
+			else if (meWinningChance >= 0.66 && meWinningChance <= 0.75)
+				decision = "y";
+			// no gammon change
+			else if ((meWinningChance >= 0.75 && meWinningChance <= 0.80) || (meWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))
+				decision = "y"; // drop opponent's
+			else if ((meWinningChance > .80) && (isGammon(currentPlayer, opponentPlayer))) // no gammon changes
+				decision = "n";
+		}
+
+		return decision;
+	}
+
+	private String considerAcceptingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		String decision = "n";
+		
+		// assuming max points is 11
+		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) { 
+			if (oppWinningChance >= .50 && oppWinningChance <= 0.75)
+				decision = "y";
+			else if (oppWinningChance >= 0.75 && oppWinningChance <= 100)
+				decision = "n"; // drop opponent's
+		} else if (match.canDouble((Player) currentPlayer)) {
+			decision = "y";
+		} else {
+			if (oppWinningChance >= 0.66 && oppWinningChance <= 0.75)
+				decision = "y";
+			// no gammon change
+			else if ((oppWinningChance >= 0.75 && oppWinningChance <= 0.80) || (oppWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))
+				decision = "n"; // drop opponent's
+		}
+
+		return decision;
+	}
+
+	private boolean isGammon(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+		return !board.hasCheckerOff(getLoser(currentPlayer, opponentPlayer)) && !board.lastCheckerInOpponentsInnerBoard(getLoser(currentPlayer, opponentPlayer));
+	}
+	
+	private Player getLoser(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
+        PlayerAPI loser = currentPlayer;
+            if (board.lastCheckerInInnerBoard((Player) currentPlayer)) {
+                loser = opponentPlayer;
+            } else if (board.lastCheckerInInnerBoard((Player) opponentPlayer)) {
+                loser = currentPlayer;
+            }
+        return (Player) loser;
+	}
+	
+	// uncomment the things in getCommand.
+	@SuppressWarnings("unused")
+	private void calculateWinningChance(Plays possiblePlays) {
+		int currID = me.getId();
+		int oppoID = opponent.getId();
+		int[][] checkers = board.get();
+		
+		double x = getScore(checkers[currID], checkers[oppoID]);
+		double y = getScore(checkers[oppoID], checkers[currID]);
+		double[] probs = getProbabilities(new double[] {x, y});
+		double Px = probs[0], Py = probs[1];
+		
+		meWinningChance = (Px / (Px + Py)) * 100;
+		oppWinningChance = 100 - meWinningChance;
+		/*
+		System.out.println("Me win: " + meWinningChance);
+		System.out.println("Oppo win: " + oppWinningChance);
+		*/
 	}
 }
