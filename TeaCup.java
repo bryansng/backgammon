@@ -9,6 +9,16 @@ public class TeaCup implements BotAPI {
 	public static final boolean VERBOSE = false;
 	public static final boolean TEST = false;
 	
+	private static class PlaysAndBoardPositions {
+		private int[][] boardPosition;
+		private Play play;
+		
+		public PlaysAndBoardPositions(Play play, int[][] boardPosition) {
+			this.play = play;
+			this.boardPosition = boardPosition;
+		}
+	}
+	
     private PlayerAPI me, opponent;
     private BoardAPI board;
 	@SuppressWarnings("unused")
@@ -18,7 +28,7 @@ public class TeaCup implements BotAPI {
 	private InfoPanelAPI info;
     
 	private ArrayList<Double> weights = new ArrayList<>();
-	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight;
+	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight, hitCloserToHomeWeight;
 	
 	private double meWinningChance;
 	private double oppWinningChance;
@@ -47,6 +57,7 @@ public class TeaCup implements BotAPI {
     	blotWithoutContestWeight = weights.get(9);
     	primingDefenseWeight = weights.get(10);
     	blotFurtherFromHomeWeight = weights.get(11);
+    	hitCloserToHomeWeight = weights.get(12);
     	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     }
     private void readWeightsFromFile() {
@@ -126,8 +137,8 @@ public class TeaCup implements BotAPI {
 	}
 
 	// generates resulting board positions.
-	private ArrayList<int[][]> getResultingBoardPositions(Plays plays) {
-		ArrayList<int[][]> boardPositions = new ArrayList<>();
+	private ArrayList<PlaysAndBoardPositions> getResultingBoardPositions(Plays plays) {
+		ArrayList<PlaysAndBoardPositions> playsAndBoardPositions = new ArrayList<>();
 		int currID = me.getId();
 		int oppoID = opponent.getId();
 		int[][] checkers = board.get();
@@ -154,23 +165,23 @@ public class TeaCup implements BotAPI {
 						System.out.println("ERROR: Play caused board positions to be wrong.");
 				}
 			}
-			boardPositions.add(temp);
+			playsAndBoardPositions.add(new PlaysAndBoardPositions(aPlay, temp));
 			if (VERBOSE) printCheckers(temp);
 		}
-		return boardPositions;
+		return playsAndBoardPositions;
 	}
 
 	// scores the board positions.
-	private double[] getBoardPositionsProbabilities(ArrayList<int[][]> boardPositions) {
-		double[] scores = new double[boardPositions.size()];
+	private double[] getBoardPositionsProbabilities(ArrayList<PlaysAndBoardPositions> playsAndBoardPositions) {
+		double[] scores = new double[playsAndBoardPositions.size()];
 		int currID = me.getId();
 		int oppoID = opponent.getId();
 		
 		int i = 0;
-		for (int[][] checkers : boardPositions) {
+		for (PlaysAndBoardPositions playsAndBoardPosition : playsAndBoardPositions) {
 			if (DEBUG) System.out.println(i + ": Next Move:");
-			scores[i] = getScore(checkers[currID], checkers[oppoID]);
-			if (DEBUG) printCheckers(checkers);
+			scores[i] = getScore(playsAndBoardPosition.boardPosition[currID], playsAndBoardPosition.boardPosition[oppoID], playsAndBoardPosition.play);
+			if (DEBUG) printCheckers(playsAndBoardPosition.boardPosition);
 			i++;
 		}
 		return getProbabilities(scores);
@@ -236,12 +247,12 @@ public class TeaCup implements BotAPI {
 	}
 
 	private final boolean TEST_THIS = false;
-	private double getScore(int[] c, int[] o) {
+	private double getScore(int[] c, int[] o, Play play) {
 		double score = 0;
 		
 		if (isOpposed(c, o) && isBearOff(c)) {
 			// and even checkers on last pip.
-			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o);
+			score = numCheckersTakenOff(c, o) + blockBlotDiff(c, o) + blotWithoutContest(c, o) + hitCloserToHome(play);
 			if (TEST_THIS) System.out.println("Current game phase: Is opposed bear off.");
 		} else if (!isOpposed(c, o) && isBearOff(c) && c[0] == 0) {
 			// unopposed pre if c has not bear-off yet and is unopposed bear off.
@@ -253,7 +264,7 @@ public class TeaCup implements BotAPI {
 		} else {
 			// if pip count difference is good then escape is good.
 			// if pip count difference is bad then escape is bad
-			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numPipsCovered(c, o) + blotWithoutContest(c, o) + primingDefense(c, o) + blotFurtherFromHome(c, o);
+			score = pipCountDiff(c, o) + blockBlotDiff(c, o) + numHomeBoardBlocks(c, o) + lengthPrimeCapturedChecker(c, o) + anchor(c, o) + numEscapedCheckers(c, o) + numPipsCovered(c, o) + blotWithoutContest(c, o) + primingDefense(c, o) + blotFurtherFromHome(c, o) + hitCloserToHome(play);
 			if (TEST_THIS) System.out.println("Current game phase: Normal");
 		}
 		if (DEBUG) System.out.println("Score: " + score);
@@ -392,7 +403,7 @@ public class TeaCup implements BotAPI {
 		for (int i = 1; i < c.length; i++) {
 			if (c[i] == 1) {
 				sumBlotIndex += i;
-				totalBlots += 1;
+				totalBlots++;
 			}
 		}
 		if (TEST) {
@@ -401,6 +412,30 @@ public class TeaCup implements BotAPI {
 		}
 		double score = sumBlotIndex / totalBlots;
 		return (Double.isNaN(score) ? 0 : score) * blotFurtherFromHomeWeight;
+	}
+	
+	// hit opponent's checkers if they are closer to home.
+	private double hitCloserToHome(Play play) {
+		// check if the moves in the play are hits.
+		int sumHitIndex = 0, totalHits = 0;
+		for (Move aMove : play.moves) {
+			if (aMove.isHit()) {
+				sumHitIndex += aMove.getToPip();
+				totalHits++;
+			}
+		}
+		if (TEST) {
+			System.out.println("Sum hit indexes: " + sumHitIndex);
+			System.out.println("Num hits: " + totalHits);
+			hitCloserToHomeWeight = 1.0;
+		}
+		
+		double score = 0;
+		try {
+			score = sumHitIndex / totalHits;
+		} catch (ArithmeticException e) {
+		}
+		return (Double.isNaN(score) ? 0 : score) * hitCloserToHomeWeight;
 	}
 	
 	// if move played has more home board blocks, then that's a good thing.
@@ -682,8 +717,8 @@ public class TeaCup implements BotAPI {
 		int oppoID = opponent.getId();
 		int[][] checkers = board.get();
 		
-		double x = getScore(checkers[currID], checkers[oppoID]);
-		double y = getScore(checkers[oppoID], checkers[currID]);
+		double x = getScore(checkers[currID], checkers[oppoID], new Play());
+		double y = getScore(checkers[oppoID], checkers[currID], new Play());
 		double[] probs = getProbabilities(new double[] {x, y});
 		double Px = probs[0], Py = probs[1];
 		
