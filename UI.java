@@ -11,11 +11,12 @@ public class UI {
     private final InfoPanel infoPanel;
     private final CommandPanel commandPanel;
     private final BotAPI[] bots;
+    private final JFrame frame;
 
     UI (Board board, Players players, Cube cube, Match match, BotAPI[] bots) {
         infoPanel = new InfoPanel();
         commandPanel = new CommandPanel();
-        JFrame frame = new JFrame();
+        frame = new JFrame();
         boardPanel = new BoardPanel(board,players,cube,match);
         frame.setSize(FRAME_WIDTH, FRAME_HEIGHT);
         frame.setTitle("Backgammon");
@@ -26,6 +27,10 @@ public class UI {
         frame.setResizable(false);
         frame.setVisible(true);
         this.bots = bots;
+    }
+    
+    public void terminanteFrame() {
+    	frame.setVisible(false);
     }
 
     public String getString() {
