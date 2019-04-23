@@ -22,13 +22,13 @@ public class Backgammon {
 	private static final boolean PLAY_WITH_BOT = false;
 	private static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
-    public static int MATCH_LENGTH = 11;
+    public static int MATCH_LENGTH = 51;
     
     // MATCH_LENGTH, but for tournament rounds.
     private static final int MATCH_LENGTH_FOR_CHAMPIONSHIP = 11;
     
     // number of weights to produce in champion.txt
-	private static final int NUM_TOURNAMENT_BOTS = 5;
+	private static final int NUM_TOURNAMENT_BOTS = 30;
 	
     // will produce weights in champion.txt,
     // it will then produce the best weights and add to final.txt
@@ -352,7 +352,7 @@ public class Backgammon {
     private double minuteRange = 0.05;
     private double getMinuteRandomValue(Random rand) {
     	//return (rand.nextDouble()-0.5) * minuteRange;
-    	return rand.nextDouble() * minuteRange;	// 0 to 0.05
+    	return (rand.nextDouble()-0.1) * minuteRange;	// 0 to 0.05
     }
     
 	// Normalize the scores to probabilities.
