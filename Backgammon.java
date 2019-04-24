@@ -18,9 +18,9 @@ public class Backgammon {
 	private static final boolean VERBOSE = false;
 	
 	private static boolean REINFORCE_LEARNING = true;
-	private static final boolean ENTER_TO_MOVE_ON = false;
-	private static final boolean PLAY_WITH_BOT = false;
-	private static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
+	private static final boolean ENTER_TO_MOVE_ON = true;
+	private static final boolean PLAY_WITH_BOT = true;
+	private static int NUM_PLAYERS_VS_BOTS = 1;	// if play with bot, this = 1, else this = 2.
     
     public static int MATCH_LENGTH = 51;
     
@@ -29,14 +29,15 @@ public class Backgammon {
     
     // number of weights to produce in champion.txt
 	private static final int NUM_TOURNAMENT_BOTS = 30;
+	private static final int NUM_TOURNAMENT_TRIES = 10;
 	
     // will produce weights in champion.txt,
     // it will then produce the best weights and add to final.txt
-    private static final boolean CHAMPIONSHIP = true;
+    private static final boolean CHAMPIONSHIP = false;
     
     // does not create weights in champion.txt
     // only uses the weights in champion.txt to produce the final.txt.
-    private static final boolean ONLY_TOURNAMENT = false;
+    private static final boolean ONLY_TOURNAMENT = true;
     
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
@@ -459,14 +460,16 @@ public class Backgammon {
     	REINFORCE_LEARNING = false;
     	System.out.println("\n\nTOURNAMENT ROUNDS:");
     	
-    	// from those winner's weights.
-    	ArrayList<ArrayList<Double>> winnersWeights = getWinnersWeights();
-    	
-    	// get the final winner's weights.
-    	ArrayList<Double> bestWeights = botMatch(winnersWeights);
-    	
-		// print to file "final.txt"
-    	printWeightsToFile(bestWeights, "final.txt");
+    	for (int i = 0; i < NUM_TOURNAMENT_TRIES; i++) {
+        	// from those winner's weights.
+        	ArrayList<ArrayList<Double>> winnersWeights = getWinnersWeights();
+        	
+	    	// get the final winner's weights.
+	    	ArrayList<Double> bestWeights = botMatch(winnersWeights);
+	    	
+			// print to file "final.txt"
+	    	printWeightsToFile(bestWeights, "final.txt");
+    	}
     }
     private static void printWeightsToFile(ArrayList<Double> theWeights, String filename) {
     	StringBuilder s = new StringBuilder();

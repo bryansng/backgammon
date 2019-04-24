@@ -5,6 +5,9 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class TeaCup implements BotAPI {
+	public static final boolean IS_SUBMISSION = true;
+	public static final boolean ENABLE_DOUBLE = false;
+	
 	public static final boolean DEBUG = false;
 	public static final boolean VERBOSE = false;
 	public static final boolean TEST = false;
@@ -53,8 +56,13 @@ public class TeaCup implements BotAPI {
         initWeights();
     }
     private void initWeights() {
-    	weights = new ArrayList<>();
-    	readWeightsFromFile();
+    	if (IS_SUBMISSION) {
+	    	double[] arr = new double[]{-0.827221102,0.973194106,1.347557985,1.013578142,-1.257729507,1.024988896,-1.134436033,-0.806384589,0.594236533,1.033966105,-0.604135998,-0.968983355,0.0};
+	    	weights = arrayToList(arr);
+    	} else {
+	    	weights = new ArrayList<>();
+	    	readWeightsFromFile();
+    	}
     	pipCountWeight = weights.get(0);
     	blockBlotWeight = weights.get(1);
     	homeBlockWeight = weights.get(2);
@@ -68,7 +76,7 @@ public class TeaCup implements BotAPI {
     	primingDefenseWeight = weights.get(10);
     	blotFurtherFromHomeWeight = weights.get(11);
     	hitCloserToHomeWeight = weights.get(12);
-    	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     	
     	meWinningChance = 0;
     	meGammonRate = 0;
@@ -83,6 +91,13 @@ public class TeaCup implements BotAPI {
     	currentGammonRate = 0;
     	
     	postCrawford = false;
+    }
+    private ArrayList<Double> arrayToList(double[] arr) {
+    	ArrayList<Double> weights = new ArrayList<>();
+    	for (int i = 0; i < arr.length; i++) {
+    		weights.add(arr[i]);
+    	}
+    	return weights;
     }
     private void readWeightsFromFile() {
 		try {
@@ -122,10 +137,12 @@ public class TeaCup implements BotAPI {
     	return weights;
     }
     public void setWeights(ArrayList<Double> newWeights) {
-    	System.out.println("Bot " + me.getId() + ":");
-    	System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) {
+    		System.out.println("Bot " + me.getId() + ":");
+    		System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
+    	}
     	weights = newWeights;
-    	System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
     }
     
 	public String getName() {
@@ -141,29 +158,31 @@ public class TeaCup implements BotAPI {
 	   » The bot should select the play with the highest score (i.e. the highest probability of the bot winning).
 	 */
 	public String getCommand(Plays possiblePlays) {
-		String command = "";		
-		
-		if (!cube.isOwned() && match.canDouble((Player) me)) {
-			//System.out.println("Cube not owned: " + " me.getID(): " + me.getId());
-			calculateWinningChance(possiblePlays);
-			if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
-				command = "double";
-			else
-				command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
-		} else if (cube.isOwned() && cube.getOwnerId() == me.getId()) {
-			//System.out.println("Cube owned: cube ownerID: " + cube.getOwnerId() + " me.getID(): " + me.getId());
-			if (cube.getValue() < match.getLength() - me.getScore()) {
-			// generate resulting board positions.
-			// go through board positions and score them.
+		String command = "";
+		if (ENABLE_DOUBLE) {
+			if (!cube.isOwned() && match.canDouble((Player) me)) {
+				//System.out.println("Cube not owned: " + " me.getID(): " + me.getId());
 				calculateWinningChance(possiblePlays);
-				if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0) {
+				if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
 					command = "double";
-					//System.out.println("Hi hello");
+				else
+					command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+			} else if (cube.isOwned() && cube.getOwnerId() == me.getId()) {
+				//System.out.println("Cube owned: cube ownerID: " + cube.getOwnerId() + " me.getID(): " + me.getId());
+				if (cube.getValue() < match.getLength() - me.getScore()) {
+				// generate resulting board positions.
+				// go through board positions and score them.
+					calculateWinningChance(possiblePlays);
+					if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0) {
+						command = "double";
+						//System.out.println("Hi hello");
+					}
+					else
+						command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
 				}
 				else
 					command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
-			}
-			else
+			} else
 				command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
 		} else
 			command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
@@ -173,7 +192,9 @@ public class TeaCup implements BotAPI {
 	
 	@Override
 	public String getDoubleDecision() {
-		return considerAcceptingDoubleDice(opponent, me);
+		if (ENABLE_DOUBLE)
+			return considerAcceptingDoubleDice(opponent, me);
+		return "n";
 	}
 
 	// generates resulting board positions.
