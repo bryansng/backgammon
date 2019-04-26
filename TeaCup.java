@@ -5,8 +5,9 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class TeaCup implements BotAPI {
-	public static final boolean IS_SUBMISSION = true;
-	public static final boolean ENABLE_DOUBLE = false;
+	public static final boolean IS_SUBMISSION_UPDATE = true;	// set to true as final
+	public static final boolean IS_SUBMISSION = true;	// set to true as final.
+	public static final boolean ENABLE_DOUBLE = true;	// set to true as final.
 	
 	public static final boolean DEBUG = false;
 	public static final boolean VERBOSE = false;
@@ -57,8 +58,12 @@ public class TeaCup implements BotAPI {
     }
     private void initWeights() {
     	if (IS_SUBMISSION) {
+    		// original
 	    	// double[] arr = new double[]{-0.827221102,0.973194106,1.347557985,1.013578142,-1.257729507,1.024988896,-1.134436033,-0.806384589,0.594236533,1.033966105,-0.604135998,-0.968983355,0.0};
+    		// submitted
 	    	double[] arr = new double[]{-0.827221102,1.573194106,1.347557985,1.013578142,-1.257729507,1.024988896,-1.134436033,-0.806384589,0.594236533,1.103966105,-0.604135998,0.05,0.75};
+    		// modified
+	    	//double[] arr = new double[]{-0.827221102,1.573194106,1.347557985,1.013578142,-1.257729507,0.224988896,-1.134436033,-0.806384589,0.594236533,1.103966105,-0.604135998,0.05,0.75};
 	    	weights = arrayToList(arr);
     	} else {
 	    	weights = new ArrayList<>();
@@ -77,7 +82,7 @@ public class TeaCup implements BotAPI {
     	primingDefenseWeight = weights.get(10);
     	blotFurtherFromHomeWeight = weights.get(11);
     	hitCloserToHomeWeight = weights.get(12);
-    	if (!IS_SUBMISSION) System.out.println("Weights: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION_UPDATE) System.out.println("Weights: " + Arrays.toString(weights.toArray()));
     	
     	meWinningChance = 0;
     	meGammonRate = 0;
@@ -138,12 +143,12 @@ public class TeaCup implements BotAPI {
     	return weights;
     }
     public void setWeights(ArrayList<Double> newWeights) {
-    	if (!IS_SUBMISSION) {
+    	if (!IS_SUBMISSION_UPDATE) {
     		System.out.println("Bot " + me.getId() + ":");
     		System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
     	}
     	weights = newWeights;
-    	if (!IS_SUBMISSION) System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION_UPDATE) System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
     }
     
 	public String getName() {

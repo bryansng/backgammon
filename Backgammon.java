@@ -18,22 +18,22 @@ public class Backgammon {
 	private static final boolean VERBOSE = false;
 	
 	private static boolean REINFORCE_LEARNING = true;
-	private static final boolean ENTER_TO_MOVE_ON = true;
-	private static final boolean PLAY_WITH_BOT = true;
-	private static int NUM_PLAYERS_VS_BOTS = 1;	// if play with bot, this = 1, else this = 2.
+	private static final boolean ENTER_TO_MOVE_ON = false;
+	private static final boolean PLAY_WITH_BOT = false;
+	private static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
-    public static int MATCH_LENGTH = 51;
+    public static int MATCH_LENGTH = 11;
     
     // MATCH_LENGTH, but for tournament rounds.
-    private static final int MATCH_LENGTH_FOR_CHAMPIONSHIP = 11;
+    private static final int MATCH_LENGTH_FOR_CHAMPIONSHIP = 7;
     
     // number of weights to produce in champion.txt
-	private static final int NUM_TOURNAMENT_BOTS = 30;
+	private static final int NUM_TOURNAMENT_BOTS = 2;
 	private static final int NUM_TOURNAMENT_TRIES = 10;
 	
     // will produce weights in champion.txt,
     // it will then produce the best weights and add to final.txt
-    private static final boolean CHAMPIONSHIP = false;
+    private static final boolean CHAMPIONSHIP = true;
     
     // does not create weights in champion.txt
     // only uses the weights in champion.txt to produce the final.txt.
