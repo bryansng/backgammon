@@ -63,7 +63,15 @@ Personally, I prefer Eclipse for Java.
   For instance, Board used to handle its *functions* (moveCheckers, action methods) and its *initialization* (itself, dices, pips and checkers). Since maintaining code generally happens in the *functions* side of things, it would be nice to separate *functions* and *initialization*. Hence, BoardComponents is the superclass with *initialization* and Board is the subclass that has all the *functions*.
 
 &nbsp;
+## Sprint 5 - Bot Documentation
+
+**Details in bot branch.**
+
+&nbsp;
+&nbsp;
+
 ## Sprint 4 - Short Documentation
+![Alt text](/evolution/v4.png "Sprint 4")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -106,6 +114,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 
 ## Sprint 3 - Short Documentation
+![Alt text](/evolution/v3.png "Sprint 3")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -140,6 +149,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 
 ## Sprint 2 - Short Documentation
+![Alt text](/evolution/v2.png "Sprint 2")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -193,6 +203,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 &nbsp;
 ## Sprint 1 - Short Documentation
+![Alt text](/evolution/v1.png "Sprint 1")
 ### Requirements:
 #### UI-wise:
 - [x] Board Panel displaying the game.
