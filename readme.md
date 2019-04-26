@@ -3,6 +3,18 @@
 An attempt to create one of the oldest known board games.
 
 &nbsp;
+## About the project
+
+![Alt text](/evolution/backgammon.png "Backgammon Screenshot")
+![Alt text](/evolution/sneakpeek.png "Backgammon Features Sneak Peek")
+
+A COMP20050 Software Engineering Project made from January to April 2019. We are a team of three that implemented the game UI, logic, and a bot to play the game, using the Scrum methodology in sprints of 5. We also developed extra features outside the 5 product backlogs required. 
+
+The final product in the master branch are the results of 4 sprints. The program has a UI and is able to play any number of matches the player wishes. 
+
+We implemented the bot using the lecturer provided code base for compatibility reasons. All bot submitted are to face off in a tournament as part of grading. Please go to the bot/sprint 5 branch to see more details.
+
+&nbsp;
 ## About Backgammon
 see [Wikipedia](https://en.wikipedia.org/wiki/Backgammon)
 > It is a two player game where each player has fifteen checkers which move between twenty-four points according to the roll of two dice, with the objective to be the first to bear off all fifteen of their checkers off the board.
