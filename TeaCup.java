@@ -14,6 +14,9 @@ import java.util.Scanner;
  *
  */
 public class TeaCup implements BotAPI {
+	public static final boolean IS_SUBMISSION = true;
+	public static final boolean ENABLE_DOUBLE = false;
+	
 	public static final boolean DEBUG = false;
 	public static final boolean VERBOSE = false;
 	public static final boolean TEST = false;
@@ -30,7 +33,6 @@ public class TeaCup implements BotAPI {
 	
     private PlayerAPI me, opponent;
     private BoardAPI board;
-	@SuppressWarnings("unused")
 	private CubeAPI cube;
 	private MatchAPI match;
     @SuppressWarnings("unused")
@@ -38,9 +40,20 @@ public class TeaCup implements BotAPI {
     
 	private ArrayList<Double> weights = new ArrayList<>();
 	private double pipCountWeight, blockBlotWeight, blotWithoutContestWeight, homeBlockWeight, primingDefenseWeight, primingWeight, anchorWeight, escapedCheckersWeight, checkersInHomeWeight, checkersTakenOffWeight, pipsCoveredWeight, blotFurtherFromHomeWeight, hitCloserToHomeWeight;
-	
+
 	private double meWinningChance;
+	private double meGammonRate;
+	private double meNumOfGamesWon;
+	private double meNumOfGammons;
+	
 	private double oppWinningChance;
+	private double oppGammonRate;
+	private double oppNumOfGamesWon;
+	private double oppNumOfGammons;
+	
+	private double currentGammonRate;
+	
+	private boolean postCrawford;
     
     public TeaCup(PlayerAPI me, PlayerAPI opponent, BoardAPI board, CubeAPI cube, MatchAPI match, InfoPanelAPI info) {
         this.me = me;
@@ -52,8 +65,14 @@ public class TeaCup implements BotAPI {
         initWeights();
     }
     private void initWeights() {
-    	weights = new ArrayList<>();
-    	readWeightsFromFile();
+    	if (IS_SUBMISSION) {
+	    	// double[] arr = new double[]{-0.827221102,0.973194106,1.347557985,1.013578142,-1.257729507,1.024988896,-1.134436033,-0.806384589,0.594236533,1.033966105,-0.604135998,-0.968983355,0.0};
+	    	double[] arr = new double[]{-0.827221102,1.573194106,1.347557985,1.013578142,-1.257729507,1.024988896,-1.134436033,-0.806384589,0.594236533,1.103966105,-0.604135998,0.05,0.75};
+	    	weights = arrayToList(arr);
+    	} else {
+	    	weights = new ArrayList<>();
+	    	readWeightsFromFile();
+    	}
     	pipCountWeight = weights.get(0);
     	blockBlotWeight = weights.get(1);
     	homeBlockWeight = weights.get(2);
@@ -67,7 +86,28 @@ public class TeaCup implements BotAPI {
     	primingDefenseWeight = weights.get(10);
     	blotFurtherFromHomeWeight = weights.get(11);
     	hitCloserToHomeWeight = weights.get(12);
-    	System.out.println("Weights: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) System.out.println("Weights: " + Arrays.toString(weights.toArray()));
+    	
+    	meWinningChance = 0;
+    	meGammonRate = 0;
+    	meNumOfGamesWon = 0;
+    	meNumOfGammons = 0;
+    	
+    	oppWinningChance = 0;
+    	oppGammonRate = 0;
+    	oppNumOfGamesWon = 0;
+    	oppNumOfGammons = 0;
+    	
+    	currentGammonRate = 0;
+    	
+    	postCrawford = false;
+    }
+    private ArrayList<Double> arrayToList(double[] arr) {
+    	ArrayList<Double> weights = new ArrayList<>();
+    	for (int i = 0; i < arr.length; i++) {
+    		weights.add(arr[i]);
+    	}
+    	return weights;
     }
     private void readWeightsFromFile() {
 		try {
@@ -107,10 +147,12 @@ public class TeaCup implements BotAPI {
     	return weights;
     }
     public void setWeights(ArrayList<Double> newWeights) {
-    	System.out.println("Bot " + me.getId() + ":");
-    	System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) {
+    		System.out.println("Bot " + me.getId() + ":");
+    		System.out.println("Old Weight: " + Arrays.toString(weights.toArray()));
+    	}
     	weights = newWeights;
-    	System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
+    	if (!IS_SUBMISSION) System.out.println("New Weight: " + Arrays.toString(weights.toArray()));
     }
     
 	public String getName() {
@@ -127,22 +169,42 @@ public class TeaCup implements BotAPI {
 	 */
 	public String getCommand(Plays possiblePlays) {
 		String command = "";
-		
-		/*
-		if (!cube.isOwned()) {
-			calculateWinningChance(possiblePlays);
-			if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
-				command = "double";
-			else
+		if (ENABLE_DOUBLE) {
+			if (!cube.isOwned() && match.canDouble((Player) me)) {
+				//System.out.println("Cube not owned: " + " me.getID(): " + me.getId());
+				calculateWinningChance(possiblePlays);
+				if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0)
+					command = "double";
+				else
+					command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+			} else if (cube.isOwned() && cube.getOwnerId() == me.getId()) {
+				//System.out.println("Cube owned: cube ownerID: " + cube.getOwnerId() + " me.getID(): " + me.getId());
+				if (cube.getValue() < match.getLength() - me.getScore()) {
+				// generate resulting board positions.
+				// go through board positions and score them.
+					calculateWinningChance(possiblePlays);
+					if (considerOfferingDoubleDice(me, opponent).compareTo("y") == 0) {
+						command = "double";
+						//System.out.println("Hi hello");
+					}
+					else
+						command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+				}
+				else
+					command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
+			} else
 				command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
 		} else
-			// generate resulting board positions.
-			// go through board positions and score them.
 			command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
-		*/
-		command = String.valueOf(1 + getBestMove(getBoardPositionsProbabilities(getResultingBoardPositions(possiblePlays))));
 
 		return command;
+	}
+	
+	@Override
+	public String getDoubleDecision() {
+		if (ENABLE_DOUBLE)
+			return considerAcceptingDoubleDice(opponent, me);
+		return "n";
 	}
 
 	// generates resulting board positions.
@@ -637,46 +699,31 @@ public class TeaCup implements BotAPI {
 		}
 		System.out.println(s);
 	}
-	
-	@Override
-	public String getDoubleDecision() {		
-		return considerAcceptingDoubleDice(opponent, me);
-	}
-	
-	/**
-	 * NOTE:
-	 * We can actually calculate it for one player, and then minus it from 100 to achieve the opponent's
-	 * We need to merge considerOfferingDoubleDice() and considerAcceptingDoubleCube()
-	 */
-	@SuppressWarnings("unused")
-	private String getDoubleDecision(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
-		return considerOfferingDoubleDice(currentPlayer, opponentPlayer);
-	}
 
 	/**
 	 * First calculate the percentage of each score of each player
 	 */
 	private String considerOfferingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
 		String decision = "n";
-
 		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) {
-			if (meWinningChance >= 0 && meWinningChance <= 0.50)
+			if (meWinningChance >= 0 && meWinningChance <= 50)
 				decision = "y";
-			else if (meWinningChance >= 0.50 && meWinningChance <= 0.75)
+			else if (meWinningChance > 50 && meWinningChance <= 75)
 				decision = "y";
-			else if (meWinningChance >= 0.75 && meWinningChance <= 100)
+			else if (meWinningChance > 75 && meWinningChance <= 100)
 				decision = "y"; // drop opponent's
-		} else if (match.canDouble((Player) currentPlayer)) { // TODO
+		} else if (isPostCrawford()) { // TODO
 			decision = "y";
 		} else {
-			if (meWinningChance >= 0 && meWinningChance <= 0.66)
+			calculateGammonRate(currentPlayer, opponentPlayer, meNumOfGamesWon, meNumOfGammons, meGammonRate);
+			if (meWinningChance >= 0 && meWinningChance <= 66)
 				decision = "n";
-			else if (meWinningChance >= 0.66 && meWinningChance <= 0.75)
+			else if (meWinningChance > 66 && meWinningChance <= 75)
 				decision = "y";
 			// no gammon change
-			else if ((meWinningChance >= 0.75 && meWinningChance <= 0.80) || (meWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))
+			else if ((meWinningChance > 75 && meWinningChance <= 80) || (meWinningChance > 80 && (isGammonChangeSignificant(meGammonRate))))
 				decision = "y"; // drop opponent's
-			else if ((meWinningChance > .80) && (isGammon(currentPlayer, opponentPlayer))) // no gammon changes
+			else if ((meWinningChance > 80) && (isGammonChangeSignificant(meGammonRate))) // no gammon changes
 				decision = "n";
 		}
 
@@ -685,24 +732,52 @@ public class TeaCup implements BotAPI {
 
 	private String considerAcceptingDoubleDice(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
 		String decision = "n";
-		
 		// assuming max points is 11
 		if ((currentPlayer.getScore() == match.getLength() - 2) && (opponentPlayer.getScore() == match.getLength() - 2)) { 
-			if (oppWinningChance >= .50 && oppWinningChance <= 0.75)
+			if (oppWinningChance >= 50 && oppWinningChance <= 75)
 				decision = "y";
-			else if (oppWinningChance >= 0.75 && oppWinningChance <= 100)
+			else if (oppWinningChance > 75 && oppWinningChance <= 100)
 				decision = "n"; // drop opponent's
-		} else if (match.canDouble((Player) currentPlayer)) {
+		} else if (isPostCrawford()) {
 			decision = "y";
 		} else {
-			if (oppWinningChance >= 0.66 && oppWinningChance <= 0.75)
+			calculateGammonRate(currentPlayer, opponentPlayer, oppNumOfGamesWon, oppNumOfGammons, oppGammonRate);
+			if (oppWinningChance >= 66 && oppWinningChance <= 75)
 				decision = "y";
 			// no gammon change
-			else if ((oppWinningChance >= 0.75 && oppWinningChance <= 0.80) || (oppWinningChance > 0.80 && (isGammon(currentPlayer, opponentPlayer))))
+			else if ((oppWinningChance > 75 && oppWinningChance <= 80) || (oppWinningChance > 80 && (isGammonChangeSignificant(oppGammonRate))))
 				decision = "n"; // drop opponent's
 		}
 
 		return decision;
+	}
+	
+	private boolean isPostCrawford() {
+		if (!postCrawford && ((me.getScore() == match.getLength() - 1) || (opponent.getScore() == match.getLength() - 1))) {
+			postCrawford = true;
+		}
+		
+		return postCrawford;
+	}
+	
+	private void calculateGammonRate(PlayerAPI currentPlayer, PlayerAPI opponentPlayer, double gamesWon, double gammonGames, double gammonRate) {
+		currentGammonRate = gammonRate;
+		if (board.allCheckersOff((Player) currentPlayer)) {
+			if (isGammon(currentPlayer, opponentPlayer)) {
+				gammonGames++;
+			}
+			gamesWon++;
+			gammonRate = (gammonGames/gamesWon) * 100;
+		}
+	}
+	
+	private boolean isGammonChangeSignificant(double gammonRate) {
+		boolean significantChange = false;
+		
+		if (Math.abs((currentGammonRate - gammonRate)) > 20)
+			significantChange = true;
+		
+		return significantChange;
 	}
 
 	private boolean isGammon(PlayerAPI currentPlayer, PlayerAPI opponentPlayer) {
@@ -720,7 +795,6 @@ public class TeaCup implements BotAPI {
 	}
 	
 	// uncomment the things in getCommand.
-	@SuppressWarnings("unused")
 	private void calculateWinningChance(Plays possiblePlays) {
 		int currID = me.getId();
 		int oppoID = opponent.getId();
@@ -733,9 +807,8 @@ public class TeaCup implements BotAPI {
 		
 		meWinningChance = (Px / (Px + Py)) * 100;
 		oppWinningChance = 100 - meWinningChance;
-		/*
-		System.out.println("Me win: " + meWinningChance);
-		System.out.println("Oppo win: " + oppWinningChance);
-		*/
+		
+		/*System.out.println("Me win: " + meWinningChance);
+		System.out.println("Oppo win: " + oppWinningChance); */
 	}
 }

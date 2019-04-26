@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
+import java.util.Scanner;
 
 
 /**
@@ -26,14 +27,33 @@ public class Backgammon {
 	private static final boolean DEBUG = false;
 	private static final boolean VERBOSE = false;
 	
-	private static final boolean REINFORCE_LEARNING = true;
-	private static final boolean ENTER_TO_MOVE_ON = false;
-	private static final boolean PLAY_WITH_BOT = false;
-    public static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
+	// By default we're playing against the bot to see what decisions it makes
+	private static boolean REINFORCE_LEARNING = false;
+	private static final boolean ENTER_TO_MOVE_ON = true;
+	private static final boolean PLAY_WITH_BOT = true;
+	private static int NUM_PLAYERS_VS_BOTS = 1;	// if play with bot, this = 1, else this = 2.
     
+	// For weights generation
+    public static int MATCH_LENGTH = 51;
     public static int NUM_OF_MATCHES = 0;
     public static final int TOTAL_MATCHES = 50;
-    public static final int MATCH_LENGTH = 11;
+    
+    // MATCH_LENGTH, but for tournament rounds.
+    private static final int MATCH_LENGTH_FOR_CHAMPIONSHIP = 11;
+    
+    // number of weights to produce in champion.txt
+	private static final int NUM_TOURNAMENT_BOTS = 30;
+	private static final int NUM_TOURNAMENT_TRIES = 10;
+	
+    // will produce weights in champion.txt,
+    // it will then produce the best weights and add to final.txt
+    private static final boolean CHAMPIONSHIP = false;
+    
+    // does not create weights in champion.txt
+    // only uses the weights in champion.txt to produce the final.txt.
+    private static final boolean ONLY_TOURNAMENT = true;
+    
+
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -238,6 +258,8 @@ public class Backgammon {
         pause();
     }
     
+    // Weights generation purposes
+    @SuppressWarnings("unused")
     private void playMatches()  throws InterruptedException {
         boolean playAgain = true;
         do {
@@ -256,10 +278,18 @@ public class Backgammon {
 
     private int[] lossesInARow = new int[NUM_PLAYERS_VS_BOTS];
     private void updateWeightsEachGame() {
-    	System.out.println("\n");
-    	ArrayList<ArrayList<Double>> botsNewWeights = new ArrayList<ArrayList<Double>>(NUM_PLAYERS_VS_BOTS);
-    	for (int i = 0; i < NUM_PLAYERS_VS_BOTS; i++) botsNewWeights.add(new ArrayList<Double>());
+    	// update file with the current weights used to win game.
+    	if (!CHAMPIONSHIP) {
+        	ArrayList<ArrayList<Double>> botsPreviousWeights = new ArrayList<ArrayList<Double>>(bots.length);
+        	for (int i = 0; i < bots.length; i++) botsPreviousWeights.add(bots[i].getWeights());
+    		updateWeightsFile(getGameStatsAndBotWeightsInString(botsPreviousWeights));
+    	}
+    	
+    	// update weights.
     	if (REINFORCE_LEARNING) {
+        	ArrayList<ArrayList<Double>> botsNewWeights = new ArrayList<ArrayList<Double>>(NUM_PLAYERS_VS_BOTS);
+        	for (int i = 0; i < NUM_PLAYERS_VS_BOTS; i++) botsNewWeights.add(new ArrayList<Double>());
+        	System.out.println("\n");
 	    	Random rand = new Random();
 	    	// if bot wins, add a small random amount (could be slightly
 	    	// negative) to the positive weights and subtract a small amount
@@ -316,12 +346,7 @@ public class Backgammon {
 		    		}
 		    	}
 	    	}
-    	} else {
-    		for (int botID = 0; botID < bots.length; botID++) {
-    			botsNewWeights.set(botID, bots[botID].getWeights());
-    		}
     	}
-    	updateWeightsFile(getGameStatsAndBotWeightsInString(botsNewWeights));
     }
     private String getGameStatsAndBotWeightsInString(ArrayList<ArrayList<Double>> botsNewWeights) {
     	String s = "";
@@ -343,7 +368,7 @@ public class Backgammon {
     	}
     	return s;
     }
-    private void updateWeightsFile(String gameStatsAndBotWeights) {
+    private static void updateWeightsFile(String gameStatsAndBotWeights) {
     	StringBuilder sb = new StringBuilder();
     	/*
     	// date,
@@ -365,7 +390,7 @@ public class Backgammon {
     private double minuteRange = 0.05;
     private double getMinuteRandomValue(Random rand) {
     	//return (rand.nextDouble()-0.5) * minuteRange;
-    	return rand.nextDouble() * minuteRange;	// 0 to 0.05
+    	return (rand.nextDouble()-0.1) * minuteRange;	// 0 to 0.05
     }
     
 	// Normalize the scores to probabilities.
@@ -422,10 +447,10 @@ public class Backgammon {
     	return newWeights;
     }
     
-	private void toFile(StringBuilder sb) {
+	private static void toFile(StringBuilder sb, String filename) {
 		try {
 			String classPath = System.getProperty("java.class.path");
-			File txt = new File(classPath + "/weights.txt");	// NOTE: This resides in /bin, NOT /src.
+			File txt = new File(classPath + "/" + filename);	// NOTE: This resides in /bin, NOT /src.
 			// File txt = new File("/Users/YeohB/Desktop/UCD/Stage 2/Semester 2/COMP20050 - Software Engineering Project 2/Software Engineering/backgammon/src/weights.txt");
 			BufferedWriter buffer = new BufferedWriter(new FileWriter(txt, true));
 			buffer.append(sb);
@@ -435,14 +460,99 @@ public class Backgammon {
 			e.printStackTrace();
 		}
 	}
+	private static void toFile(StringBuilder sb) {
+		toFile(sb, "weights.txt");
+	}
     @SuppressWarnings("unused")
 	private String getCurrentTime() {
     	DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd,HH:mm:ss");
     	Date date = new Date();
     	return dateFormat.format(date);
     }
-
-    public static void main(String[] args) throws InterruptedException {
+    
+    // aka handleChampionship()
+    private static void getBestWeights(String[] args) throws InterruptedException {
+    	// generate as many weights.
+    	if (!ONLY_TOURNAMENT) {
+	    	for (int i = 0; i < NUM_TOURNAMENT_BOTS; i++) {
+		    	// runs 101 games.
+		        Backgammon game = new Backgammon();
+		        if (PLAY_WITH_BOT) {
+		            String[] myArgs = new String[2];
+		            myArgs[0] = "TeaCup";
+		            myArgs[1] = "3";
+		            game.setupBots(myArgs);
+		        } else {
+		            game.setupBots(args);
+		        }
+		        game.playAMatch();
+		        game.ui.terminanteFrame();
+	    		
+		    	// gets the winner's weights of the game.
+	    		// print to file "champions.txt"
+		        game.printWinnerWeightsToFile("champion.txt");
+	    	}
+    	}
+    	
+    	REINFORCE_LEARNING = false;
+    	System.out.println("\n\nTOURNAMENT ROUNDS:");
+    	
+    	for (int i = 0; i < NUM_TOURNAMENT_TRIES; i++) {
+        	// from those winner's weights.
+        	ArrayList<ArrayList<Double>> winnersWeights = getWinnersWeights();
+        	
+	    	// get the final winner's weights.
+	    	ArrayList<Double> bestWeights = botMatch(winnersWeights);
+	    	
+			// print to file "final.txt"
+	    	printWeightsToFile(bestWeights, "final.txt");
+    	}
+    }
+    private static void printWeightsToFile(ArrayList<Double> theWeights, String filename) {
+    	StringBuilder s = new StringBuilder();
+		// add bot weights.
+		for (int i = 0; i < theWeights.size(); i++) {
+			s.append(theWeights.get(i));
+			if (i != theWeights.size()-1) s.append(",");
+		}
+		s.append("\n");
+        toFile(s, filename);
+    }
+    // Returns the best weights.
+    // Handles the tournament.
+    /*
+    private static ArrayList<Double> botMatches(ArrayList<ArrayList<Double>> botsWeights) throws InterruptedException {
+    	ArrayList<ArrayList<Double>> bestWeights = new ArrayList<>();
+    	do {
+    		bestWeights = botMatch(botsWeights);
+    	} while (bestWeights.size() > 1);
+    	return bestWeights.get(0);
+    }
+	*/
+    // Tree recursive pattern that handles the tournament.
+    private static ArrayList<Double> botMatch(ArrayList<ArrayList<Double>> botsWeights) throws InterruptedException {
+    	if (botsWeights.size() == 0) {
+    		System.out.println("[Error] Got botsWeights with size 0. What do I return?");
+    		return null;
+    	// if length 1, return the weights.
+    	} else if (botsWeights.size() == 1) {
+    		return botsWeights.get(botsWeights.size()-1);
+    	// if length 2, bot versus bot, return winner's weights.
+    	} else if (botsWeights.size() == 2) {
+    		return botVsBot(botsWeights.get(0), botsWeights.get(1));
+    	// else, continue calling botsWeights with lesser weights.
+    	} else {
+    		//ArrayList<ArrayList<Double>> remaining = (ArrayList<ArrayList<Double>>) botsWeights.subList(2, botsWeights.size());
+    		ArrayList<Double> first, second;
+    		first = botsWeights.remove(0);
+    		second = botsWeights.remove(1);
+    		return botVsBot(botVsBot(first, second), botMatch(botsWeights));
+    	}
+    }
+    // plays a match using the given weights.
+    // returns the winner's weights.
+    private static ArrayList<Double> botVsBot(ArrayList<Double> bot0Weights, ArrayList<Double> bot1Weights) throws InterruptedException {
+    	MATCH_LENGTH = MATCH_LENGTH_FOR_CHAMPIONSHIP;
         Backgammon game = new Backgammon();
         if (PLAY_WITH_BOT) {
             String[] myArgs = new String[2];
@@ -450,8 +560,85 @@ public class Backgammon {
             myArgs[1] = "3";
             game.setupBots(myArgs);
         } else {
-            game.setupBots(args);
+            game.setupBots(new String[0]);
         }
-        game.playMatches();
+        game.updateBotsWeights(bot0Weights, bot1Weights);
+        game.playAMatch();
+        game.ui.terminanteFrame();
+        return game.getWinnerWeights();
+    }
+    // returns the winner's weights based on the conclusion of the match.
+    private ArrayList<Double> getWinnerWeights() {
+    	if (match.getWinner().getId() == 0) return bots[0].getWeights();
+    	else return bots[1].getWeights();
+    }
+    
+    // updates the two bot's weights with the given weights.
+    private void updateBotsWeights(ArrayList<Double> bot0Weights, ArrayList<Double> bot1Weights) {
+    	bots[0].setWeights(bot0Weights);
+    	bots[1].setWeights(bot1Weights);
+    }
+    
+    // prints the match winner's weights to the given filename (file resides in /bin).
+    private void printWinnerWeightsToFile(String filename) {
+    	// get winner weights.
+    	// then print winner weights to file.
+    	System.out.println("\n");
+    	if (match.getWinner().equals(players.get(1))) {
+    		printWeightsToFile(bots[1].getWeights(), filename);
+    		System.out.println("Winner weights: " + bots[1].getWeights());
+    	} else {
+    		printWeightsToFile(bots[0].getWeights(), filename);
+    		System.out.println("Winner weights: " + bots[0].getWeights());
+    	}
+    }
+    
+    // Returns the weights of the bots that will be entering the tournament.
+    // The weights are extracted from the champion.txt file.
+    // That file should include only the winners.
+    private static ArrayList<ArrayList<Double>> getWinnersWeights() {
+    	ArrayList<ArrayList<Double>> winnersWeights = new ArrayList<ArrayList<Double>>();
+		try {
+			String classPath = System.getProperty("java.class.path");
+			File txt = new File(classPath + "/champion.txt");	// NOTE: This resides in /bin, NOT /src.
+			Scanner scan = new Scanner(txt);
+			
+			// get all weights from file.
+			ArrayList<String> lines = new ArrayList<String>();
+			while (scan.hasNextLine()) {
+				lines.add(scan.nextLine());
+			}
+			scan.close();
+			
+			// store the weights in winnersWeights.
+			for (int numLine = 0; numLine < lines.size(); numLine++) {
+				winnersWeights.add(new ArrayList<Double>());
+				String[] csv = lines.get(numLine).split(",");
+				for (int j = 0; j < csv.length; j++)
+					winnersWeights.get(numLine).add(Double.parseDouble(csv[j]));
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		return winnersWeights;
+    }
+    
+    public static void main(String[] args) throws InterruptedException {
+    	if (CHAMPIONSHIP) {
+    		getBestWeights(args);
+	        System.exit(0);
+    	} else {
+	        Backgammon game = new Backgammon();
+	        if (PLAY_WITH_BOT) {
+	            String[] myArgs = new String[2];
+	            myArgs[0] = "TeaCup";
+	            myArgs[1] = "3";
+	            game.setupBots(myArgs);
+	        } else {
+	            game.setupBots(args);
+	        }
+	        game.playAMatch();
+	        // System.exit(0);
+    	}
     }
 }
