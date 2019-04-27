@@ -16,9 +16,9 @@ We implemented the bot using the lecturer provided code base for compatibility r
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
-| <ul><li>[x] </li></ul> | Generate list of possible plays.  | ?? |
+| <ul><li>[x] </li></ul> | Generate list of possible plays.  | 👍 |
 | <ul><li>[x] </li></ul> | Generate all possible resulting board positions, and assign a score to each. The score reflects the probability that the bot will win from that position. Bot selects play with the highest score. | Implement evaluation function, features, weights, and doubling by referencing the slides, using Chris' code base. |
-| <ul><li>[x] </li></ul> | All classes and API other than the bot class is not changed, and the bot is unable to cheat. | ?? |
+| <ul><li>[x] </li></ul> | All classes and API other than the bot class is not changed, and the bot is unable to cheat. | 👍 |
 
 &nbsp;
 ### Who did what:
@@ -70,7 +70,7 @@ _Steps to get the optimal move:_
 
 &nbsp;
 #### getDoubleDecision()
-- When it�s the bot's turn, the bot will calculateWinningChance() of bot and opponent, then call considerOfferingDoublingDice() to decide.
+- When it’s the bot's turn, the bot will calculateWinningChance() of bot and opponent, then call considerOfferingDoublingDice() to decide.
 - When the bot is offered to double, it calls considerAcceptingDoubleDice() to decide, which also depends on calculateWinningChance().
 - When considering to offer or accept a double, calculateGammonRate() and isGammonChangeSignificant() will also be called.
 - When calculating gammon rate, isGammon() and getLoser() is called.
