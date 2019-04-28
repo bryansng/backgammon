@@ -1,6 +1,15 @@
 import javax.swing.*;
 import java.awt.*;
 
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class UI {
     // UI is the top level interface to the user interface
 
@@ -189,5 +198,4 @@ public class UI {
     public void displayMatchWinner(Player player) {
         displayString(player + " WINS THE MATCH!!!!!!");
     }
-
 }

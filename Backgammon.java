@@ -12,17 +12,31 @@ import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 
+
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Backgammon {
     // This is the main class for the Backgammon game. It orchestrates the running of the game.
 	private static final boolean DEBUG = false;
 	private static final boolean VERBOSE = false;
 	
+	// By default we're playing against the bot to see what decisions it makes
 	private static boolean REINFORCE_LEARNING = true;
 	private static final boolean ENTER_TO_MOVE_ON = false;
 	private static final boolean PLAY_WITH_BOT = false;
 	private static int NUM_PLAYERS_VS_BOTS = 2;	// if play with bot, this = 1, else this = 2.
     
+	// For weights generation
     public static int MATCH_LENGTH = 11;
+    public static int NUM_OF_MATCHES = 0;
+    public static final int TOTAL_MATCHES = 50;
     
     // MATCH_LENGTH, but for tournament rounds.
     private static final int MATCH_LENGTH_FOR_CHAMPIONSHIP = 7;
@@ -33,12 +47,13 @@ public class Backgammon {
 	
     // will produce weights in champion.txt,
     // it will then produce the best weights and add to final.txt
-    private static final boolean CHAMPIONSHIP = true;
+    private static final boolean CHAMPIONSHIP = false;
     
     // does not create weights in champion.txt
     // only uses the weights in champion.txt to produce the final.txt.
     private static final boolean ONLY_TOURNAMENT = true;
     
+
     public static final int NUM_PLAYERS = 2;
     public static final boolean CHEAT_ALLOWED = false;
     //private static final int DELAY = 3000;  // in milliseconds
@@ -243,6 +258,24 @@ public class Backgammon {
         pause();
     }
     
+    // Weights generation purposes
+    @SuppressWarnings("unused")
+    private void playMatches()  throws InterruptedException {
+        boolean playAgain = true;
+        do {
+            playAMatch();
+            if (!quitGame) {
+                //playAgain = ui.getPlayAgainDecision();
+            	reset();
+            	NUM_OF_MATCHES++;
+            }
+        } while (!quitGame && playAgain && NUM_OF_MATCHES < TOTAL_MATCHES);
+    }    
+    private void reset() {
+    	match.reset();
+    	match.setLength(MATCH_LENGTH);
+    }
+
     private int[] lossesInARow = new int[NUM_PLAYERS_VS_BOTS];
     private void updateWeightsEachGame() {
     	// update file with the current weights used to win game.
@@ -340,6 +373,10 @@ public class Backgammon {
     	/*
     	// date,
     	sb.append(getCurrentTime() + "\n");
+    	// stats, "Match No" + NUM_OF_MATCHES + "/" + TOTAL_MATCHES*MATCH_LENGTH + ", " + 
+    	sb.append(NUM_OF_MATCHES + "/" + TOTAL_MATCHES + "," + match.getStats() + "\n");
+    	// new weights to test.
+    	sb.append(newWeights + "\n");
     	// stats,
     	sb.append(match.getStats() + "\n");
     	*/

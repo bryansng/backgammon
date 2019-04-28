@@ -17,9 +17,6 @@
 !*.txt
 !evolution/
 
-
-
-
 # IGNORE macOS FILES.
 # General
 .DS_Store

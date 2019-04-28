@@ -1,6 +1,15 @@
 import java.util.ArrayList;
 import java.util.Iterator;
 
+/**
+ * Backgammon solution by @author Chris for Sprint 5.
+ * 
+ * @teamname TeaCup
+ * @author Bryan Sng, 17205050
+ * @author @LxEmily, 17200573
+ * @author Braddy Yeoh, 17357376
+ *
+ */
 public class Plays implements Iterable<Play>, Iterator<Play> {
     // Plays is a list of legal plays that a player can make in the current turn
 
