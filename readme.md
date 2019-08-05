@@ -5,8 +5,8 @@ An attempt to create one of the oldest known board games.
 &nbsp;
 ## About the project
 
-![Alt text](/evolution/backgammon.png "Backgammon Screenshot")
-![Alt text](/evolution/sneakpeek.png "Backgammon Features Sneak Peek")
+![Alt text](./readme-resources/img/backgammon.png "Backgammon Screenshot")
+![Alt text](./readme-resources/img/sneakpeek.png "Backgammon Features Sneak Peek")
 
 A COMP20050 Software Engineering Project made from January to April 2019. We are a team of three that implemented the game UI, logic, and a bot to play the game, using the Scrum methodology in sprints of 5. We also developed extra features outside the 5 product backlogs required. 
 
@@ -83,7 +83,7 @@ Personally, I prefer Eclipse for Java.
 &nbsp;
 
 ## Sprint 4 - Short Documentation
-![Alt text](/evolution/v4.png "Sprint 4")
+![Alt text](./readme-resources/img/v4.png "Sprint 4")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -126,7 +126,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 
 ## Sprint 3 - Short Documentation
-![Alt text](/evolution/v3.png "Sprint 3")
+![Alt text](./readme-resources/img/v3.png "Sprint 3")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -161,7 +161,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 
 ## Sprint 2 - Short Documentation
-![Alt text](/evolution/v2.png "Sprint 2")
+![Alt text](./readme-resources/img/v2.png "Sprint 2")
 ### Requirements:
 |     | Requirements              | Our interpretation        |
 | --- | ------------------------- | ------------------------- |
@@ -215,7 +215,7 @@ see [Trello](https://trello.com/b/A4LqsqAB/backgammon)
 &nbsp;
 &nbsp;
 ## Sprint 1 - Short Documentation
-![Alt text](/evolution/v1.png "Sprint 1")
+![Alt text](./readme-resources/img/v1.png "Sprint 1")
 ### Requirements:
 #### UI-wise:
 - [x] Board Panel displaying the game.
